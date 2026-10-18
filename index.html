@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hell Archive | Case 001</title>
+<style>
+:root{color-scheme:dark;font-family:ui-monospace,Consolas,monospace;background:#101310;color:#e9e4d5}
+*{box-sizing:border-box}body{margin:0}main{max-width:990px;margin:auto;padding:22px}
+header{border-bottom:1px solid #586258;padding-bottom:18px;margin-bottom:22px}h1{font-size:clamp(24px,5vw,40px);margin:6px 0}h2{font-size:19px}
+small,.muted{color:#a7aa9e}button{font:inherit;cursor:pointer;border:1px solid #a99a78;background:#202720;color:#f4e9c9;padding:12px 15px;border-radius:6px;text-align:left}
+button:hover,button:focus-visible{background:#364034;outline:2px solid #e1c488;outline-offset:2px}button[aria-pressed=true]{background:#51452b;border-color:#f6d692}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
+.panel{border:1px solid #687060;padding:20px;border-radius:8px;background:#191e19}
+.grid{display:grid;grid-template-columns:220px 1fr;gap:16px}
+.choices{display:grid;gap:8px;align-content:start}.choices button{width:100%}
+blockquote{margin:15px 0;padding:15px;border-left:3px solid #bcab82;background:#252b25;line-height:1.65}
+p{line-height:1.7}.hidden{display:none!important}.result{margin-top:16px;padding:14px;border:1px solid #917f58;background:#302b21}
+.emph{color:#e5c787}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+label{display:block;margin:18px 0 6px}select{width:100%;padding:12px;background:#222c24;color:#fff;border:1px solid #9c9c83;border-radius:5px;font:inherit}
+footer{margin:25px 0;color:#a7aa9e;font-size:12px}
+@media(max-width:660px){.grid{grid-template-columns:1fr}.choices{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}main{padding:14px}}
+</style></head><body><main>
+<header><small>DEPARTMENT OF INFERNAL RECORDS · 1962 · PROTOTYPE 0.1</small><h1>CASE 001: THE ADVANCE PAYMENT</h1><p class="muted">Một vụ án cực nhỏ để kiểm tra: mày có thấy thú vị khi tự phát hiện mâu thuẫn không?</p></header>
+<nav aria-label="Các chế độ"><button data-tab="brief" aria-pressed="true">01 / VỤ VIỆC</button><button data-tab="archive" aria-pressed="false">02 / HỒ SƠ</button><button data-tab="judgment" aria-pressed="false">03 / KẾT LUẬN</button></nav>
+<section id="brief" class="panel">
+<h2>VỤ VIỆC</h2><p>Ngày <strong>18/08/1961</strong>, chính phủ công bố chương trình cứu trợ sau một chiến dịch di dời cưỡng chế.</p>
+<p>Trước mặt mày là <strong>Adrian Voss</strong>, nguyên giám đốc Cục Phân bổ Ngân sách. Hắn tuyên bố:</p>
+<blockquote>“Khoản cứu trợ chỉ được phê duyệt sau khi chiến dịch kết thúc. Chúng tôi không hề chuẩn bị trước việc di dời.”</blockquote>
+<p><strong>Nhiệm vụ:</strong> xem ba hồ sơ. Xác định liệu lời khai về <em>thời điểm chuẩn bị cứu trợ</em> có đứng vững không.</p>
+<button id="begin">BẮT ĐẦU XEM HỒ SƠ →</button>
+</section>
+<section id="archive" class="panel hidden">
+<h2>ARCHIVE / 03 TÀI LIỆU</h2>
+<p class="muted">Chọn từng hồ sơ. Mày có thể quay lại bất kỳ lúc nào; không cần ghi nhớ mã hay nhập từ khóa.</p>
+<div class="grid"><div class="choices" id="files"></div><article id="document"><h3>Chọn một hồ sơ bên trái</h3><p>Không có timer. Không có hidden pixel.</p></article></div>
+</section>
+<section id="judgment" class="panel hidden">
+<h2>ĐÁNH GIÁ LỜI KHAI</h2>
+<p>Voss nói ngân sách chỉ được chuẩn bị sau chiến dịch. Bằng chứng hiện có cho phép kết luận điều gì?</p>
+<label for="answer">Chọn kết luận</label>
+<select id="answer"><option value="">-- Chọn một nhận định --</option>
+<option value="a">Voss chắc chắn trực tiếp ra lệnh di dời.</option>
+<option value="b">Có chứng cứ công tác cứu trợ đã được chuẩn bị trước chiến dịch, nhưng chưa đủ chứng minh Voss biết hoặc chỉ đạo cuộc di dời.</option>
+<option value="c">Lời khai của Voss được xác nhận hoàn toàn.</option></select>
+<button id="submit" style="margin-top:18px">NỘP KẾT LUẬN</button>
+<div id="feedback" class="result hidden" role="status" aria-live="polite"></div>
+</section>
+<footer>THỬ NGHIỆM GAMEPLAY · Không phải art direction cuối · Case hư cấu · Không thu thập dữ liệu người chơi</footer>
+</main>
+<script>
+const documents=[
+{title:"01 / THÔNG BÁO",date:"19/08/1961",body:"Văn phòng Thông tin Quốc gia: Chương trình cứu trợ khẩn cấp cho các hộ bị di dời đã được phê chuẩn ngày 19/08/1961, sau chiến dịch ngày 18/08. Đây là bản thông báo công khai, không phải chứng từ nội bộ."},
+{title:"02 / PHIẾU THANH TOÁN",date:"11/08/1961",body:"Kho bạc: Giải ngân đợt 1 cho đơn vị cung cấp lều tạm cư trú, mã 441-B. Số tiền: 72.000 đồng. Trạng thái: ĐÃ THANH TOÁN. Người yêu cầu: Cục Phân bổ Ngân sách. Mục đích ghi trên chứng từ: 'Hỗ trợ tái định cư khu Bắc'."},
+{title:"03 / BIÊN BẢN HỌP",date:"13/08/1961",body:"Biên bản cuộc họp liên cơ quan: 'Khoản chi 441-B đã thanh toán. Bộ phận hậu cần xác nhận vật tư sẽ được giao trước 17/08.' Danh sách dự họp: đại diện Cục Phân bổ Ngân sách, Bộ Nội vụ và Hậu cần. Voss không có tên trong danh sách tham dự."}
+];
+const tabs=[...document.querySelectorAll('[data-tab]')];
+function show(id){for(const t of tabs)t.setAttribute('aria-pressed',String(t.dataset.tab===id));for(const s of document.querySelectorAll('main>section'))s.classList.toggle('hidden',s.id!==id)}
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
+document.getElementById('begin').addEventListener('click',()=>show('archive'));
+const files=document.getElementById('files'),doc=document.getElementById('document');
+const viewed=new Set();
+documents.forEach((d,i)=>{const b=document.createElement('button');b.textContent=d.title;b.addEventListener('click',()=>{viewed.add(i);doc.replaceChildren();const h=document.createElement('h3');h.textContent=d.title;const date=document.createElement('small');date.textContent='NGÀY LẬP: '+d.date;const p=document.createElement('p');p.textContent=d.body;doc.append(h,date,p);[...files.children].forEach((el,j)=>el.setAttribute('aria-pressed',String(j===i)));});b.setAttribute('aria-pressed','false');files.append(b)});
+document.getElementById('submit').addEventListener('click',()=>{const value=document.getElementById('answer').value,el=document.getElementById('feedback');el.classList.remove('hidden');if(!value){el.textContent='Chọn một nhận định trước khi nộp.';return;}if(viewed.size<3){el.textContent='Mày chưa xem cả ba hồ sơ. Đừng vội phán xét: hãy đối chiếu các nguồn trước.';return;}if(value==='b'){el.innerHTML='<strong class="emph">LẬP LUẬN ĐƯỢC CHẤP NHẬN.</strong><p>Chứng từ ngày 11/08 và biên bản 13/08 cho thấy công tác tái định cư đã được thực hiện trước chiến dịch 18/08. Thông cáo ngày 19/08 chỉ nói về ngày công khai phê chuẩn, không phủ nhận các hoạt động nội bộ trước đó. Tuy nhiên, chưa đủ chứng cứ kết luận riêng Voss biết trước hoặc ra lệnh. Phát hiện một mâu thuẫn không đồng nghĩa chứng minh toàn bộ tội danh.</p><p><strong>Câu hỏi playtest:</strong> Có khoảnh khắc nào mày thực sự tự nhận ra điều gì, hay chỉ đang đọc và bấm?</p>';}else{el.innerHTML='<strong>CHƯA ĐỦ CĂN CỨ.</strong><p>Hãy phân biệt điều hồ sơ trực tiếp chứng minh với điều mày suy ra về trách nhiệm cá nhân. So sánh ngày trên cả ba tài liệu rồi thử lại.</p>';}})
+</script></body></html>
