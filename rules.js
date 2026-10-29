@@ -4,14 +4,51 @@
   function normalize(value) {
     return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
   }
-  function search(scope, query) {
-    const terms = normalize(query).split(" ").filter(Boolean);
-    return DATA.records.filter(record => {
-      if (record.scope !== scope) return false;
-      if (!terms.length) return true;
-      const index = normalize([record.id, record.title, record.date, record.origin, ...record.terms].join(" "));
-      return terms.every(term => index.split(" ").some(word => word.startsWith(term)));
-    });
+  // Four documented forms: A, A_YEAR, A_B, A_B_YEAR.
+  // A/B are filing headings, NOT natural-language questions.
+  function parseQuery(input) {
+    const raw=String(input || "").trim();
+    if(!raw) return {ok:false,error:"Nhập tên người, sự việc, ấn phẩm hoặc mã hồ sơ."};
+    const parts=raw.split("_").map(p=>p.trim());
+    if(parts.length>3 || parts.some(p=>!p))return {ok:false,error:"Cú pháp: A, A_NĂM, A_B hoặc A_B_NĂM. Dùng dấu _ để phân cách."};
+    let year=null;
+    if(/^\d{4}$/.test(parts[parts.length-1])) year=parts.pop();
+    if(parts.length<1 || parts.length>2 || parts.some(p=>/^\d{4}$/.test(p)))return {ok:false,error:"Tên đề mục đứng trước; năm bốn chữ số chỉ được đặt cuối."};
+    if(/^(ai|tai sao|vì sao|tim|tìm|cho tôi|bao chi ve|báo chí về|nhung gi|những gì)\b/i.test(raw))return {ok:false,error:"Máy chỉ tra đề mục, không nhận câu hỏi. Ví dụ: Serrano_1962."};
+    return {ok:true,headings:parts,year};
+  }
+  function allHeadings(){
+    return Object.values(DATA.catalog || {}).flat();
+  }
+  function resolveHeading(raw) {
+    const q=normalize(raw);
+    const known=allHeadings().find(item=>[item.label,item.query,...(item.aliases||[])].some(v=>normalize(v)===q));
+    return normalize(known?known.query:raw);
+  }
+  function indexedFields(record) {
+    // Only title, record code, printed metadata and explicit filing terms.
+    return [record.id,record.title,record.origin,...record.terms].map(normalize);
+  }
+  function matchesHeading(record,raw) {
+    const needle=resolveHeading(raw);
+    if(!needle)return false;
+    return indexedFields(record).some(value=>value===needle || value.startsWith(needle+" ") ||
+      value.includes(" "+needle+" ") || value.endsWith(" "+needle));
+  }
+  function queryArchive(input,scope="all") {
+    const parsed=parseQuery(input);
+    if(!parsed.ok)return {...parsed,records:[]};
+    const records=DATA.records.filter(record=>
+      (scope==="all"||record.scope===scope) &&
+      (!parsed.year || (record.date||"").match(/\b\d{4}\b/)?.[0]===parsed.year) &&
+      parsed.headings.every(heading=>matchesHeading(record,heading))
+    );
+    return {...parsed,records};
+  }
+  // Backward compatible wrapper for the Case 01 rules tests.
+  function search(scope,query) {
+    if(!String(query||"").trim())return DATA.records.filter(r=>scope==="all"||r.scope===scope);
+    return queryArchive(query,scope).records;
   }
   function photoFor(code, readIds) {
     const photo = DATA.photos.find(item => normalize(item.id) === normalize(code));
@@ -43,5 +80,5 @@
     });
     return allRequired && allPlacedLogically ? "admitted" : "incomplete";
   }
-  root.ATWG_RULES = {normalize, search, photoFor, evaluate};
+  root.ATWG_RULES = {normalize, parseQuery, queryArchive, search, photoFor, evaluate};
 })(window);

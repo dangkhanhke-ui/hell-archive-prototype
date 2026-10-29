@@ -74,3 +74,28 @@ main{min-height:100vh;padding-top:18px}
 @media(max-width:620px){main{padding:8px}.tabs{gap:0;justify-content:center}.tabs button{font-size:.66rem;padding:7px 6px}#archive .terminal{min-height:790px}#archive .terminal-screen{top:10.8%;height:65.5%}#archive .terminal-content{inset:5% 6% 6%;font-size:11px}#archive .segmented{gap:8px}#archive .scope{font-size:.73em}#archive label{margin-top:12px}#archive .search-row button{min-width:65px}#archive .archive-controls{padding-bottom:8px}#archive .result-item{gap:9px}#archive .result-info small{font-size:.68em}}
 @media(prefers-reduced-motion:reduce){#archive .terminal-cursor{animation:none}#archive .result-arrow{transition:none}}
 
+
+/* Indexed ledger UX; CRT cabinet, bezel, and viewport geometry remain unchanged. */
+#archive .archive-syntax{display:block;color:var(--dim);font-size:.69em;line-height:1.4;margin:5px 0 10px}
+#archive .archive-browse{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#archive .archive-browse button{padding:5px 9px;font-size:.79em;letter-spacing:.035em}
+#archive .archive-browse button:hover{background:#21422a}
+#archive .archive-browse .scope-label{margin:0 0 0 auto;font-size:.72em;color:var(--dim)}
+#archive .archive-browse #scope-filter{width:auto;max-width:140px;min-width:95px;padding:5px 5px;border:1px solid var(--line);border-radius:0;background:#061509;color:var(--phosphor);font:inherit;font-size:.78em}
+#archive .archive-utilities{display:flex;align-items:center;gap:8px;margin-top:8px}
+#archive .archive-utilities button{padding:4px 8px;font-size:.72em;border-color:#34503a;color:var(--dim)}
+#archive .archive-help{margin-left:auto;color:var(--dim);font-size:.64em;text-align:right;max-width:45%}
+#archive .archive-list-back,#archive .archive-list-pin{display:inline-block;width:auto;max-width:100%;margin:9px 8px 7px 0;padding:5px 9px;font-size:.75em;color:var(--dim);border-color:#34503a}
+#archive .archive-reference-list{margin:20px 0 14px;padding:12px 0;border-top:1px solid #3c5b41;display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+#archive .archive-reference-list h3{flex-basis:100%;margin:0 0 3px;color:var(--dim);font-size:.77em;font-weight:normal;letter-spacing:.08em}
+#archive .archive-reference-list button,#archive .reader .archive-reader-tool{padding:6px 9px;font-size:.77em;color:var(--phosphor);border-color:#416547}
+@media(max-width:900px){#archive .archive-help{display:none}}
+@media(max-width:620px){
+  #archive .archive-syntax{font-size:.65em;margin-bottom:6px}
+  #archive .archive-browse{gap:3px}
+  #archive .archive-browse button{padding:4px 5px;font-size:.73em}
+  #archive .archive-browse .scope-label{display:none}
+  #archive .archive-browse #scope-filter{min-width:80px;font-size:.7em;padding:4px}
+  #archive .archive-utilities{margin-top:5px}
+  #archive .archive-utilities button{padding:3px 6px}
+}
