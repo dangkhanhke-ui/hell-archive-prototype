@@ -303,7 +303,7 @@
     }
   }
   document.querySelectorAll(".suspect").forEach(el=>el.addEventListener("click",()=>{state.suspect=el.dataset.suspect;renderDesk()}));
-  byId("reset").addEventListener("click",()=>{if(!confirm("Xóa giấy đã in, tài liệu đã đọc và dossier của bản thử này?"))return;state.readIds=[];state.papers=[];state.admitted=[];state.lastPhoto=null;save();byId("status").textContent="BẢN THỬ ĐÃ ĐẶT LẠI";renderDesk();byId("paper-count").textContent=""});
+  byId("reset").addEventListener("click",()=>{if(!confirm("Xóa giấy đã in, tài liệu đã đọc và dossier của bản thử này?"))return;state.readIds=[];state.historyIds=[];state.pins=[];state.backStack=[];state.papers=[];state.admitted=[];state.lastPhoto=null;state.archiveMode="idle";state.query="";save();byId("status").textContent="BẢN THỬ ĐÃ ĐẶT LẠI";renderDesk();byId("paper-count").textContent=""});
   byId("submit-dossier").addEventListener("click",()=>{
     const suspect=byId("submit-suspect").value,room=byId("room").value,feedback=byId("feedback");
     if(!room){feedback.textContent="Chọn một phòng tiếp nhận trước khi nộp.";feedback.classList.remove("hidden");return;}
