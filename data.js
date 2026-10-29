@@ -28,3 +28,58 @@ window.ATWG_DATA = {
     "05":{name:"#05 José Tomás Ledesma Quiroga",room:"IX",layers:4}
   }
 };
+
+
+/* Archive access metadata. These are filing paths, not conclusions or new evidence.
+   The Case 01 documents above remain provisional source material. */
+window.ATWG_DATA.folders = [
+  {id:"press-national",title:"Bản tin Quốc gia · Số tháng 09/1962",origin:"Bản tin Quốc gia",scope:"press",records:["C01"]},
+  {id:"press-linterna",title:"La Linterna · Số tháng 09/1962",origin:"La Linterna",scope:"press",records:["C02"]},
+  {id:"arrest-48",title:"Hồ sơ truy bắt 48/62",origin:"Cảnh sát · Công tố",scope:"government",records:["C03"]},
+  {id:"broadcast-12",title:"Tập sản xuất chương trình số 12",origin:"Truyền hình Quốc gia",scope:"government",records:["S01","S02","S03","S04"]},
+  {id:"protection-17",title:"Hồ sơ bảo hộ nguồn tin N-17",origin:"Phòng Nguồn tin",scope:"government",records:["T01","T03","T04"]},
+  {id:"complaint-73",title:"Hồ sơ khiếu nại và tử vong 73/62",origin:"Công tố địa phương",scope:"government",records:["T02","T08"]},
+  {id:"seizure-81",title:"Hồ sơ khám xét 81/62",origin:"Công tố · Vật chứng",scope:"government",records:["T05","T06","T07","T09"]}
+];
+window.ATWG_DATA.catalog = {
+  people:[
+    {label:"Serrano",query:"Serrano",aliases:["José Ignacio Serrano Vivas"]},
+    {label:"Ledesma",query:"Ledesma",aliases:["José Tomás Ledesma Quiroga"]},
+    {label:"Tomás Aguirre",query:"Tomás Aguirre",aliases:["Tomás"]},
+    {label:"Elisa Aguirre",query:"Elisa",aliases:["Elisa"]},
+    {label:"Rafael Córdova",query:"Rafael",aliases:["Rafael"]},
+    {label:"Samuel Olmedo",query:"Samuel Olmedo",aliases:["Samuel"]}
+  ],
+  events:[
+    {label:"Chiến dịch cửa kho",query:"chiến dịch cửa kho",aliases:["Chiến dịch San Aurelio","truy bắt San Aurelio"]},
+    {label:"Chương trình số 12",query:"chương trình 12",aliases:["số 12"]},
+    {label:"Ca bảo hộ N-17",query:"N-17",aliases:["hồ sơ bảo hộ N-17"]},
+    {label:"Vụ án 73/62",query:"73/62",aliases:["đơn khiếu nại 73/62"]},
+    {label:"Hồ sơ khám xét 81/62",query:"81/62",aliases:["khám xét 81/62"]},
+    {label:"Truy bắt 48/62",query:"48/62",aliases:["biên bản 48/62"]}
+  ],
+  publications:[
+    {label:"Bản tin Quốc gia",query:"Bản tin Quốc gia"},
+    {label:"La Linterna",query:"La Linterna"}
+  ]
+};
+// Only citations physically named in the visible record are traversable.
+// A citation opens an enclosing folder (or pre-fills Wirephoto), never a "correct proof" sheet.
+window.ATWG_DATA.references = {
+  C01:[{label:"Chương trình số 12",folder:"broadcast-12"}],
+  C02:[{label:"Hồ sơ bảo hộ N-17",folder:"protection-17"}],
+  S02:[{label:"Ảnh WP-12B",photo:"WP-12B"},{label:"Ảnh WP-12TX",photo:"WP-12TX"}],
+  S03:[{label:"Cuộn hình 12/B",folder:"broadcast-12"}],
+  T02:[{label:"Hồ sơ N-17",folder:"protection-17"}],
+  T05:[{label:"Hồ sơ khám xét 81/62",folder:"seizure-81"}]
+};
+// Only fields already written on a page may be used as quick-search shortcuts.
+window.ATWG_DATA.lookups = {
+  C01:["Serrano"], C02:["Elisa Aguirre","Tomás Aguirre"],
+  C03:["Samuel Olmedo"], S01:["Serrano"], S03:["Serrano"],
+  S04:["Serrano"], T01:["Tomás Aguirre","Ledesma"],
+  T02:["Tomás Aguirre","Ledesma"], T04:["Ledesma"],
+  T05:["Rafael Córdova"], T06:["Rafael Córdova","Ledesma"],
+  T07:["Rafael Córdova","Ledesma"], T08:["Tomás Aguirre"],
+  T09:["Rafael Córdova"]
+};
