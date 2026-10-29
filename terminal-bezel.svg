@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 940" preserveAspectRatio="none" role="img" aria-label="Vỏ màn hình máy tính IBM cổ">
+  <defs>
+    <linearGradient id="case" x2="1" y2=".8"><stop stop-color="#e9e0c8"/><stop offset=".34" stop-color="#c7bca0"/><stop offset=".77" stop-color="#a79b82"/><stop offset="1" stop-color="#776e5d"/></linearGradient>
+    <linearGradient id="lip" x2="0" y2="1"><stop stop-color="#736a59"/><stop offset=".24" stop-color="#d9ceb4"/><stop offset=".58" stop-color="#aba087"/><stop offset="1" stop-color="#5b5549"/></linearGradient>
+    <linearGradient id="recess" x2="0" y2="1"><stop stop-color="#070d0c"/><stop offset=".6" stop-color="#19201b"/><stop offset="1" stop-color="#373a2f"/></linearGradient>
+    <pattern id="vents" width="21" height="16" patternUnits="userSpaceOnUse"><rect x="1" y="2" width="14" height="5" rx="1" fill="#554f42"/><path d="M1 8h14" stroke="#eee2c7" opacity=".5"/></pattern>
+    <filter id="shadow"><feGaussianBlur stdDeviation="15"/></filter>
+  </defs>
+  <ellipse cx="720" cy="924" rx="667" ry="22" fill="#000" opacity=".42" filter="url(#shadow)"/>
+  <path d="M42 0H1398L1440 790 1405 940H35L0 790Z" fill="url(#case)" stroke="#6c6455" stroke-width="5"/>
+  <path d="M42 0H1398L1379 65H61Z" fill="#f2e8ce" opacity=".43"/>
+  <path d="M31 39H1409L1379 770H61Z" fill="#8c8069" stroke="#f7e8c9" stroke-width="3"/>
+  <path d="M67 50H1373L1345 771H95Z" fill="url(#recess)" stroke="#4e4c40" stroke-width="14"/>
+  <path d="M116 72H1324Q1350 72 1348 101L1324 740Q1323 766 1296 766H144Q117 766 116 740L92 101Q90 72 116 72Z" fill="#0b120f" stroke="url(#lip)" stroke-width="25"/>
+  <path d="M128 95H1312Q1326 95 1326 111L1304 716Q1302 730 1286 730H154Q138 730 136 716L114 111Q114 95 128 95Z" fill="#07100c" stroke="#34382d" stroke-width="5"/>
+  <path d="M93 772H1347L1405 834H35Z" fill="url(#lip)" stroke="#716955" stroke-width="3"/>
+  <path d="M35 834H1405L1390 923H50Z" fill="url(#case)" stroke="#f0e5ca" stroke-width="2"/>
+  <path d="M75 879H1365" stroke="#6c6251" opacity=".6"/>
+  <rect x="112" y="793" width="128" height="17" fill="url(#vents)" opacity=".7"/>
+  <rect x="1200" y="793" width="128" height="17" fill="url(#vents)" opacity=".7"/>
+  <rect x="85" y="855" width="166" height="43" rx="3" fill="#494c42" stroke="#ede0bd" stroke-width="2"/>
+  <text x="105" y="885" fill="#e3dfcf" font-family="Arial, sans-serif" font-size="24" font-weight="bold" letter-spacing="2">IBM</text>
+  <text x="305" y="887" fill="#544f42" font-family="monospace" font-size="18" letter-spacing="3">ARCHIVE DISPLAY  /  2260</text>
+  <circle cx="1302" cy="875" r="14" fill="#3b4034" stroke="#e8dbb9" stroke-width="3"/>
+  <circle cx="1302" cy="875" r="6" fill="#a5bf70"/>
+  <path d="M37 822H1403M49 920H1391" stroke="#5c5448" opacity=".5"/>
+</svg>

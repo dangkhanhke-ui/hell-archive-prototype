@@ -146,5 +146,5 @@
     feedback.append(node("strong",null,title),node("p",null,detail));
     if(result==="admitted"&&!state.admitted.includes(suspect)){state.admitted.push(suspect);save();}
   });
-  renderArchive();navigate("brief");
+  renderArchive();navigate("archive");
 })();

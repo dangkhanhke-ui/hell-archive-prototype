@@ -1,10 +1,10 @@
 # All Thirty Were Guilty · Case 01 gameplay prototype v0.2
 
-An offline browser prototype of the **research → evidence → judgment** loop. Open `index.html` in a recent desktop browser. No installation, server, external dependency, or tracking is required. Progress is stored in browser `localStorage`; use **Xóa tiến độ bản thử** on the desk to start over.
+An offline browser prototype of the **research → evidence → judgment** loop. The first screen is the IBM archive: a responsive CRT interface inside an original SVG cabinet inspired by the reference terminal, without a keyboard. Open `index.html` in a recent desktop browser. No installation, server, external dependency, or tracking is required. Progress is stored in browser `localStorage`; use **Xóa tiến độ bản thử** on the desk to start over.
 
 ## What to try
 
-1. Read the opening brief. Search or browse the government and newspaper catalogues. Search accepts indexed names, places, events and codes without Vietnamese diacritics. Result rows show neutral titles and provenance, never a precomputed evidence trail.
+1. Search or browse the government and newspaper catalogues inside the IBM screen. The opening brief remains available from the **Vụ việc** tab. Search accepts indexed names, places, events and codes without Vietnamese diacritics. Result rows show neutral titles and provenance, never a precomputed evidence trail.
 2. Open records and print copies. On the broadcast route, read the film log before using its two codes at **Wirephoto 000**. Printed photos are separate sheets.
 3. Build four-layer dossiers for **#09 Serrano** and **#05 Ledesma**. Move paper by dragging or with the keyboard-friendly layer selector. The game does not validate papers as they are placed.
 4. Submit to one of nine rooms. The submission checks jurisdiction, then proof completeness and layer placement. Extra relevant corroboration in a valid layer is accepted.
@@ -23,4 +23,4 @@ The evidence is drawn from the current Case 01 design draft and remains **provis
 
 The app uses plain HTML/CSS/JavaScript, so it can later be reimplemented in Godot. `data.js` holds draft indexed records; `rules.js` owns normalization, search, photo availability and dossier acceptance; `app.js` owns the interface. Run `node test-rules.cjs` for focused rule checks.
 
-The prior three-document **Advance Payment** experiment remains in the repository's `main` history. This version replaces its multiple-choice conclusion with the current game's Case 01 dossier mechanic on a separate branch.
+The earlier three-document **Advance Payment** experiment exists only in repository history. The live version opens directly into the current Case 01 archive.

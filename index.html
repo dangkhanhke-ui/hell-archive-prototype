@@ -40,16 +40,26 @@
       </div>
     </section>
 
-    <section id="archive" class="view hidden">
-      <div class="section-head"><div><p class="eyebrow">IBM 2260 / SYSTEM 360</p><h1>Archive</h1></div><p class="muted">Tìm tên, sự kiện, địa điểm, mã đã thấy; hoặc duyệt mục lục. Kết quả chỉ gồm tên hồ sơ, ngày, nơi lưu.</p></div>
-      <div class="archive-controls">
-        <div class="segmented" role="group" aria-label="Danh mục">
-          <button type="button" class="scope" data-scope="government" aria-pressed="true">HỒ SƠ CHÍNH PHỦ</button>
-          <button type="button" class="scope" data-scope="press" aria-pressed="false">BÁO CHÍ LƯU TRỮ</button>
+    <section id="archive" class="view hidden" aria-label="Máy tra cứu hồ sơ IBM">
+      <div class="terminal" aria-label="Màn hình lưu trữ trong vỏ máy cổ">
+        <div class="terminal-screen">
+          <div class="terminal-content">
+            <header class="terminal-header"><span>IBM / HỆ THỐNG LƯU TRỮ</span><span>PHIÊN 1965.01 <span class="terminal-cursor" aria-hidden="true">_</span></span></header>
+            <div class="terminal-title"><span>TRẠM TRA CỨU 01</span><span>● ĐANG HOẠT ĐỘNG</span></div>
+            <div class="archive-controls">
+              <div class="segmented" role="group" aria-label="Danh mục">
+                <button type="button" class="scope" data-scope="government" aria-pressed="true">[1] HỒ SƠ CHÍNH PHỦ</button>
+                <button type="button" class="scope" data-scope="press" aria-pressed="false">[2] BÁO CHÍ LƯU TRỮ</button>
+              </div>
+              <form id="search-form"><label for="query">&gt; NHẬP TÊN / SỰ VIỆC / MÃ HỒ SƠ</label><div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="SERRANO, TOMÁS, N-17..." aria-describedby="search-hint"><button type="submit">TRA CỨU ↵</button><button type="button" id="browse">MỤC LỤC</button></div></form>
+              <p id="search-hint" class="terminal-hint">CHỈ MỤC DỰA TRÊN TÊN, MÃ VÀ TRƯỜNG LƯU TRỮ · KHÔNG TÌM TOÀN VĂN</p>
+            </div>
+            <div class="split"><div class="results"><h2 id="results-title">Mục lục · Hồ sơ chính phủ</h2><div id="results" aria-live="polite"></div></div><article id="reader" class="reader" aria-label="Nội dung bản ghi"><p>CHỌN MỘT BẢN GHI ĐỂ ĐỌC. BẤM IN ĐỂ ĐƯA BẢN SAO TỚI BÀN GIẤY.</p></article></div>
+            <div class="terminal-footer"><span>ATWG / IBM 2260 · TERMINAL 01</span><span>ENTER TRA CỨU · IN BẢN SAO</span></div>
+          </div>
         </div>
-        <form id="search-form"><label for="query">MỤC TỪ / TÊN / MÃ</label><div class="search-row"><input id="query" autocomplete="off" placeholder="Ví dụ: Serrano, Tomás, chiến dịch, N-17"><button type="submit">TRA CỨU</button><button type="button" id="browse">DUYỆT MỤC LỤC</button></div></form>
       </div>
-      <div class="split"><div class="results"><h2 id="results-title">Mục lục · Hồ sơ chính phủ</h2><div id="results" aria-live="polite"></div></div><article id="reader" class="paper reader"><p class="muted">Chọn một bản ghi để đọc. Chức năng IN lưu một bản giấy vào bàn; bản gốc vẫn ở kho.</p></article></div>
+      <p class="terminal-caption">Bản ghi được hiển thị trên máy; giấy chỉ xuất hiện ở bàn khi mày chủ động in.</p>
     </section>
 
     <section id="wire" class="view hidden">
@@ -75,7 +85,7 @@
     </section>
   </main>
   <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button type="button" id="close-dialog">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-  <footer>CASE 01 · PROTOTYPE 0.2 · Nội dung chứng cứ là bản nháp để kiểm tra gameplay, chưa khóa canon hay art direction · Không gửi dữ liệu ra máy chủ</footer>
+  <footer>CASE 01 · BẢN THỬ CƠ CHẾ · Chứng cứ còn là bản nháp · Không gửi dữ liệu ra máy chủ</footer>
   <script src="data.js"></script><script src="rules.js"></script><script src="app.js"></script>
 </body>
 </html>
