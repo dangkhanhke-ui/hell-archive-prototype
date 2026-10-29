@@ -30,8 +30,8 @@
         </div>
         <aside class="rulebox">
           <h2>Luật bàn giấy</h2>
-          <p>Tìm giấy trong <strong>Hồ sơ chính phủ</strong> hoặc <strong>Báo chí lưu trữ</strong>. IBM chỉ trả kết quả theo mục từ được lập chỉ mục; nó không suy luận quan hệ nhân quả.</p>
-          <p>In giấy, gọi <strong>000</strong> nếu một tài liệu đưa mã ảnh, rồi xếp chứng cứ từ <strong>điều nhìn thấy ở ngoài</strong> vào <strong>lý do sâu hơn bên trong</strong>. Trong một lớp, thứ tự giấy không quan trọng.</p>
+          <p>Dùng <strong>một Sổ tra cứu chung</strong> cho công vụ và báo chí. Gõ A, A_NĂM, A_B hoặc A_B_NĂM; hoặc duyệt Người, Sự việc, Ấn phẩm. IBM chỉ tra mục lục, không suy luận quan hệ nhân quả.</p>
+          <p>In giấy, gọi <strong>000</strong> nếu một tài liệu đưa mã ảnh, rồi xếp chứng cứ từ <strong>kết quả được ghi nhận</strong> vào <strong>hành động và điều kiện định tội</strong>. Trong một lớp, thứ tự giấy không quan trọng.</p>
           <p>Đọc hết một danh sách kết quả vẫn chưa nói được ai biết gì, đã chọn làm gì, và tội sâu nhất là gì.</p>
         </aside>
       </div>
@@ -42,15 +42,26 @@
         <div class="terminal-screen">
           <div class="terminal-content">
             <div class="archive-controls">
-              <div class="segmented" role="group" aria-label="Danh mục">
-                <button type="button" class="scope" data-scope="government" aria-pressed="true">HỒ SƠ CHÍNH PHỦ</button>
-                <button type="button" class="scope" data-scope="press" aria-pressed="false">BÁO CHÍ LƯU TRỮ</button>
+              <form id="search-form">
+                <label for="query">SỔ TRA CỨU · NGƯỜI / SỰ VIỆC / ẤN PHẨM / MÃ</label>
+                <div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Ví dụ: Serrano_1962" aria-label="Đề mục tra cứu"><button type="submit">TRA →</button></div>
+                <small class="archive-syntax">CÚ PHÁP: A · A_NĂM · A_B · A_B_NĂM. Dùng dấu _ để ghép đề mục, không nhập câu hỏi.</small>
+              </form>
+              <div class="archive-browse" role="group" aria-label="Duyệt chỉ mục">
+                <button type="button" data-browse="people">NGƯỜI</button>
+                <button type="button" data-browse="events">SỰ VIỆC</button>
+                <button type="button" data-browse="publications">ẤN PHẨM</button>
+                <label class="scope-label" for="scope-filter">NGUỒN</label>
+                <select id="scope-filter" aria-label="Lọc nguồn"><option value="all">TẤT CẢ</option><option value="government">CÔNG VỤ</option><option value="press">BÁO CHÍ</option></select>
               </div>
-              <form id="search-form"><label for="query">TRA TÊN / SỰ VIỆC / MÃ HỒ SƠ</label><div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Nhập đầu mối..." aria-label="Đầu mối cần tra"><button type="submit">TÌM →</button></div></form>
-              <button type="button" id="browse">DUYỆT MỤC LỤC</button>
+              <div class="archive-utilities">
+                <button type="button" id="archive-history">ĐÃ XEM</button>
+                <button type="button" id="archive-pins">ĐÃ GHIM</button>
+                <span class="archive-help">CHỌN MÃ THAM CHIẾU TRÊN GIẤY ĐỂ MỞ TẬP ĐƯỢC DẪN</span>
+              </div>
             </div>
             <div class="archive-stage">
-              <div id="archive-idle" class="archive-idle"><span aria-hidden="true">&gt;<span class="terminal-cursor">_</span></span><p>Nhập một đầu mối để bắt đầu.</p></div>
+              <div id="archive-idle" class="archive-idle"><span aria-hidden="true">&gt;<span class="terminal-cursor">_</span></span><p>Gõ một đề mục, hoặc duyệt NGƯỜI · SỰ VIỆC · ẤN PHẨM.</p></div>
               <div id="archive-list" class="archive-list hidden"><div class="list-head"><h2 id="results-title"></h2><span id="result-count"></span></div><div id="results" aria-live="polite"></div></div>
               <article id="reader" class="reader hidden" aria-label="Nội dung bản ghi"></article>
             </div>
@@ -75,7 +86,7 @@
 
     <section id="admit" class="view hidden">
       <p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Nộp hồ sơ</h1>
-      <p>Chọn người và tầng mà mày cho là <strong>tội sâu nhất có chứng cứ</strong>. Kết quả kiểm tra một lần sau khi nộp, không chấm từng tờ lúc xếp.</p>
+      <p>Chọn người và tầng mà mày cho là <strong>tầng có đủ căn cứ chứng minh</strong>. Kết quả kiểm tra một lần sau khi nộp, không chấm từng tờ lúc xếp.</p>
       <div class="columns"><div class="paper"><label for="submit-suspect">HỒ SƠ CÁ NHÂN</label><select id="submit-suspect"><option value="09">#09 José Ignacio Serrano Vivas</option><option value="05">#05 José Tomás Ledesma Quiroga</option></select>
         <label for="room">PHÒNG TIẾP NHẬN</label><select id="room"><option value="">— Chọn tầng —</option><option value="I">I · Kiêu ngạo</option><option value="II">II · Dục vọng</option><option value="III">III · Hưởng thụ quá độ</option><option value="IV">IV · Tham lam</option><option value="V">V · Phẫn nộ</option><option value="VI">VI · Cuồng tín</option><option value="VII">VII · Bạo lực</option><option value="VIII">VIII · Gian trá</option><option value="IX">IX · Phản bội</option></select>
         <button type="button" id="submit-dossier">NỘP CHỒNG GIẤY</button><div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div></div><aside class="rulebox"><h2>Ba kết quả</h2><p>Quầy có thể không có thẩm quyền; hồ sơ có thể thuộc đúng quầy nhưng chưa chứng minh đủ; hoặc được tiếp nhận. Bản thử này không có hình phạt khi thử lại, nên phản hồi có thể giúp đoán tầng bằng cách thử từng phòng. Ghi nhận đó là một hạn chế thiết kế cần kiểm tra.</p></aside></div>
