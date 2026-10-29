@@ -4,23 +4,24 @@ An offline browser prototype of the **research → evidence → judgment** loop.
 
 ## What to try
 
-1. Choose the government or newspaper catalogue, then search for a lead. The screen starts empty; **Duyệt mục lục** explicitly opens all indexed records. Results and document reading occupy the full CRT in turn, with a back control. The opening brief remains available from the **Vụ việc** tab. Search accepts indexed names, places, events and codes without Vietnamese diacritics. Result rows show neutral titles and provenance, never a precomputed evidence trail.
-2. Open records and print copies. On the broadcast route, read the film log before using its two codes at **Wirephoto 000**. Printed photos are separate sheets.
-3. Build four-layer dossiers for **#09 Serrano** and **#05 Ledesma**. Move paper by dragging or with the keyboard-friendly layer selector. The game does not validate papers as they are placed.
-4. Submit to one of nine rooms. The submission checks jurisdiction, then proof completeness and layer placement. Extra relevant corroboration in a valid layer is accepted.
+1. In the existing CRT, use **one shared IBM index**. Accepted syntax: `A`, `A_YYYY`, `A_B`, `A_B_YYYY`. Try `Serrano`, `Serrano_1962`, `Ledesma_Tomás Aguirre`, or `Chiến dịch San Aurelio`. The underscore separates headings and an optional filing year. No natural-language parsing.
+2. **Người / Sự việc / Ấn phẩm** are three browsing paths through the same index. The source filter (all, government, press) is optional. Search results show **filing folders** first; open one to read its actual documents.
+3. **THAM CHIẾU GHI TRÊN GIẤY** opens the cited folder, never preselects the most incriminating record. A cited photo code pre-fills the separate Wirephoto 000 form, but the player must still request the photo.
+4. **TRA NHANH TÊN ĐƯỢC GHI** looks up an actually printed name without retyping. **ĐÃ XEM** and **GHIM TẬP** help return to records without guessing which archive folder they occupied.
+5. Print the Case 01 evidence, request the Wirephoto sheets, arrange the same two four-layer dossiers (#09 and #05), and submit to the existing nine-room acceptance system.
 
-The evidence is drawn from the current Case 01 design draft and remains **provisional**. The complete seven-case game, the other two Case 01 suspects, the 30-person roster, character conversations, all nine rooms' presentation, and production art are outside this slice. The purpose is to check whether a reader can retrieve records without tedious searching and still has to reason about source, timing, intention and personal trust.
+The **CRT cabinet, terminal proportions, backdrop and non-archive gameplay are unchanged**. Case 01 evidence is still provisional, not canon; this branch modifies research UX and filing metadata, not story truth. The slice covers two suspects only, not all seven cases.
 
 ## Design constraints being tested
 
-- There are exactly two text catalogues: government records and independently compiled press records. Personal letters and criminal papers appear in government results only because they were attached to a complaint or seized in an investigation.
-- Search is limited to a visible record's **filing index** (`terms`, title, date, origin and ID). It is not full-text or semantic search. Name-indexed documents remain discoverable by name.
+- Government and press documents keep distinct source provenance within **one unified filing index**. Personal/criminal papers appear only when attached to complaints or official investigations.
+- Search only uses visible filing metadata (title, record ID, origin, index terms and filing year), never full text. Two-heading searches intersect metadata on each record; no graph of inferred connections.
 - A record may give a photo reference, but it does not issue the photo or jump to related evidence. The player must use the reference at the separate Wirephoto station.
 - The displayed author, date and provenance are part of the evidence. Seeing a final approval document alone is not the same as proving what kind of footage aired or what the approving person knew.
 - The prototype currently makes room selection guessable by trying all nine rooms without penalty. This is an explicit design risk to observe, not a hidden success condition.
 
 ## Developer notes
 
-The app uses plain HTML/CSS/JavaScript, so it can later be reimplemented in Godot. `data.js` holds draft indexed records; `rules.js` owns normalization, search, photo availability and dossier acceptance; `app.js` owns the interface. Run `node test-rules.cjs` for focused rule checks.
+The app uses plain HTML/CSS/JavaScript, so it can later be reimplemented in Godot. `data.js` holds draft indexed records; `rules.js` owns normalization, search, photo availability and dossier acceptance; `app.js` owns the interface. Run `node test-rules.cjs` for filing syntax, cross-source, reference integrity, and dossier checks.
 
 The earlier three-document **Advance Payment** experiment exists only in repository history. The live version opens directly into the current Case 01 archive.
