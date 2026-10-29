@@ -5,17 +5,34 @@
   const byId = id => document.getElementById(id);
   let old = {};
   try { old = JSON.parse(localStorage.getItem(key) || "{}"); } catch (_) { old = {}; }
+
   const state = {
-    tab:"archive", scope:"government", query:"", selected:null, suspect:"09",
-    archiveMode:"idle", listMode:"search", resultScroll:0,
+    tab:"archive",scope:"all",query:"",selected:null,suspect:"09",
+    archiveMode:"idle",browseKind:"people",activeFolder:null,backStack:[],
     readIds:Array.isArray(old.readIds)?old.readIds:[],
+    historyIds:Array.isArray(old.historyIds)?old.historyIds:[],
+    pins:Array.isArray(old.pins)?old.pins:[],
     papers:Array.isArray(old.papers)?old.papers.filter(p=>p && typeof p.uid==="string" && typeof p.id==="string"):[],
-    admitted:Array.isArray(old.admitted)?old.admitted:[], lastPhoto:null
+    admitted:Array.isArray(old.admitted)?old.admitted:[],lastPhoto:null
   };
   const findItem = id => D.records.find(r=>r.id===id) || D.photos.find(p=>p.id===id);
-  const save = () => { try { localStorage.setItem(key,JSON.stringify({readIds:state.readIds,papers:state.papers,admitted:state.admitted})); } catch (_) {} };
-  const node = (tag,cls,text) => {const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
-  const btn = (label,action) => {const el=node("button",null,label);el.type="button";el.addEventListener("click",action);return el};
+  const folderById = id => D.folders.find(f=>f.id===id);
+  const folderFor = id => D.folders.find(f=>f.records.includes(id));
+  const save = () => {
+    try { localStorage.setItem(key,JSON.stringify({
+      readIds:state.readIds,historyIds:state.historyIds,pins:state.pins,
+      papers:state.papers,admitted:state.admitted
+    })); } catch (_) {}
+  };
+  const node = (tag,cls,value) => {
+    const el=document.createElement(tag);
+    if(cls)el.className=cls;
+    if(value!==undefined)el.textContent=value;
+    return el;
+  };
+  const btn = (value,action) => {
+    const el=node("button",null,value);el.type="button";el.addEventListener("click",action);return el;
+  };
   function navigate(tab) {
     state.tab=tab;
     document.querySelectorAll(".view").forEach(el=>el.classList.toggle("hidden",el.id!==tab));
@@ -25,60 +42,183 @@
     if(tab==="archive")renderArchive();
     if(tab==="desk")renderDesk();
     if(tab==="wire")renderWire();
-    byId("paper-count").textContent=state.papers.length?`(${state.papers.length})`:"";
+    byId("paper-count").textContent=state.papers.length?"("+state.papers.length+")":"";
   }
   document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",()=>navigate(el.dataset.tab)));
   document.querySelectorAll("[data-go]").forEach(el=>el.addEventListener("click",()=>navigate(el.dataset.go)));
-  document.querySelectorAll(".scope").forEach(el=>el.addEventListener("click",()=>{
-    state.scope=el.dataset.scope;state.selected=null;state.resultScroll=0;
-    if(state.archiveMode==="reader")state.archiveMode=state.listMode;
+  function snapshot() {
+    return {archiveMode:state.archiveMode,selected:state.selected,activeFolder:state.activeFolder,
+      browseKind:state.browseKind,query:state.query,scope:state.scope};
+  }
+  function enter(mode,values) {
+    state.backStack.push(snapshot());
+    Object.assign(state,values||{},{archiveMode:mode});
     renderArchive();
-  }));
+  }
+  function backArchive() {
+    const previous=state.backStack.pop();
+    if(previous)Object.assign(state,previous);
+    else Object.assign(state,{archiveMode:"idle",selected:null,activeFolder:null});
+    renderArchive();
+  }
+  function searchNow(query) {
+    const value=String(query||"").trim();
+    byId("query").value=value;
+    enter(value?"search":"idle",{query:value,selected:null,activeFolder:null});
+  }
   byId("search-form").addEventListener("submit",ev=>{
-    ev.preventDefault();state.query=byId("query").value.trim();state.selected=null;state.resultScroll=0;
-    state.archiveMode=state.query?"search":"idle";state.listMode="search";renderArchive();
+    ev.preventDefault();searchNow(byId("query").value);
   });
-  byId("browse").addEventListener("click",()=>{
-    state.query="";state.selected=null;state.resultScroll=0;byId("query").value="";
-    state.archiveMode="browse";state.listMode="browse";renderArchive();
+  document.querySelectorAll("[data-browse]").forEach(el=>el.addEventListener("click",()=>{
+    enter("browse",{browseKind:el.dataset.browse,selected:null});
+  }));
+  byId("scope-filter").addEventListener("change",ev=>{
+    state.scope=ev.target.value;
+    if(state.archiveMode==="search"||state.archiveMode==="browse")renderArchive();
   });
+  byId("archive-history").addEventListener("click",()=>enter("history",{selected:null}));
+  byId("archive-pins").addEventListener("click",()=>enter("pins",{selected:null}));
 
   function meta(item) {
     const box=node("div","doc-meta");
-    box.append(node("span",null,`MÃ: ${item.id}`),node("span",null,`NGÀY: ${item.date}`),node("span",null,`NGUỒN: ${item.origin}`));
+    box.append(node("span",null,"MÃ: "+item.id),
+      node("span",null,"NGÀY: "+(item.date||"KHÔNG GHI")),
+      node("span",null,"NGUỒN: "+item.origin));
     return box;
   }
-  function paragraphs(item,target){item.body.forEach(line=>target.append(node("p",null,line)))}
+  function paragraphs(item,target) {
+    item.body.forEach(line=>target.append(node("p",null,line)));
+  }
+  function openFolder(id) {
+    if(folderById(id))enter("folder",{activeFolder:id,selected:null});
+  }
+  function openRecord(id) {
+    const record=D.records.find(r=>r.id===id);
+    if(!record)return;
+    state.historyIds=[id,...state.historyIds.filter(x=>x!==id)].slice(0,30);
+    if(!state.readIds.includes(id))state.readIds.push(id);
+    save();
+    enter("reader",{selected:id,activeFolder:folderFor(id)?.id||null});
+  }
+  function togglePin(id) {
+    state.pins=state.pins.includes(id)?state.pins.filter(x=>x!==id):[id,...state.pins];
+    save();renderArchive();
+  }
+  function resultButton(title,subtitle,action,number) {
+    const el=btn("",action);el.className="result-item";
+    el.append(node("span","result-index",number||"□"));
+    const info=node("span","result-info");
+    info.append(node("strong",null,title),node("small",null,subtitle));
+    el.append(info,node("span","result-arrow","↗"));
+    return el;
+  }
+  function readerExtra(item,reader) {
+    const folder=folderFor(item.id);
+    if(folder) {
+      const pin=btn(state.pins.includes(folder.id)?"BỎ GHIM TẬP":"GHIM TẬP NÀY",()=>togglePin(folder.id));
+      pin.className="archive-reader-tool";reader.append(pin);
+    }
+    const refs=D.references[item.id]||[];
+    if(refs.length) {
+      const section=node("div","archive-reference-list");
+      section.append(node("h3",null,"THAM CHIẾU GHI TRÊN GIẤY"));
+      refs.forEach(ref=>{
+        if(ref.folder&&!folderById(ref.folder))return;
+        const action=ref.folder?()=>openFolder(ref.folder):()=>{
+          byId("wire-code").value=ref.photo;
+          byId("wire-message").textContent="Mã "+ref.photo+" đã được điền từ phiếu. Nhấn GỌI 000 để yêu cầu ảnh.";
+          navigate("wire");
+        };
+        section.append(btn(ref.label+" ↗",action));
+      });
+      reader.append(section);
+    }
+    const names=D.lookups[item.id]||[];
+    if(names.length) {
+      const section=node("div","archive-reference-list");
+      section.append(node("h3",null,"TRA NHANH TÊN ĐƯỢC GHI"));
+      names.forEach(name=>section.append(btn("TRA: "+name,()=>searchNow(name))));
+      reader.append(section);
+    }
+  }
   function renderArchive() {
-    document.querySelectorAll(".scope").forEach(el=>el.setAttribute("aria-pressed",String(el.dataset.scope===state.scope)));
-    const mode=state.archiveMode;
+    byId("scope-filter").value=state.scope;
+    const mode=state.archiveMode,results=byId("results"),reader=byId("reader");
     byId("archive-idle").classList.toggle("hidden",mode!=="idle");
     byId("archive-list").classList.toggle("hidden",mode==="idle"||mode==="reader");
-    byId("reader").classList.toggle("hidden",mode!=="reader");
+    reader.classList.toggle("hidden",mode!=="reader");
     if(mode==="idle")return;
-    if(mode==="reader"){
-      const reader=byId("reader"),item=D.records.find(r=>r.id===state.selected && r.scope===state.scope);reader.replaceChildren();
-      if(!item){state.archiveMode=state.listMode;renderArchive();return;}
-      const back=btn("← KẾT QUẢ",()=>{state.archiveMode=state.listMode;renderArchive();});back.className="reader-back";
-      reader.append(back,node("small","doc-id",item.id),node("h2",null,item.title),meta(item));paragraphs(item,reader);
+    if(mode==="reader") {
+      const item=D.records.find(r=>r.id===state.selected);
+      reader.replaceChildren();
+      if(!item){backArchive();return;}
+      const back=btn("← QUAY LẠI",backArchive);back.className="reader-back";
+      reader.append(back,node("small","doc-id",item.id),node("h2",null,item.title),meta(item));
+      paragraphs(item,reader);readerExtra(item,reader);
       reader.append(btn("IN BẢN SAO → BÀN GIẤY",()=>printPaper(item.id)),node("p","print-feedback"));
-      reader.scrollTop=0;back.focus();return;
+      reader.scrollTop=0;return;
     }
-    const results=R.search(state.scope,mode==="browse"?"":state.query),container=byId("results");container.replaceChildren();
-    byId("results-title").textContent=mode==="browse"?"MỤC LỤC":`KẾT QUẢ: ${state.query}`;
-    byId("result-count").textContent=`${results.length} BẢN GHI`;
-    if(!results.length)container.append(node("p","empty-results","Không có bản ghi theo mục từ này. Thử tên khác hoặc duyệt mục lục."));
-    results.forEach((item,index)=>{
-      const el=btn("",()=>{
-        state.resultScroll=container.scrollTop;state.selected=item.id;state.listMode=mode;state.archiveMode="reader";
-        if(!state.readIds.includes(item.id))state.readIds.push(item.id);save();renderArchive();
+    results.replaceChildren();
+    const heading=byId("results-title"),counter=byId("result-count");
+    if(state.backStack.length){
+      const back=btn("← QUAY LẠI",backArchive);back.className="archive-list-back";results.append(back);
+    }
+    if(mode==="search") {
+      const response=R.queryArchive(state.query,state.scope),found=response.records||[];
+      heading.textContent="TRA CỨU: "+state.query;
+      counter.textContent=response.ok?found.length+" BẢN GHI":"SAI CÚ PHÁP";
+      if(!response.ok){results.append(node("p","empty-results",response.error));return;}
+      const folders=D.folders.filter(f=>f.records.some(id=>found.some(r=>r.id===id)));
+      if(!folders.length)results.append(node("p","empty-results",
+        "Không có mục lục khớp. Thử tên ngắn hơn hoặc duyệt Người / Sự việc / Ấn phẩm."));
+      folders.forEach((folder,i)=>{
+        const hits=folder.records.filter(id=>found.some(r=>r.id===id)).length;
+        results.append(resultButton(folder.title,
+          folder.origin+" · "+hits+" mục khớp · "+folder.records.length+" tờ trong tập",
+          ()=>openFolder(folder.id),String(i+1).padStart(2,"0")));
       });
-      el.className="result-item";
-      el.append(node("span","result-index",String(index+1).padStart(2,"0")));
-      const info=node("span","result-info");info.append(node("strong",null,item.title),node("small",null,`${item.date}  ·  ${item.origin}  ·  ${item.id}`));
-      el.append(info,node("span","result-arrow","↗"));container.append(el);
-    });
-    container.scrollTop=state.resultScroll;
+    } else if(mode==="browse") {
+      const name={people:"NGƯỜI",events:"SỰ VIỆC",publications:"ẤN PHẨM"}[state.browseKind];
+      const items=D.catalog[state.browseKind]||[];
+      heading.textContent="SỔ MỤC LỤC / "+name;
+      counter.textContent=items.length+" ĐỀ MỤC";
+      items.forEach((item,i)=>{
+        const n=R.queryArchive(item.query,state.scope).records.length;
+        results.append(resultButton(item.label,n+" bản ghi · chọn để tra cứu",
+          ()=>searchNow(item.query),String(i+1).padStart(2,"0")));
+      });
+    } else if(mode==="folder") {
+      const folder=folderById(state.activeFolder);
+      if(!folder){backArchive();return;}
+      heading.textContent=folder.title;
+      counter.textContent=folder.records.length+" TỜ · "+folder.origin.toUpperCase();
+      const pin=btn(state.pins.includes(folder.id)?"BỎ GHIM TẬP":"GHIM TẬP HỒ SƠ",()=>togglePin(folder.id));
+      pin.className="archive-list-pin";results.append(pin);
+      folder.records.forEach((id,i)=>{
+        const record=D.records.find(r=>r.id===id);
+        if(record)results.append(resultButton(record.title,
+          (record.date||"Không ghi ngày")+" · "+record.origin+" · "+record.id+
+          (state.readIds.includes(id)?" · ĐÃ ĐỌC":""),
+          ()=>openRecord(id),String(i+1).padStart(2,"0")));
+      });
+    } else if(mode==="history") {
+      heading.textContent="TÀI LIỆU ĐÃ XEM";counter.textContent=state.historyIds.length+" BẢN GHI";
+      if(!state.historyIds.length)results.append(node("p","empty-results","Chưa đọc tờ giấy nào."));
+      state.historyIds.forEach((id,i)=>{
+        const record=D.records.find(r=>r.id===id);
+        if(record)results.append(resultButton(record.title,record.origin+" · "+id,
+          ()=>openRecord(id),String(i+1).padStart(2,"0")));
+      });
+    } else if(mode==="pins") {
+      heading.textContent="TẬP HỒ SƠ ĐÃ GHIM";counter.textContent=state.pins.length+" TẬP";
+      if(!state.pins.length)results.append(node("p","empty-results","Mở một tập rồi chọn GHIM TẬP."));
+      state.pins.forEach((id,i)=>{
+        const folder=folderById(id);
+        if(folder)results.append(resultButton(folder.title,folder.origin+" · "+folder.records.length+" tờ",
+          ()=>openFolder(id),String(i+1).padStart(2,"0")));
+      });
+    }
+    results.scrollTop=0;
   }
   function printPaper(id){
     state.papers.push({uid:`${Date.now()}-${Math.random().toString(36).slice(2)}`,id,location:null});save();
