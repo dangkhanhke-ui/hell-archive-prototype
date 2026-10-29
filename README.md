@@ -1,10 +1,10 @@
 # All Thirty Were Guilty · Case 01 gameplay prototype v0.2
 
-An offline browser prototype of the **research → evidence → judgment** loop. The first screen is the IBM archive: a responsive CRT interface inside an original SVG cabinet inspired by the reference terminal, without a keyboard. Open `index.html` in a recent desktop browser. No installation, server, external dependency, or tracking is required. Progress is stored in browser `localStorage`; use **Xóa tiến độ bản thử** on the desk to start over.
+An offline browser prototype of the **research → evidence → judgment** loop. The first screen is a focused search prompt inside a CRT cabinet, without a keyboard. Open `index.html` in a recent desktop browser. No installation, server, external dependency, or tracking is required. Progress is stored in browser `localStorage`; use **Xóa tiến độ bản thử** on the desk to start over.
 
 ## What to try
 
-1. Search or browse the government and newspaper catalogues inside the IBM screen. The opening brief remains available from the **Vụ việc** tab. Search accepts indexed names, places, events and codes without Vietnamese diacritics. Result rows show neutral titles and provenance, never a precomputed evidence trail.
+1. Choose the government or newspaper catalogue, then search for a lead. The screen starts empty; **Duyệt mục lục** explicitly opens all indexed records. Results and document reading occupy the full CRT in turn, with a back control. The opening brief remains available from the **Vụ việc** tab. Search accepts indexed names, places, events and codes without Vietnamese diacritics. Result rows show neutral titles and provenance, never a precomputed evidence trail.
 2. Open records and print copies. On the broadcast route, read the film log before using its two codes at **Wirephoto 000**. Printed photos are separate sheets.
 3. Build four-layer dossiers for **#09 Serrano** and **#05 Ledesma**. Move paper by dragging or with the keyboard-friendly layer selector. The game does not validate papers as they are placed.
 4. Submit to one of nine rooms. The submission checks jurisdiction, then proof completeness and layer placement. Extra relevant corroboration in a valid layer is accepted.

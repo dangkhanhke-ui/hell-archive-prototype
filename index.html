@@ -4,20 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>All Thirty Were Guilty · Case 01 prototype</title>
-  <link rel="stylesheet" href="styles.css?v=crt-03">
+  <link rel="stylesheet" href="styles.css?v=archive-04">
 </head>
 <body>
-  <header class="masthead">
-    <div class="brand"><span class="seal">31</span><div><strong>ALL THIRTY WERE GUILTY</strong><small>DEPARTMENT OF INFERNAL RECORDS · CASE 01 · 1965</small></div></div>
-    <div class="status" id="status">BẢN THỬ CƠ CHẾ · DỮ LIỆU HƯ CẤU</div>
-  </header>
+  <div id="status" class="sr-only" role="status" aria-live="polite"></div>
   <main>
     <nav class="tabs" aria-label="Công cụ điều tra">
-      <button type="button" data-tab="brief" aria-current="page">01 / VỤ VIỆC</button>
-      <button type="button" data-tab="archive">02 / IBM ARCHIVE</button>
-      <button type="button" data-tab="wire">03 / WIREPHOTO 000</button>
-      <button type="button" data-tab="desk">04 / BÀN GIẤY <span id="paper-count"></span></button>
-      <button type="button" data-tab="admit">05 / TIẾP NHẬN</button>
+      <button type="button" data-tab="brief">VỤ VIỆC</button>
+      <button type="button" data-tab="archive">TRA CỨU</button>
+      <button type="button" data-tab="wire">WIREPHOTO 000</button>
+      <button type="button" data-tab="desk">BÀN GIẤY <span id="paper-count"></span></button>
+      <button type="button" data-tab="admit">TIẾP NHẬN</button>
     </nav>
 
     <section id="brief" class="view">
@@ -29,7 +26,7 @@
           <p>Montelara, 1962. Một cuộc truy bắt đường dây tội phạm được tuyên dương trên truyền hình. Sau đó, một nguồn tin đang được bảo hộ tên <strong>Tomás Aguirre</strong> chết tại nơi trú.</p>
           <p>Hai người trong danh sách chờ hồ sơ: <strong>#09 José Ignacio Serrano Vivas</strong>, người đứng đầu Truyền hình Quốc gia; <strong>#05 José Tomás Ledesma Quiroga</strong>, phụ trách nguồn tin cảnh sát.</p>
           <p>Hai người còn lại của Case 01 và các case sau chưa được viết vào lát cắt prototype này. Biết chức vụ không chứng minh hành vi.</p>
-          <button type="button" data-go="archive">MỞ IBM ARCHIVE →</button>
+          <button type="button" data-go="archive">MỞ MÁY TRA CỨU →</button>
         </div>
         <aside class="rulebox">
           <h2>Luật bàn giấy</h2>
@@ -44,18 +41,19 @@
       <div class="terminal" aria-label="Màn hình lưu trữ trong vỏ máy cổ">
         <div class="terminal-screen">
           <div class="terminal-content">
-            <header class="terminal-header"><span>IBM / HỆ THỐNG LƯU TRỮ</span><span>PHIÊN 1965.01 <span class="terminal-cursor" aria-hidden="true">_</span></span></header>
-            <div class="terminal-title"><span>TRẠM TRA CỨU 01</span><span>● ĐANG HOẠT ĐỘNG</span></div>
             <div class="archive-controls">
               <div class="segmented" role="group" aria-label="Danh mục">
-                <button type="button" class="scope" data-scope="government" aria-pressed="true">[1] HỒ SƠ CHÍNH PHỦ</button>
-                <button type="button" class="scope" data-scope="press" aria-pressed="false">[2] BÁO CHÍ LƯU TRỮ</button>
+                <button type="button" class="scope" data-scope="government" aria-pressed="true">HỒ SƠ CHÍNH PHỦ</button>
+                <button type="button" class="scope" data-scope="press" aria-pressed="false">BÁO CHÍ LƯU TRỮ</button>
               </div>
-              <form id="search-form"><label for="query">&gt; NHẬP TÊN / SỰ VIỆC / MÃ HỒ SƠ</label><div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="SERRANO, TOMÁS, N-17..." aria-describedby="search-hint"><button type="submit">TRA CỨU ↵</button><button type="button" id="browse">MỤC LỤC</button></div></form>
-              <p id="search-hint" class="terminal-hint">CHỈ MỤC DỰA TRÊN TÊN, MÃ VÀ TRƯỜNG LƯU TRỮ · KHÔNG TÌM TOÀN VĂN</p>
+              <form id="search-form"><label for="query">TRA TÊN / SỰ VIỆC / MÃ HỒ SƠ</label><div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Nhập đầu mối..." aria-label="Đầu mối cần tra"><button type="submit">TÌM →</button></div></form>
+              <button type="button" id="browse">DUYỆT MỤC LỤC</button>
             </div>
-            <div class="split"><div class="results"><h2 id="results-title">Mục lục · Hồ sơ chính phủ</h2><div id="results" aria-live="polite"></div></div><article id="reader" class="reader" aria-label="Nội dung bản ghi"><p>CHỌN MỘT BẢN GHI ĐỂ ĐỌC. BẤM IN ĐỂ ĐƯA BẢN SAO TỚI BÀN GIẤY.</p></article></div>
-            <div class="terminal-footer"><span>ATWG / IBM 2260 · TERMINAL 01</span><span>ENTER TRA CỨU · IN BẢN SAO</span></div>
+            <div class="archive-stage">
+              <div id="archive-idle" class="archive-idle"><span aria-hidden="true">&gt;<span class="terminal-cursor">_</span></span><p>Nhập một đầu mối để bắt đầu.</p></div>
+              <div id="archive-list" class="archive-list hidden"><div class="list-head"><h2 id="results-title"></h2><span id="result-count"></span></div><div id="results" aria-live="polite"></div></div>
+              <article id="reader" class="reader hidden" aria-label="Nội dung bản ghi"></article>
+            </div>
           </div>
         </div>
       </div>
@@ -84,7 +82,6 @@
     </section>
   </main>
   <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button type="button" id="close-dialog">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-  <footer>CASE 01 · BẢN THỬ CƠ CHẾ · Chứng cứ còn là bản nháp · Không gửi dữ liệu ra máy chủ</footer>
   <script src="data.js"></script><script src="rules.js"></script><script src="app.js"></script>
 </body>
 </html>

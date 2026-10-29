@@ -6,7 +6,8 @@
   let old = {};
   try { old = JSON.parse(localStorage.getItem(key) || "{}"); } catch (_) { old = {}; }
   const state = {
-    tab:"brief", scope:"government", query:"", selected:null, suspect:"09",
+    tab:"archive", scope:"government", query:"", selected:null, suspect:"09",
+    archiveMode:"idle", listMode:"search", resultScroll:0,
     readIds:Array.isArray(old.readIds)?old.readIds:[],
     papers:Array.isArray(old.papers)?old.papers.filter(p=>p && typeof p.uid==="string" && typeof p.id==="string"):[],
     admitted:Array.isArray(old.admitted)?old.admitted:[], lastPhoto:null
@@ -29,10 +30,18 @@
   document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",()=>navigate(el.dataset.tab)));
   document.querySelectorAll("[data-go]").forEach(el=>el.addEventListener("click",()=>navigate(el.dataset.go)));
   document.querySelectorAll(".scope").forEach(el=>el.addEventListener("click",()=>{
-    state.scope=el.dataset.scope;state.selected=null;state.query="";byId("query").value="";renderArchive();
+    state.scope=el.dataset.scope;state.selected=null;state.resultScroll=0;
+    if(state.archiveMode==="reader")state.archiveMode=state.listMode;
+    renderArchive();
   }));
-  byId("search-form").addEventListener("submit",ev=>{ev.preventDefault();state.query=byId("query").value;state.selected=null;renderArchive()});
-  byId("browse").addEventListener("click",()=>{state.query="";state.selected=null;byId("query").value="";renderArchive()});
+  byId("search-form").addEventListener("submit",ev=>{
+    ev.preventDefault();state.query=byId("query").value.trim();state.selected=null;state.resultScroll=0;
+    state.archiveMode=state.query?"search":"idle";state.listMode="search";renderArchive();
+  });
+  byId("browse").addEventListener("click",()=>{
+    state.query="";state.selected=null;state.resultScroll=0;byId("query").value="";
+    state.archiveMode="browse";state.listMode="browse";renderArchive();
+  });
 
   function meta(item) {
     const box=node("div","doc-meta");
@@ -42,23 +51,40 @@
   function paragraphs(item,target){item.body.forEach(line=>target.append(node("p",null,line)))}
   function renderArchive() {
     document.querySelectorAll(".scope").forEach(el=>el.setAttribute("aria-pressed",String(el.dataset.scope===state.scope)));
-    byId("results-title").textContent=`${state.query.trim()?"Kết quả":"Mục lục"} · ${state.scope==="press"?"Báo chí lưu trữ":"Hồ sơ chính phủ"}`;
-    const results=R.search(state.scope,state.query),container=byId("results");container.replaceChildren();
-    if(!results.length)container.append(node("p","muted","Không có bản ghi trong mục từ này. Chỉ mục tìm theo metadata, không tìm toàn văn."));
-    for(const item of results){
-      const el=btn(item.title,()=>{state.selected=item.id;if(!state.readIds.includes(item.id))state.readIds.push(item.id);save();renderArchive()});
-      el.className="result-item";el.setAttribute("aria-pressed",String(item.id===state.selected));
-      el.append(node("small",null,`${item.date} · ${item.origin} · ${item.id}`));container.append(el);
+    const mode=state.archiveMode;
+    byId("archive-idle").classList.toggle("hidden",mode!=="idle");
+    byId("archive-list").classList.toggle("hidden",mode==="idle"||mode==="reader");
+    byId("reader").classList.toggle("hidden",mode!=="reader");
+    if(mode==="idle")return;
+    if(mode==="reader"){
+      const reader=byId("reader"),item=D.records.find(r=>r.id===state.selected && r.scope===state.scope);reader.replaceChildren();
+      if(!item){state.archiveMode=state.listMode;renderArchive();return;}
+      const back=btn("← KẾT QUẢ",()=>{state.archiveMode=state.listMode;renderArchive();});back.className="reader-back";
+      reader.append(back,node("small","doc-id",item.id),node("h2",null,item.title),meta(item));paragraphs(item,reader);
+      reader.append(btn("IN BẢN SAO → BÀN GIẤY",()=>printPaper(item.id)),node("p","print-feedback"));
+      reader.scrollTop=0;back.focus();return;
     }
-    const reader=byId("reader"),item=D.records.find(r=>r.id===state.selected && r.scope===state.scope);reader.replaceChildren();
-    if(!item){reader.append(node("p","muted","Chọn một bản ghi. IBM hiển thị giấy gốc, không gợi ý giấy nào cần đọc tiếp."));return;}
-    reader.append(node("small","doc-id",item.id),node("h2",null,item.title),meta(item));paragraphs(item,reader);
-    reader.append(btn("IN MỘT BẢN GIẤY",()=>printPaper(item.id)));
+    const results=R.search(state.scope,mode==="browse"?"":state.query),container=byId("results");container.replaceChildren();
+    byId("results-title").textContent=mode==="browse"?"MỤC LỤC":`KẾT QUẢ: ${state.query}`;
+    byId("result-count").textContent=`${results.length} BẢN GHI`;
+    if(!results.length)container.append(node("p","empty-results","Không có bản ghi theo mục từ này. Thử tên khác hoặc duyệt mục lục."));
+    results.forEach((item,index)=>{
+      const el=btn("",()=>{
+        state.resultScroll=container.scrollTop;state.selected=item.id;state.listMode=mode;state.archiveMode="reader";
+        if(!state.readIds.includes(item.id))state.readIds.push(item.id);save();renderArchive();
+      });
+      el.className="result-item";
+      el.append(node("span","result-index",String(index+1).padStart(2,"0")));
+      const info=node("span","result-info");info.append(node("strong",null,item.title),node("small",null,`${item.date}  ·  ${item.origin}  ·  ${item.id}`));
+      el.append(info,node("span","result-arrow","↗"));container.append(el);
+    });
+    container.scrollTop=state.resultScroll;
   }
   function printPaper(id){
     state.papers.push({uid:`${Date.now()}-${Math.random().toString(36).slice(2)}`,id,location:null});save();
     byId("paper-count").textContent=`(${state.papers.length})`;
     byId("status").textContent=`ĐÃ IN ${id} · ${state.papers.length} BẢN TRÊN BÀN`;
+    if(state.tab==="archive")byId("reader").querySelector(".print-feedback").textContent="Đã gửi một bản tới Bàn giấy.";
   }
 
   function photoFrame(kind) {
