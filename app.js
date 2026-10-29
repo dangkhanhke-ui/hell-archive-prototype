@@ -143,6 +143,7 @@
   }
   function renderArchive() {
     byId("scope-filter").value=state.scope;
+    byId("query").value=state.query;
     const mode=state.archiveMode,results=byId("results"),reader=byId("reader");
     byId("archive-idle").classList.toggle("hidden",mode!=="idle");
     byId("archive-list").classList.toggle("hidden",mode==="idle"||mode==="reader");
