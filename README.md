@@ -49,3 +49,10 @@ Run: `node test-rules.cjs`.
 ## IBM search precision & audio (October 31, 2026)
 
 IBM requires a meaningful indexed word or phrase of at least three characters. A single letter, a year alone, and incomplete fragments cannot dump large portions of the catalogue. Queries match complete normalized words or consecutive phrases against filing metadata plus specifically authored filing aliases. Printed cross-references are indexed as explicit aliases, not fuzzy token matches; government/press provenance remains separate. The mechanical Web Audio tones use **3× their earlier gain** and an audible minimum click duration. Existing mute state is preserved.
+
+
+## Trash bin and printer noise
+
+Gameplay Bible V8 §1.11: the desk has reference papers, dossier layers and **recoverable trash**. BỎ VÀO THÙNG or dropping onto the bin moves one specific physical printed copy (its stable `uid`) to `location:{zone:"trash"}`. LẤY RA BÀN restores that copy to loose reference papers. Trashed copies are excluded from soul exchanges and dossiers, but documents remain printable from source, and other physical copies are unchanged. All locations persist in the existing localStorage save.
+
+Printing a document, a posthumous transcript, or a Wirephoto triggers a short (~0.74 s) locally synthesized paper-feed/roller rasp rather than the old three-note print tone. It obeys the IBM's mute control.
