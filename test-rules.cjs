@@ -64,3 +64,14 @@ assert.equal(R.evaluate("07","VII",papers("07",[[0,["A15","A16"]]])),"jurisdicti
 assert.equal(R.evaluate("07","IX",papers("07",[[0,["A15","A16"]]])),"incomplete","Case01 cannot finish Varela");
 assert.equal(R.evaluate("14","V",[...ponce,{id:"A02",location:{suspect:"14",layer:1}}]),"incomplete","wrong causal evidence must not count");
 console.log("PASS Case 01 V4.3: sources, indexed routes, photo provenance, soul knowledge and dossier validation.");
+
+\n// Index category buttons must never populate an unrestricted entity list.
+assert.equal(R.queryByKind("","people").ok,false,"people requires a typed search");
+assert.equal(R.queryByKind("","events").ok,false,"events requires a typed search");
+assert.equal(R.queryByKind("","publications").ok,false,"publications requires a typed search");
+assert(R.queryByKind("Viedma","events").records.some(r=>r.id==="B-R2"),"event search still finds judicial dossier");
+assert(R.queryByKind("Rojas","people").records.some(r=>r.id==="A10"),"person search finds named records");
+assert.equal(R.queryByKind("San Aurelio","people").records.length,0,"person filter should not be event list");
+assert(R.queryByKind("La Linterna","publications").records.some(r=>r.id==="A02"),"publication search finds the newspaper");
+assert(!R.queryByKind("La Linterna","publications").records.some(r=>r.id==="A19"),"publication mode does not return government mentions of a newspaper");
+assert.equal(R.queryByKind("Viedma","publications").records.length,0,"event name is not automatically a publication");
