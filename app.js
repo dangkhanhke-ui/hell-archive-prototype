@@ -115,7 +115,15 @@ function readerRefs(item,where){
  if(!(item.refs||[]).length)return;
  const box=el("div","archive-reference-list");box.append(el("h3",null,"THAM CHIẾU GHI TRÊN GIẤY"));
  item.refs.forEach(ref=>{
-  if(ref.kind==="search")box.append(button(ref.label,()=>searchNow(ref.query,"all")));
+  if(ref.kind==="search")box.append(button(ref.label,()=>{
+  // A printed cross-reference can point into the other provenance catalogue.
+  const matches=R.queryArchive(ref.query,state.scope).records;
+  if(!matches.length){
+   if(R.queryArchive(ref.query,"government").records.length)state.scope="government";
+   else if(R.queryArchive(ref.query,"press").records.length)state.scope="press";
+  }
+  searchNow(ref.query,"events");
+ }));
   if(ref.kind==="photo")box.append(button(ref.label,()=>{$("wire-code").value=ref.code;$("wire-message").textContent="Mã ghi trên giấy đã chuyển sang tổng đài. Nhấn GỌI 000.";navigate("wire");}));
  });where.append(box);
 }
