@@ -159,7 +159,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "LIN-PH/63",
-      "publicId": "LIN-PH/63"
+      "publicId": "LIN-PH/63",
+      "aliases": [
+        "Funes phố Lirio"
+      ]
     },
     {
       "id": "A05",
@@ -184,7 +187,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "LIN-PH/63",
-      "publicId": "LIN-PH/63"
+      "publicId": "LIN-PH/63",
+      "aliases": [
+        "Funes phố Lirio"
+      ]
     },
     {
       "id": "A06",
@@ -276,7 +282,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "CB-19/63",
-      "publicId": "CB-19/63"
+      "publicId": "CB-19/63",
+      "aliases": [
+        "CB-19/63 sổ chờ"
+      ]
     },
     {
       "id": "A09",
@@ -303,7 +312,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "CB-19/63",
-      "publicId": "CB-19/63"
+      "publicId": "CB-19/63",
+      "aliases": [
+        "CB-19/63 phí"
+      ]
     },
     {
       "id": "A10",
@@ -331,7 +343,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "TV-AUD/63",
-      "publicId": "TV-AUD/63"
+      "publicId": "TV-AUD/63",
+      "aliases": [
+        "LN-44 kiểm toán"
+      ]
     },
     {
       "id": "A11",
@@ -359,7 +374,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "CB-19/63",
-      "publicId": "CB-19/63"
+      "publicId": "CB-19/63",
+      "aliases": [
+        "CB-19/63 lời khai"
+      ]
     },
     {
       "id": "A12",
@@ -440,7 +458,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "OL-27/63",
-      "publicId": "OL-27/63"
+      "publicId": "OL-27/63",
+      "aliases": [
+        "Samuel Olmedo văn bản điều chỉnh"
+      ]
     },
     {
       "id": "A15",
@@ -467,7 +488,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "OL-27/63",
-      "publicId": "OL-27/63"
+      "publicId": "OL-27/63",
+      "aliases": [
+        "OL-27/63 sổ việc"
+      ]
     },
     {
       "id": "A16",
@@ -488,7 +512,10 @@ window.ATWG_DATA={
       ],
       "refs": [],
       "docket": "OL-27/63",
-      "publicId": "OL-27/63"
+      "publicId": "OL-27/63",
+      "aliases": [
+        "OL-27/63 giao nhận"
+      ]
     },
     {
       "id": "A17",
@@ -553,7 +580,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "LL-215",
-      "publicId": "LL-215"
+      "publicId": "LL-215",
+      "aliases": [
+        "Ponce biếm họa"
+      ]
     },
     {
       "id": "A19",
@@ -596,7 +626,10 @@ window.ATWG_DATA={
       ],
       "refs": [],
       "docket": "LL-216",
-      "publicId": "LL-216"
+      "publicId": "LL-216",
+      "aliases": [
+        "La Linterna bồi thường"
+      ]
     },
     {
       "id": "A21",
@@ -681,7 +714,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "PROT-TA/62",
-      "publicId": "PROT-TA/62"
+      "publicId": "PROT-TA/62",
+      "aliases": [
+        "Tomás Aguirre bảo hộ"
+      ]
     },
     {
       "id": "A22-L",
@@ -707,7 +743,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "INV-HF-SAFE",
-      "publicId": "INV-HF-SAFE"
+      "publicId": "INV-HF-SAFE",
+      "aliases": [
+        "Elisa thư Tomás"
+      ]
     },
     {
       "id": "A23",
@@ -734,7 +773,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "INV-HF-SAFE",
-      "publicId": "INV-HF-SAFE"
+      "publicId": "INV-HF-SAFE",
+      "aliases": [
+        "INV-HF-SAFE bản cập nhật"
+      ]
     },
     {
       "id": "A24",
@@ -756,7 +798,10 @@ window.ATWG_DATA={
       ],
       "refs": [],
       "docket": "INV-HF-SAFE",
-      "publicId": "INV-HF-SAFE"
+      "publicId": "INV-HF-SAFE",
+      "aliases": [
+        "INV-HF-SAFE lợi ích"
+      ]
     },
     {
       "id": "B-R1",
@@ -939,7 +984,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "215/VP",
-      "publicId": "215/VP"
+      "publicId": "215/VP",
+      "aliases": [
+        "La Linterna cải chính"
+      ]
     },
     {
       "id": "B-L1",
@@ -971,7 +1019,10 @@ window.ATWG_DATA={
         }
       ],
       "docket": "INV-HF-SAFE",
-      "publicId": "INV-HF-SAFE"
+      "publicId": "INV-HF-SAFE",
+      "aliases": [
+        "Elisa đơn phản ánh"
+      ]
     },
     {
       "id": "B-L2",
