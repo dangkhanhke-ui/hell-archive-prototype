@@ -189,7 +189,7 @@ window.ATWG_DATA={
     {
       "id": "A06",
       "scope": "government",
-      "date": "11/01/1963",
+      "date": "16/11/1962",
       "title": "Lịch sản xuất La Noche · kỳ LN-44",
       "origin": "Đài Quốc gia · sản xuất",
       "terms": [
@@ -200,7 +200,7 @@ window.ATWG_DATA={
         "lịch sản xuất"
       ],
       "body": [
-        "Viedma có trong lịch phác chương trình trước khi cái chết được thông báo. Một nguồn tin sớm vẫn có thể giải thích dòng lịch này.",
+        "BẢN GHI ĐƯƠNG THỜI NGÀY 16/11/1962. Viedma có trong lịch phác chương trình trước khi cái chết được thông báo. Một nguồn tin sớm vẫn có thể giải thích dòng lịch này.",
         "Nhật ký thiết bị tổ Azul lưu cùng kỳ LN-44."
       ],
       "refs": [
@@ -221,7 +221,7 @@ window.ATWG_DATA={
     {
       "id": "A07",
       "scope": "government",
-      "date": "11/01/1963",
+      "date": "16/11/1962",
       "title": "Sổ thiết bị và ca dời tổ Azul",
       "origin": "Đài Quốc gia · tổ quay",
       "terms": [
@@ -233,7 +233,7 @@ window.ATWG_DATA={
         "ca dời"
       ],
       "body": [
-        "Máy quay hỏng 16/11; buổi Viedma chuyển sang ca kế tiếp. Văn phòng Giám đốc duyệt đổi ca.",
+        "BẢN GHI ĐƯƠNG THỜI NGÀY 16/11/1962. Máy quay hỏng 16/11; buổi Viedma chuyển sang ca kế tiếp. Văn phòng Giám đốc duyệt đổi ca.",
         "Phiếu yêu cầu đối soát kỳ LN-44 dẫn tới kiểm toán tài chính, không nói ai điều khiển cái chết."
       ],
       "refs": [
