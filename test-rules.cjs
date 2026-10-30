@@ -65,7 +65,8 @@ assert.equal(R.evaluate("07","IX",papers("07",[[0,["A15","A16"]]])),"incomplete"
 assert.equal(R.evaluate("14","V",[...ponce,{id:"A02",location:{suspect:"14",layer:1}}]),"incomplete","wrong causal evidence must not count");
 console.log("PASS Case 01 V4.3: sources, indexed routes, photo provenance, soul knowledge and dossier validation.");
 
-\n// Index category buttons must never populate an unrestricted entity list.
+
+// Index category buttons must never populate an unrestricted entity list.
 assert.equal(R.queryByKind("","people").ok,false,"people requires a typed search");
 assert.equal(R.queryByKind("","events").ok,false,"events requires a typed search");
 assert.equal(R.queryByKind("","publications").ok,false,"publications requires a typed search");
