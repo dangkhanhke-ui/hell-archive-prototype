@@ -1,0 +1,64 @@
+/* Physical 1965 dossier desk. No grid layout, browser drag ghost, or auto-snapping. */
+#desk{max-width:none}
+#desk .desk-briefing{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 14px;flex-wrap:wrap}
+#desk .desk-briefing h1{font-size:clamp(1.5rem,3vw,2.25rem);margin:0}
+#desk .desk-hint{font-size:.8rem;max-width:640px;color:#bbbdac;margin:0}
+#desk .desk-hint strong{color:#efe2bc}
+#desk-stage{position:relative;width:100%;aspect-ratio:1280/800;border:8px ridge #5a402c;box-shadow:0 16px 36px #000d,inset 0 0 4px #0009;overflow:hidden;isolation:isolate;touch-action:none;background:#513b2e}
+#desk-world{position:absolute;top:0;left:0;width:1280px;height:800px;transform-origin:0 0;overflow:visible;touch-action:none;user-select:none}
+#desk-backdrop{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.desk-object{position:absolute;box-sizing:border-box;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;will-change:transform,left,top;filter:drop-shadow(7px 12px 9px #140e0ab0)}
+.desk-object.desk-grabbing{cursor:grabbing!important;filter:drop-shadow(14px 21px 16px #080604b9) brightness(1.035);transition:none}
+.desk-object.desk-active:not(.desk-page){outline:2px solid #efe1b082;outline-offset:3px}
+.desk-page{display:block;background:#eee8d8;border:1px solid #c4b9a0;overflow:hidden;border-radius:1px;box-shadow:1px 1px #f6eed7,-1px -1px #d1c5af,6px 8px 11px #14100c87;cursor:grab;user-select:none}
+.desk-page-paper{position:relative;width:100%;height:100%;padding:17px 15px 22px;color:#302b22;background:linear-gradient(115deg,#fffef4 0%,#f4eee0 30%,#ece6d5 100%);font-family:Georgia,"Times New Roman",serif;pointer-events:none}
+.desk-page-overline{text-align:center;border-bottom:2px solid #4f4b40;padding:0 0 7px;margin:0 0 10px;font:700 9px/1.1 Georgia,serif;letter-spacing:.16em}
+.desk-page-headline{font:700 23px/1.05 Georgia,serif;color:#272018;margin:3px 0 8px;letter-spacing:-.03em;max-height:105px;overflow:hidden}
+.desk-page-dateline{font:italic 8px/1.25 Georgia,serif;color:#655d4e;border-bottom:1px solid #b4a998;padding-bottom:8px;margin-bottom:9px}
+.desk-page-excerpt{font:10px/1.43 Georgia,serif;color:#39342b;max-height:115px;overflow:hidden}
+.desk-page-excerpt p{margin:0 0 6px;text-align:justify}
+.desk-page-foot{position:absolute;bottom:8px;left:15px;right:15px;font:8px/1.1 Georgia,serif;letter-spacing:.12em;color:#7b7465;border-top:1px solid #bbb2a1;padding-top:5px}
+.desk-folder{overflow:visible;border:0;background:transparent;filter:drop-shadow(9px 12px 9px #100b08a0)}
+.desk-folder>svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.desk-folder-caption{position:absolute;left:40px;top:98px;max-width:220px;font:700 12px Georgia,serif;color:#423625;text-transform:uppercase;pointer-events:none}
+.desk-contained{display:block;position:absolute;border:1px solid #9d947c;box-shadow:3px 4px 6px #2b2217aa;filter:none}
+.desk-contained .desk-page-paper{padding:14px 14px 20px}
+.desk-contained .desk-page-headline{font-size:21px}
+.desk-file-divider{position:absolute;width:75px;height:19px;background:#d5b57b;border:1px solid #9c835e;color:#3b3225;text-align:center;font:700 11px/17px Georgia,serif;cursor:pointer;box-shadow:1px 2px 3px #0008}
+.desk-folder-fastener{position:absolute;z-index:1600;top:53px;left:15px;transform:rotate(-36deg);width:75px;height:60px;pointer-events:none;filter:drop-shadow(1px 2px 2px #0008)}
+.desk-folder-fastener svg{width:100%;height:100%}
+.desk-folder-name{position:absolute;z-index:1700;bottom:42px;left:33px;width:244px;padding:7px 8px;background:#b5a379;border:1px solid #6a593d;color:#32291b;font:700 12px Georgia,serif;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
+.desk-folder-ready{position:absolute;z-index:1800;left:45px;bottom:-24px;background:#e5d0a0;color:#342718;border:2px solid #705233;border-radius:2px;font:700 14px Georgia,serif;padding:7px 14px;filter:drop-shadow(2px 5px 4px #000a)}
+.desk-folder-ready:hover{background:#fff1c7;color:#2d2319}
+.desk-prop{border:0;background:transparent}
+.desk-prop svg{width:100%;height:100%;pointer-events:none}
+.desk-prop-label{position:absolute;top:24px;left:22px;color:#342a1c;font:700 13px Georgia,serif;pointer-events:none}
+#desk-toolbox{position:relative;display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;background:#222b24;border:1px solid #6e6753;align-items:center;margin-top:12px}
+#desk-toolbox::before{content:'GÓC DỤNG CỤ';font:700 10px monospace;letter-spacing:.14em;color:#b7b398;margin-right:6px}
+#desk-toolbox button{font:700 12px Georgia,serif;background:#564d3d;border:1px solid #b09b6d;color:#fff4d7;padding:9px 13px}
+#desk-toolbox button:hover{background:#72644c}
+#desk-stage-status{flex:1 1 180px;margin:0 0 0 9px;color:#d5c89d;font:12px/1.4 Georgia,serif}
+#desk-inspector{min-height:60px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 14px;border:1px solid #6a6b51;background:#252c26;color:#eee3c5;margin-top:11px;font-size:12px}
+#desk-inspector>strong{font:700 15px Georgia,serif;max-width:260px}
+#desk-inspector>small{font-size:11px;max-width:300px;color:#c7c1a6}
+#desk-inspector>p{margin:0}
+#desk-inspector .desk-action{font:700 11px Georgia,serif;background:#4b5347;border-color:#9d9d80;padding:8px 9px}
+#desk-inspector .desk-action:hover{background:#66725b}
+#desk-inspector .desk-name-select{width:240px;max-width:100%;margin:0;padding:7px 9px;background:#d4c3a0;color:#352d1f}
+#desk-ready-button{background:#d8b66d;color:#312614;border:2px solid #8d7748;font:700 12px Georgia,serif}
+#desk-ready-button[hidden]{display:none!important}
+#desk-trash-drawer{padding:16px;background:#21241e;border:1px solid #8d7960;max-height:280px;overflow:auto;margin-top:10px}
+#desk-trash-drawer[hidden]{display:none}
+#desk-trash-drawer h2{font:700 19px Georgia,serif;color:#e9d4a8;margin:0 0 12px}
+#desk-trash-list{display:flex;flex-direction:column;gap:7px}
+.desk-trash-row{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:8px;background:#38372d;border:1px solid #766e56;color:#e8dcc3;font-size:12px}
+.desk-trash-row button{font-size:11px;padding:5px 8px;flex-shrink:0}
+#desk .desk-stage-tooltip{margin:6px 0;color:#bfb59c;font-size:12px}
+#paper-dialog .dialog-head h2{font:700 clamp(1.5rem,3.5vw,2.5rem)/1.1 Georgia,serif;max-width:580px}
+#paper-dialog #dialog-body{font:16px/1.72 Georgia,serif;background:#eee8d6;padding:14px 20px;color:#29271f}
+#paper-dialog #dialog-body>p{margin-bottom:15px;text-align:justify}
+#desk-admission-preview{border:1px solid #b7a16d;background:#2b3027;color:#f0e5c8;padding:17px;margin:12px 0 17px}
+#desk-admission-preview strong{display:block;font:700 18px Georgia,serif;margin:0 0 8px}
+#desk-admission-preview small{display:block;color:#c7c3b6}
+#desk-stage:focus-within{border-color:#8b7351}
+@media(max-width:700px){#desk-toolbox{gap:5px}#desk-toolbox button{padding:7px 9px;font-size:11px}#desk-inspector{padding:8px 9px}#desk-inspector .desk-action{padding:6px}#desk-stage{border-width:4px}}
