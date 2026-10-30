@@ -1,62 +1,66 @@
-const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const vm = require("node:vm");
-const path = require("node:path");
-const ctx = {window:{}};
-vm.createContext(ctx);
-for (const file of ["data.js","rules.js"]) vm.runInContext(fs.readFileSync(path.join(__dirname,file),"utf8"),ctx,{filename:file});
-const {ATWG_DATA:D,ATWG_RULES:R} = ctx.window;
-
-const government = R.search("government","Serrano").map(x=>x.id);
-assert(government.includes("S04"),"Name-indexed final approval must not be hidden");
-assert(!government.includes("T05"),"A criminal receipt indexed under its seizure must not be magically indexed under another name");
-assert(R.search("press","tomas").some(x=>x.id==="C02"),"Accent-free search must work");
-assert(R.search("government","N17").some(x=>x.id==="T08")===false,"Do not silently reinterpret codes: N-17 is the indexed form");
-assert(R.search("government","N-17").some(x=>x.id==="T08"));
-assert.equal(R.photoFor("WP-12B",[]),null,"A valid photo needs a read source document");
-assert.equal(R.photoFor("wp 12b",["S02"]).id,"WP-12B");
-assert.equal(R.photoFor("invented",["S02"]),null);
-
-const make = (suspect,ids) => ids.map(([id,layer],i)=>({id,uid:String(i),location:{suspect,layer}}));
-const serrano = make("09",[["C03",0],["C01",1],["S02",2],["WP-12B",2],["WP-12TX",2],["S03",3],["S04",3]]);
-assert.equal(R.evaluate("09","VIII",serrano),"admitted");
-assert.equal(R.evaluate("09","VII",serrano),"jurisdiction");
-assert.equal(R.evaluate("09","VIII",serrano.filter(p=>p.id!=="WP-12TX")),"incomplete");
-assert.equal(R.evaluate("09","VIII",serrano.map(p=>p.id==="S04"?{...p,location:{suspect:"09",layer:0}}:p)),"incomplete");
-assert.equal(R.evaluate("09","VIII",[...serrano,...make("09",[["S01",2]])]),"admitted","Context can support a valid layer");
-
-const ledesma = make("05",[["T08",0],["T05",1],["T09",1],["T04",2],["T07",2],["T01",3],["T02",3]]);
+const assert=require("node:assert/strict");
+const fs=require("node:fs"),vm=require("node:vm"),path=require("node:path");
+const ctx={window:{}};vm.createContext(ctx);
+for(const f of ["data.js","rules.js"])vm.runInContext(fs.readFileSync(path.join(__dirname,f),"utf8"),ctx,{filename:f});
+const {ATWG_DATA:D,ATWG_RULES:R}=ctx.window;
+const ids=(q,s="all")=>R.queryArchive(q,s).records.map(x=>x.id);
+const papers=(suspect,layers)=>layers.flatMap(([layer,items])=>items.map(id=>({id,location:{suspect,layer}})));
+assert.equal(D.people.length,30,"30 ledger identities, no roles/circles exposed there");
+assert.deepEqual(Array.from(D.opening),["A01","A02"],"exactly two public opening papers");
+for(let i=1;i<=24;i++)assert(D.records.some(x=>x.id==="A"+String(i).padStart(2,"0")),"A evidence "+i);
+for(const id of ["B-R1","B-R2","B-V1","B-V2","B-V3","B-P1","B-L1","B-L2"])assert(D.records.some(x=>x.id===id));
+assert.equal(D.photos.length,4);
+assert(ids("Viedma","press").includes("A12"));
+assert(ids("Viedma","government").includes("B-R2"),"independent prosecution route");
+assert(ids("Cobre Films Servicios","government").includes("A08"));
+assert(ids("Cobre Films Servicios","government").includes("B-R2"));
+assert(ids("Rojas","government").includes("A10"),"legitimate indexed subject not hidden");
+assert(ids("Rojas","government").includes("BIO-27"));
+assert(ids("Samuel Olmedo","press").includes("B-V2"));
+assert(ids("Samuel Olmedo","government").includes("B-V3"));
+assert(ids("Samuel Olmedo","government").includes("A14"));
+assert(ids("Rafael Córdova","government").includes("A15"));
+assert(ids("Rafael Córdova","government").includes("A23"));
+assert(ids("215/VP","government").includes("A19"));
+assert(ids("INV-HF-SAFE","government").includes("B-L2"));
+assert(ids("La Linterna bồi thường","government").includes("A20"));
+assert(ids("Lễ ghi công Plaza del Reloj","press").includes("A21"));
+assert(ids("phụ lục lễ ghi công","government").includes("A21-P"));
+assert(!ids("Tomás Aguirre","press").includes("A01"),"T1: no protected identity in opening paper");
+assert(!ids("Tomás Aguirre","press").includes("A21"),"T1: no name in public honor photo catalog");
+assert(ids("Tomás Aguirre","government").includes("A21-P"));
+assert(ids("Elisa thư Tomás","government").includes("A22-L"),"private letter only archived after submission");
+assert(!ids("Elisa thư Tomás","press").includes("A22-L"));
+assert(ids("Viedma 1962","press").includes("A12"));
+assert(!ids("Viedma 1963","press").includes("A12"));
+assert(ids("La Linterna + Ponce","press").includes("A18"));
+assert.equal(R.parseQuery("A+B+C").ok,false);
+for(const record of D.records)for(const ref of record.refs||[]){
+ if(ref.kind==="search")assert(ids(ref.query).length>0,record.id+" broken discovery: "+ref.query);
+ if(ref.kind==="photo")assert(D.photos.some(x=>x.id===ref.code),record.id+" broken image: "+ref.code);
+}
+for(const p of D.photos){
+ assert.equal(R.photoFor(p.id,[]),null,"image not freely guessed");
+ assert.equal(R.photoFor(p.id,[p.source]).id,p.id,"document unlocks its authored image reference");
+}
+assert.equal(R.photoFor("WRONG",D.records.map(r=>r.id)),null);
+assert.equal(R.availableExchange("09","A12").length,1);
+assert.equal(R.availableExchange("28","A22").length,1);
+assert.equal(R.availableExchange("09","A23").length,0,"unrelated soul does not know the secret");
+const rojas=papers("27",[[0,["A12"]],[1,["A07","A06"]],[2,["A08","A09","A10","A11"]]]);
+assert.equal(R.evaluate("27","VIII",rojas),"admitted");
+assert.equal(R.evaluate("27","VIII",rojas.filter(x=>x.id!=="A11")),"incomplete","a payment alone cannot convict");
+assert.equal(R.evaluate("27","VII",rojas),"jurisdiction");
+const rojasAlt=papers("27",[[0,["A12"]],[1,["A07","IMG-HF-STREET"]],[2,["A11","A08","A10","A09"]]]);
+assert.equal(R.evaluate("27","VIII",rojasAlt),"admitted","alternative mid proof and shuffled same-layer order");
+const ponce=papers("14",[[0,["A20","A17"]],[1,["A19","A18"]]]);
+assert.equal(R.evaluate("14","V",ponce),"admitted");
+assert.equal(R.evaluate("14","V",ponce.filter(x=>x.id!=="A20")),"incomplete");
+const ledesma=papers("05",[[0,["A23","B-L1"]],[1,["A24"]],[2,["A22-L","A22"]]]);
 assert.equal(R.evaluate("05","IX",ledesma),"admitted");
-assert.equal(R.evaluate("05","IX",ledesma.filter(p=>p.id!=="T02")),"incomplete","Death plus address sale does not prove the personal trust criterion");
-assert.equal(R.evaluate("05","IX",[...ledesma,...make("05",[["T03",2],["T06",1]])]),"admitted");
-assert.equal(R.evaluate("05","IX",[...ledesma,...make("05",[["C01",3]])]),"incomplete","Irrelevant filler must not count as a deeper explanation");
-assert.equal(D.records.filter(x=>x.scope==="government").length + D.records.filter(x=>x.scope==="press").length,D.records.length);
-
-
-// Unified IBM index / filing navigation contract.
-const ids = (q,scope="all") => R.queryArchive(q,scope).records.map(r=>r.id);
-for(const query of ["Serrano","Serrano_1962","Ledesma_Tomás Aguirre","Ledesma_Tomás Aguirre_1962"]) {
-  assert.equal(R.parseQuery(query).ok,true,"Documented syntax should parse: "+query);
-}
-for(const query of ["Serrano__1962","Serrano_Tomás_1962_1963","_Serrano","Serrano_"]) {
-  assert.equal(R.parseQuery(query).ok,false,"Malformed underscore grammar must be rejected: "+query);
-}
-assert(ids("Serrano").includes("S04"),"Unified lookup must include government documents");
-assert(ids("Serrano").includes("C01"),"Unified lookup must include newspaper records");
-assert(ids("Serrano_1962").includes("S04"),"Year metadata should match");
-assert.equal(ids("Serrano_1963").length,0,"Document filing year, not event speculation");
-assert(ids("Ledesma_Tomás Aguirre").includes("T01"),"Two-heading intersection must work");
-assert(!ids("Ledesma_Tomás Aguirre").includes("T05"),"A document may not inherit links from another folder");
-assert(ids("Chiến dịch San Aurelio").includes("C03"),"Published event aliases must resolve");
-assert(ids("La Linterna").includes("C02"),"Publication headings should work");
-assert(ids("N-17").includes("T08"),"Exact recorded case identifier must work");
-assert.equal(ids("N17").length,0,"A misspelled code must not be silently accepted");
-assert.equal(ids("Serrano__1962").length,0);
-assert.equal(D.folders.flatMap(f=>f.records).length,D.records.length,"Every Case 01 record should belong to exactly one folder");
-assert.equal(new Set(D.folders.flatMap(f=>f.records)).size,D.records.length);
-for(const refs of Object.values(D.references))for(const ref of refs){
-  if(ref.folder)assert(D.folders.some(folder=>folder.id===ref.folder),"All linked folders must exist");
-  if(ref.photo)assert(D.photos.some(photo=>photo.id===ref.photo),"All linked photos must exist");
-}
-
-console.log("Archive, filing references, and dossier rules: all checks passed.");
+assert.equal(R.evaluate("05","IX",ledesma.filter(x=>x.id!=="A22-L")),"incomplete","reliance matters");
+assert.equal(R.evaluate("05","IX",ledesma.filter(x=>x.id!=="A24")),"incomplete","access does not prove sale");
+assert.equal(R.evaluate("07","VII",papers("07",[[0,["A15","A16"]]])),"jurisdiction","deepest IX not solved in Case01");
+assert.equal(R.evaluate("07","IX",papers("07",[[0,["A15","A16"]]])),"incomplete","Case01 cannot finish Varela");
+assert.equal(R.evaluate("14","V",[...ponce,{id:"A02",location:{suspect:"14",layer:1}}]),"incomplete","wrong causal evidence must not count");
+console.log("PASS Case 01 V4.3: sources, indexed routes, photo provenance, soul knowledge and dossier validation.");
