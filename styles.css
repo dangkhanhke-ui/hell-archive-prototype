@@ -137,3 +137,17 @@ main{min-height:100vh;padding-top:18px}
 #archive .archive-browse button[aria-pressed="false"]{color:var(--dim)}
 #archive .archive-browse{gap:5px}
 #archive .archive-browse button{padding:5px 8px}
+
+/* Character Bible identity portraits, cropped from the supplied 10x3 contact sheet. */
+.ledger-face.ledger-portrait{
+ width:100%;height:auto;aspect-ratio:3/4;
+ background-repeat:no-repeat;background-color:#2f3732;
+ border:1px solid #a2aa98;border-radius:3px;
+ box-shadow:inset 0 0 0 1px #161f1a,0 2px 9px #0006;
+ max-width:132px;display:block;
+}
+.ledger-person{align-items:flex-start;min-height:208px}
+#archive #archive-sound-toggle{margin-left:auto;border-color:#587d5d;color:var(--phosphor)}
+#archive #archive-sound-toggle[aria-pressed="false"]{color:var(--dim);border-color:#344e36}
+#archive #scope-filter:disabled{opacity:.67;cursor:not-allowed}
+@media(max-width:620px){#archive #archive-sound-toggle{margin-left:0;font-size:.68em;padding:4px 5px}.ledger-person{min-height:185px}}
