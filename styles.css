@@ -151,3 +151,17 @@ main{min-height:100vh;padding-top:18px}
 #archive #archive-sound-toggle[aria-pressed="false"]{color:var(--dim);border-color:#344e36}
 #archive #scope-filter:disabled{opacity:.67;cursor:not-allowed}
 @media(max-width:620px){#archive #archive-sound-toggle{margin-left:0;font-size:.68em;padding:4px 5px}.ledger-person{min-height:185px}}
+
+/* Recoverable paper bin from Gameplay Bible V8 section 1.11. */
+.desk-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.desk-side .inventory{max-height:490px;overflow-y:auto}
+.trash-bin{border:1px dashed #96896d;background:#171d1a;padding:17px;min-height:130px;transition:background .12s,border-color .12s}
+.trash-bin h2{color:#e0c98d;margin:0 0 8px}
+.trash-bin .muted{font-size:.79rem;margin:0 0 12px}
+.trash-bin[data-over=true]{border-color:#f4d68a;background:#353528}
+#trash-papers{max-height:300px;overflow-y:auto}
+.trashed-paper{background:#b3aa96;border-left:4px solid #786a56;cursor:default}
+.paper-card .trash-action{background:#574034;border-color:#a68d72}
+.paper-card .trash-action:hover,.paper-card .trash-action:focus-visible{background:#6b4937}
+.trashed-paper .restore-action{background:#344d3c;border-color:#8eae91}
+@media(max-width:760px){.desk-side .inventory{max-height:480px}}
