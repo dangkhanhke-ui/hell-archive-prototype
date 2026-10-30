@@ -28,6 +28,25 @@ function queryArchive(input,scope="all"){
  const records=D.records.filter(r=>(scope==="all"||r.scope===scope)&&(!parsed.year||r.date.endsWith(parsed.year))&&parsed.headings.every(h=>matchesHeading(r,h)));
  return {...parsed,records};
 }
+// Each category is a way to SEARCH, never a browsable all-record directory.
+function queryByKind(input,kind="all",scope="all"){
+ const result=queryArchive(input,scope);
+ if(!result.ok)return result;
+ if(kind==="all")return result;
+ const needle=normalize(result.headings.join(" "));
+ if(kind==="publications"){
+   return {...result,records:result.records.filter(r=>r.scope==="press" && normalize(r.origin).includes(needle))};
+ }
+ if(kind==="events"){
+   return {...result,records:result.records.filter(r=>!r.id.startsWith("BIO-"))};
+ }
+ if(kind==="people"){
+   const people=[...D.people.map(p=>p.name),"Tomás Aguirre","Elisa Aguirre","Samuel Olmedo","Rafael Córdova","Funes","Viedma"];
+   const matchesPerson=people.some(p=>normalize(p).includes(needle)||needle.includes(normalize(p)));
+   return {...result,records:matchesPerson?result.records:[]};
+ }
+ return {...result,records:[]};
+}
 function search(scope,query){return query?queryArchive(query,scope).records:D.records.filter(r=>scope==="all"||r.scope===scope);}
 function photoFor(code,readIds){
  const raw=String(code||"").trim();
@@ -64,5 +83,5 @@ function evaluate(suspect,room,papers){
 function availableExchange(who,readId){
  return (D.exchanges||[]).filter(x=>x.who===who&&x.trigger.includes(readId));
 }
-root.ATWG_RULES={normalize,parseQuery,indexedFields,matchesHeading,queryArchive,search,photoFor,evaluate,availableExchange,layerRules};
+root.ATWG_RULES={normalize,parseQuery,indexedFields,matchesHeading,queryArchive,queryByKind,search,photoFor,evaluate,availableExchange,layerRules};
 })(window);
