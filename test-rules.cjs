@@ -96,3 +96,23 @@ for(const row of rows){
  assert(bytes.length>12000,"retain detail in cropped images");
 }
 console.log("PASS IBM GOV/PRESS, 3 query modes, 30 identity portraits and sound wiring.");
+
+// One-letter/short queries must never leak almost every archive record.
+for(const q of ["a","b","x","i","O","La","V","a + Viedma","Viedma + x","1962"]){
+ const response=R.queryArchive(q);
+ assert.equal(response.ok,false,"too-short heading must be rejected: "+q);
+ assert.equal(response.records.length,0,"must return zero rows: "+q);
+}
+assert.equal(R.queryArchive("Roj").records.length,0,"do not auto-complete partial surnames");
+assert(R.queryArchive("Rojas").records.some(r=>r.id==="A10"));
+assert(R.queryArchive("Viedma").records.some(r=>r.id==="B-R2"));
+assert(R.queryArchive("215/VP").records.some(r=>r.id==="A19"));
+assert(R.queryArchive("Elisa thư Tomás").records.some(r=>r.id==="A22-L"));
+for(const record of D.records){for(const ref of record.refs||[]){
+ if(ref.kind==="search")assert(R.queryArchive(ref.query).records.length>0,record.id+" broken exact-index ref: "+ref.query);
+}}
+assert(!R.queryByKind("a","events").records.length,"one-letter queries also blocked in modes");
+assert(!R.queryByKind("a","people").records.length);
+assert(!R.queryByKind("a","publications").records.length);
+assert(app.includes("const boostedVolume=volume*3"),"audio gain must be tripled");
+console.log("PASS exact-word IBM search and 3x amplified Web Audio.");
