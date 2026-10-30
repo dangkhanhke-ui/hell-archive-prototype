@@ -1,98 +1,82 @@
 <!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>All Thirty Were Guilty · Case 01 prototype</title>
-  <link rel="stylesheet" href="styles.css?v=ibm-ledger-01">
-</head>
-<body>
-  <div id="status" class="sr-only" role="status" aria-live="polite"></div>
-  <main>
-    <nav class="tabs" aria-label="Công cụ điều tra">
-      <button type="button" data-tab="brief">VỤ VIỆC</button>
-      <button type="button" data-tab="archive">TRA CỨU</button>
-      <button type="button" data-tab="wire">WIREPHOTO 000</button>
-      <button type="button" data-tab="desk">BÀN GIẤY <span id="paper-count"></span></button>
-      <button type="button" data-tab="admit">TIẾP NHẬN</button>
-    </nav>
-
-    <section id="brief" class="view">
-      <p class="eyebrow">HỒ SƠ KHỞI ĐẦU / THE HERO FACTORY</p>
-      <h1>Chiến công có thật.<br><em>Những lời kể thì sao?</em></h1>
-      <div class="columns">
-        <div class="paper intro">
-          <h2>Phiếu bàn giao của #31</h2>
-          <p>Montelara, 1962. Một cuộc truy bắt đường dây tội phạm được tuyên dương trên truyền hình. Sau đó, một nguồn tin đang được bảo hộ tên <strong>Tomás Aguirre</strong> chết tại nơi trú.</p>
-          <p>Hai người trong danh sách chờ hồ sơ: <strong>#09 José Ignacio Serrano Vivas</strong>, người đứng đầu Truyền hình Quốc gia; <strong>#05 José Tomás Ledesma Quiroga</strong>, phụ trách nguồn tin cảnh sát.</p>
-          <p>Hai người còn lại của Case 01 và các case sau chưa được viết vào lát cắt prototype này. Biết chức vụ không chứng minh hành vi.</p>
-          <button type="button" data-go="archive">MỞ MÁY TRA CỨU →</button>
-        </div>
-        <aside class="rulebox">
-          <h2>Luật bàn giấy</h2>
-          <p>Dùng <strong>một Sổ tra cứu chung</strong> cho công vụ và báo chí. Gõ A, A_NĂM, A_B hoặc A_B_NĂM; hoặc duyệt Người, Sự việc, Ấn phẩm. IBM chỉ tra mục lục, không suy luận quan hệ nhân quả.</p>
-          <p>In giấy, gọi <strong>000</strong> nếu một tài liệu đưa mã ảnh, rồi xếp chứng cứ từ <strong>kết quả được ghi nhận</strong> vào <strong>hành động và điều kiện định tội</strong>. Trong một lớp, thứ tự giấy không quan trọng.</p>
-          <p>Đọc hết một danh sách kết quả vẫn chưa nói được ai biết gì, đã chọn làm gì, và tội sâu nhất là gì.</p>
-        </aside>
-      </div>
-    </section>
-
-    <section id="archive" class="view hidden" aria-label="Máy tra cứu hồ sơ IBM">
-      <div class="terminal" aria-label="Màn hình lưu trữ trong vỏ máy cổ">
-        <div class="terminal-screen">
-          <div class="terminal-content">
-            <div class="archive-controls">
-              <form id="search-form">
-                <label for="query">SỔ TRA CỨU · NGƯỜI / SỰ VIỆC / ẤN PHẨM / MÃ</label>
-                <div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Ví dụ: Serrano_1962" aria-label="Đề mục tra cứu"><button type="submit">TRA →</button></div>
-                <small class="archive-syntax">CÚ PHÁP: A · A_NĂM · A_B · A_B_NĂM. Dùng dấu _ để ghép đề mục, không nhập câu hỏi.</small>
-              </form>
-              <div class="archive-browse" role="group" aria-label="Duyệt chỉ mục">
-                <button type="button" data-browse="people">NGƯỜI</button>
-                <button type="button" data-browse="events">SỰ VIỆC</button>
-                <button type="button" data-browse="publications">ẤN PHẨM</button>
-                <label class="scope-label" for="scope-filter">NGUỒN</label>
-                <select id="scope-filter" aria-label="Lọc nguồn"><option value="all">TẤT CẢ</option><option value="government">CÔNG VỤ</option><option value="press">BÁO CHÍ</option></select>
-              </div>
-              <div class="archive-utilities">
-                <button type="button" id="archive-history">ĐÃ XEM</button>
-                <button type="button" id="archive-pins">ĐÃ GHIM</button>
-                <span class="archive-help">CHỌN MÃ THAM CHIẾU TRÊN GIẤY ĐỂ MỞ TẬP ĐƯỢC DẪN</span>
-              </div>
-            </div>
-            <div class="archive-stage">
-              <div id="archive-idle" class="archive-idle"><span aria-hidden="true">&gt;<span class="terminal-cursor">_</span></span><p>Gõ một đề mục, hoặc duyệt NGƯỜI · SỰ VIỆC · ẤN PHẨM.</p></div>
-              <div id="archive-list" class="archive-list hidden"><div class="list-head"><h2 id="results-title"></h2><span id="result-count"></span></div><div id="results" aria-live="polite"></div></div>
-              <article id="reader" class="reader hidden" aria-label="Nội dung bản ghi"></article>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="wire" class="view hidden">
-      <p class="eyebrow">TỔNG ĐÀI TRUYỀN ẢNH</p><h1>Wirephoto / 000</h1>
-      <div class="columns"><div class="paper"><p>Quay 000 và nhập <strong>mã ảnh được ghi trong một phiếu đã đọc</strong>. Máy in bản sao ảnh có nguồn thật; không tự tạo ảnh hiện trường.</p>
-        <form id="wire-form"><label for="wire-code">MÃ THAM CHIẾU ẢNH</label><div class="search-row"><input id="wire-code" autocomplete="off" placeholder="Ví dụ: WP-…"><button type="submit">GỌI 000</button></div></form><p id="wire-message" role="status" aria-live="polite"></p>
-        <div id="wire-result"></div></div><aside class="rulebox"><h2>Không cần đoán số</h2><p>Phiếu lưu cuộn phim của đài có mã yêu cầu hai khung ảnh. Mày phải đọc phiếu trước; hai tấm ảnh sẽ in thành hai tờ độc lập trên bàn.</p></aside></div>
-    </section>
-
-    <section id="desk" class="view hidden">
-      <div class="section-head"><div><p class="eyebrow">DOSSIER DESK</p><h1>Bàn giấy</h1></div><div><button type="button" id="reset">XÓA TIẾN ĐỘ BẢN THỬ</button></div></div>
-      <div class="segmented" role="group" aria-label="Hồ sơ cá nhân"><button type="button" class="suspect" data-suspect="09" aria-pressed="true">#09 SERRANO</button><button type="button" class="suspect" data-suspect="05" aria-pressed="false">#05 LEDESMA</button></div>
-      <p class="muted">Chọn “Đặt vào lớp” trên giấy, hoặc kéo giấy vào một lớp. Giấy có thể chuyển đi, tháo ra và in thêm. Bản giấy dư được để ở khu tham khảo. Trạng thái lưu trên máy của mày.</p>
-      <div class="desk-layout"><div class="inventory"><h2>Giấy đã in · <span id="inventory-count">0</span></h2><div id="inventory"></div></div><div class="stack"><h2 id="stack-title">#09 · José Ignacio Serrano Vivas</h2><p class="muted">Từ bề mặt → chiều sâu hành vi. Không báo đúng sai khi xếp.</p><div id="layers"></div></div></div>
-    </section>
-
-    <section id="admit" class="view hidden">
-      <p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Nộp hồ sơ</h1>
-      <p>Chọn người và tầng mà mày cho là <strong>tầng có đủ căn cứ chứng minh</strong>. Kết quả kiểm tra một lần sau khi nộp, không chấm từng tờ lúc xếp.</p>
-      <div class="columns"><div class="paper"><label for="submit-suspect">HỒ SƠ CÁ NHÂN</label><select id="submit-suspect"><option value="09">#09 José Ignacio Serrano Vivas</option><option value="05">#05 José Tomás Ledesma Quiroga</option></select>
-        <label for="room">PHÒNG TIẾP NHẬN</label><select id="room"><option value="">— Chọn tầng —</option><option value="I">I · Kiêu ngạo</option><option value="II">II · Dục vọng</option><option value="III">III · Hưởng thụ quá độ</option><option value="IV">IV · Tham lam</option><option value="V">V · Phẫn nộ</option><option value="VI">VI · Cuồng tín</option><option value="VII">VII · Bạo lực</option><option value="VIII">VIII · Gian trá</option><option value="IX">IX · Phản bội</option></select>
-        <button type="button" id="submit-dossier">NỘP CHỒNG GIẤY</button><div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div></div><aside class="rulebox"><h2>Ba kết quả</h2><p>Quầy có thể không có thẩm quyền; hồ sơ có thể thuộc đúng quầy nhưng chưa chứng minh đủ; hoặc được tiếp nhận. Bản thử này không có hình phạt khi thử lại, nên phản hồi có thể giúp đoán tầng bằng cách thử từng phòng. Ghi nhận đó là một hạn chế thiết kế cần kiểm tra.</p></aside></div>
-    </section>
-  </main>
-  <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button type="button" id="close-dialog">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-  <script src="data.js?v=ibm-ledger-01"></script><script src="rules.js?v=ibm-ledger-01"></script><script src="app.js?v=ibm-ledger-01"></script>
-</body>
-</html>
+<html lang="vi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>All Thirty Were Guilty · Case 01 V4.3</title>
+<link rel="stylesheet" href="styles.css?v=case01-v43-1">
+</head><body>
+<div id="status" class="sr-only" role="status" aria-live="polite"></div>
+<main>
+<nav class="tabs" aria-label="Công cụ điều tra">
+<button data-tab="brief" type="button">BẢN TIN</button>
+<button data-tab="archive" type="button">IBM ARCHIVE</button>
+<button data-tab="wire" type="button">WIREPHOTO 000</button>
+<button data-tab="souls" type="button">ĐỐI CHẤT</button>
+<button data-tab="desk" type="button">BÀN GIẤY <span id="paper-count"></span></button>
+<button data-tab="admit" type="button">TIẾP NHẬN</button>
+<button data-tab="ledger" type="button">LEDGER</button>
+</nav>
+<section id="brief" class="view">
+<p class="eyebrow">THE HERO FACTORY · CASE 01 · MONTELARA / 1965</p>
+<h1>Chiến công có thật.<br><em>Những cái chết cũng vậy.</em></h1>
+<p class="muted">Trên bàn có hai bản báo. Tất cả hướng điều tra đều mở từ những chữ thực sự in trên giấy; không có sơ đồ lời giải.</p>
+<div class="opening-papers" id="opening-papers"></div>
+<div class="intro-foot"><button data-go="archive" type="button">MỞ IBM ARCHIVE →</button><span>Đây là bản playable WORKING V4.3, không tự thay thế Case Bible.</span></div>
+</section>
+<section id="archive" class="view hidden" aria-label="IBM Archive">
+<div class="terminal"><div class="terminal-screen"><div class="terminal-content">
+<div class="archive-controls">
+<form id="search-form"><label for="query">TRA HỒ SƠ · TÊN / SỰ KIỆN / CƠ QUAN / THAM CHIẾU</label>
+<div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Ví dụ: Viedma; Samuel Olmedo; 215/VP"><button type="submit">TRA →</button></div>
+<small class="archive-syntax">Một đề mục hoặc hai đề mục nối bằng +; năm là bộ lọc tùy chọn. Không tìm toàn văn chưa được biên mục.</small></form>
+<div class="archive-browse">
+<button data-browse="people" type="button">NGƯỜI</button><button data-browse="events" type="button">SỰ VIỆC</button><button data-browse="publications" type="button">ẤN PHẨM</button>
+<label class="scope-label" for="scope-filter">NGUỒN</label>
+<select id="scope-filter"><option value="all">TẤT CẢ</option><option value="government">GOV</option><option value="press">PRESS</option></select></div>
+<div class="archive-utilities"><button id="archive-history" type="button">ĐÃ XEM</button><button id="archive-pins" type="button">ĐÃ GHIM</button><span class="archive-help">TÀI LIỆU CÓ NGUỒN VÀ MỐC LƯU; ẢNH GỌI QUA 000.</span></div>
+</div>
+<div class="archive-stage">
+<div id="archive-idle" class="archive-idle"><span>&gt;<span class="terminal-cursor">_</span></span><p>Nhập một tên hoặc đề mục xuất hiện trên giấy.</p></div>
+<div id="archive-list" class="archive-list hidden"><div class="list-head"><h2 id="results-title"></h2><span id="result-count"></span></div><div id="results"></div></div>
+<article id="reader" class="reader hidden" aria-label="Bản ghi lưu trữ"></article>
+</div></div></div></div></section>
+<section id="wire" class="view hidden">
+<p class="eyebrow">TỔNG ĐÀI TRUYỀN ẢNH · 000</p><h1>Wirephoto</h1>
+<div class="columns"><div class="paper"><p>Gõ mã ảnh <strong>thực sự in trong một hồ sơ đã đọc</strong>. Tổng đài chỉ truyền bản ảnh có hồ sơ nguồn; mỗi yêu cầu thành công in một bản mới.</p>
+<form id="wire-form"><label for="wire-code">MÃ ẢNH</label><div class="search-row"><input id="wire-code" placeholder="IMG-…" autocomplete="off"><button type="submit">GỌI 000</button></div></form>
+<p id="wire-message" role="status" aria-live="polite"></p><div id="wire-result"></div></div>
+<aside class="rulebox"><h2>Giới hạn của ảnh</h2><p>Ảnh hiện trường phải có người chụp, thời điểm và nơi lưu. Bản vẽ trong prototype chỉ là placeholder, chưa phải asset Wirephoto hoàn thiện. Không có ảnh siêu nhiên về một lệnh giết bí mật.</p></aside></div>
+</section>
+<section id="souls" class="view hidden">
+<p class="eyebrow">POSTHUMOUS TESTIMONY</p><h1>Đối chất với linh hồn</h1>
+<p class="muted">Mọi người trong 30 linh hồn đều có thể được hỏi. Chỉ những người có kiến thức liên quan mới nói điều giúp điều tra; lời sau khi chết không biến thành chứng cứ lịch sử.</p>
+<div class="columns"><div class="paper">
+<label for="soul-person">LINH HỒN</label><select id="soul-person"></select>
+<label for="soul-paper">GIẤY ĐƯA XEM / CHỦ ĐỀ</label><select id="soul-paper"></select>
+<button type="button" id="soul-ask">ĐƯA GIẤY / HỎI</button>
+<div id="soul-response" class="soul-response" aria-live="polite"></div>
+</div><aside class="rulebox"><h2>Bản ghi đối chất</h2><p>Lời có liên quan được lưu thành transcript ghi rõ <strong>LỜI KHAI SAU KHI CHẾT</strong> và có thể in ra bàn. Những transcript ấy chỉ xác nhận người chết đã nói gì ở đây, không thay hồ sơ công tố năm 1963.</p></aside></div>
+</section>
+<section id="desk" class="view hidden">
+<div class="section-head"><div><p class="eyebrow">DOSSIER DESK</p><h1>Bàn giấy</h1></div><button id="reset" type="button">XÓA TIẾN ĐỘ BẢN THỬ</button></div>
+<div class="segmented" id="suspect-buttons" role="group" aria-label="Chọn hồ sơ nghi phạm"></div>
+<p class="muted">Xếp theo quan hệ giải thích: chuyện được kể → cơ chế → bản chất của hành vi. Không chấm đúng/sai lúc kéo. Có thể in thêm bản từ IBM hoặc FAX để dùng cùng chứng cứ nhiều lần.</p>
+<div class="desk-layout"><div class="inventory"><h2>Giấy chưa xếp · <span id="inventory-count"></span></h2><div id="inventory"></div></div>
+<div class="stack"><h2 id="stack-title"></h2><div id="layers"></div></div></div>
+</section>
+<section id="admit" class="view hidden">
+<p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Tiếp nhận hồ sơ</h1>
+<p>Chọn linh hồn và phòng tiếp nhận. Một vụ án có thể cho thấy tội nghiêm trọng mà vẫn chưa chứng minh được <strong>tội sâu nhất</strong> của người đó.</p>
+<div class="columns"><div class="paper">
+<label for="submit-suspect">HỒ SƠ</label><select id="submit-suspect"></select>
+<label for="room">PHÒNG TIẾP NHẬN</label><select id="room"><option value="">CHỌN PHÒNG</option>
+<option value="I">I · Kiêu ngạo</option><option value="II">II · Dục vọng</option><option value="III">III · Hưởng thụ quá độ</option><option value="IV">IV · Tham lam</option><option value="V">V · Phẫn nộ</option><option value="VI">VI · Cuồng tín</option><option value="VII">VII · Bạo lực</option><option value="VIII">VIII · Gian trá</option><option value="IX">IX · Phản bội</option></select>
+<button id="submit-dossier" type="button">NỘP HỒ SƠ</button><div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
+</div><aside class="rulebox"><h2>Giấy không mất</h2><p>Nộp sai được trả lại nguyên vẹn. Dossier phải chứng minh hành vi, khả năng lựa chọn và điều kiện của phòng tiếp nhận, không chỉ tìm đúng tên.</p><p>Đối với một linh hồn, Case 01 chỉ là phần đầu cuộc điều tra.</p></aside></div>
+</section>
+<section id="ledger" class="view hidden"><p class="eyebrow">THE GRAND LEDGER</p><h1>Ba mươi cái tên</h1>
+<p class="muted">Sổ gốc chỉ có số ID và tên. Không có nghề, case, tầng hay lời giải sẵn. Danh mục nhân sự được tra riêng bằng IBM.</p>
+<div id="ledger-grid" class="ledger-grid"></div></section>
+</main>
+<dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
+<script src="data.js?v=case01-v43-1"></script><script src="rules.js?v=case01-v43-1"></script><script src="app.js?v=case01-v43-1"></script>
+</body></html>
