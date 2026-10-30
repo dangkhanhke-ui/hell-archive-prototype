@@ -16,10 +16,45 @@ const state={
  suspect:"27",lastPhotoId:null,selected:null,browse:"events"
 };
 function save(){try{localStorage.setItem(key,JSON.stringify({serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted}));}catch(_){}}
+const isTrashed=p=>Boolean(p.location&&p.location.zone==="trash");
+const activePaperCount=()=>state.papers.filter(p=>!isTrashed(p)).length;
+function updatePaperCount(){$("paper-count").textContent="("+activePaperCount()+")";}
+function trashPaper(uid){
+ const paper=state.papers.find(p=>p.uid===uid);if(!paper||isTrashed(paper))return;
+ paper.location={zone:"trash"};save();updatePaperCount();
+ $("status").textContent="Một bản giấy đã vào thùng rác.";if(state.tab==="desk")renderDesk();
+}
+function restorePaper(uid){
+ const paper=state.papers.find(p=>p.uid===uid);if(!paper||!isTrashed(paper))return;
+ paper.location=null;save();updatePaperCount();
+ $("status").textContent="Đã phục hồi giấy về khu tham khảo.";if(state.tab==="desk")renderDesk();
+}
 // IBM mechanical feedback is synthesized locally, not loaded from a third-party service.
 const SOUND_KEY="atwg-ibm-sound-v1";
 let soundOn=localStorage.getItem(SOUND_KEY)!=="off";
-let audioContext=null,lastKeySound=0;
+let audioContext=null,lastKeySound=0,lastPrinterSound=-100;
+// Local mechanical printer rasp: paper hiss + 67 Hz feed chatter + 122 Hz roller.
+function mechanicalPrinter(ctx,now){
+ if(now-lastPrinterSound<.24)return;
+ if(!ctx.createBuffer||!ctx.createBufferSource||!ctx.createBiquadFilter)return;
+ lastPrinterSound=now;
+ const sr=ctx.sampleRate||44100,n=Math.floor(sr*.74);
+ const buffer=ctx.createBuffer(1,n,sr),samples=buffer.getChannelData(0);
+ for(let i=0;i<n;i++){
+  const t=i/sr,env=Math.max(0,Math.min(1,t/.035,(.74-t)/.13));
+  const feed=Math.sin(2*Math.PI*67*t)>0?1:.38;
+  samples[i]=((Math.random()*2-1)*.77+Math.sin(2*Math.PI*122*t)*.23)*env*feed;
+ }
+ const source=ctx.createBufferSource();source.buffer=buffer;
+ const filter=ctx.createBiquadFilter();filter.type="highpass";filter.frequency.value=240;
+ const gain=ctx.createGain();
+ gain.gain.setValueAtTime(.0001,now);
+ gain.gain.exponentialRampToValueAtTime(.27,now+.035);
+ gain.gain.setValueAtTime(.27,now+.59);
+ gain.gain.exponentialRampToValueAtTime(.0001,now+.74);
+ source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+ source.start(now);source.stop(now+.75);
+}
 function ibmSound(kind="click"){
  if(!soundOn)return;
  const Ctx=window.AudioContext||window.webkitAudioContext;
@@ -28,6 +63,7 @@ function ibmSound(kind="click"){
   if(!audioContext)audioContext=new Ctx();
   if(audioContext.state==="suspended")void audioContext.resume();
   const now=audioContext.currentTime;
+  if(kind==="print"){mechanicalPrinter(audioContext,now);return;}
   const presets={
    click:[[620,0,.015,.012,"triangle"]],
    key:[[780,0,.009,.006,"square"]],
@@ -77,11 +113,11 @@ function metadata(item,box){
 function paragraphs(item,box){(item.body||[]).forEach(x=>box.append(el("p",null,x)));}
 function navigate(tab){state.tab=tab;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==tab));document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
  if(tab==="archive")renderArchive();if(tab==="desk")renderDesk();if(tab==="souls")renderSouls();if(tab==="wire")renderWire();if(tab==="admit")renderAdmit();
- $("paper-count").textContent="("+state.papers.length+")";
+ updatePaperCount();
 }
 document.querySelectorAll("[data-tab]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.tab)));
 document.querySelectorAll("[data-go]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.go)));
-function printPaper(id){if(!getItem(id))return;ibmSound("print");state.papers.push(newPaper(id));save();$("paper-count").textContent="("+state.papers.length+")";$("status").textContent="Đã in một bản: "+getItem(id).title;}
+function printPaper(id){if(!getItem(id))return;ibmSound("print");state.papers.push(newPaper(id));save();updatePaperCount();$("status").textContent="Đã in một bản: "+getItem(id).title;}
 function renderOpening(){const box=$("opening-papers");box.replaceChildren();
  D.opening.forEach(id=>{const x=getItem(id),article=el("article","paper opening-sheet");article.append(el("small","eyebrow","BẢN BÁO / "+x.date),el("h2",null,x.title));paragraphs(x,article);
  article.append(button("ĐỌC TRONG IBM →",()=>{openRecord(id);navigate("archive");}));box.append(article);});
@@ -200,7 +236,7 @@ function renderSouls(){
  const person=$("soul-person"),paper=$("soul-paper"),oldPerson=person.value,oldPaper=paper.value;
  person.replaceChildren();D.people.forEach(p=>{const o=el("option",null,"#"+p.id+" · "+p.name);o.value=p.id;person.append(o);});
  if(oldPerson&&D.people.some(p=>p.id===oldPerson))person.value=oldPerson;
- paper.replaceChildren();const seen=new Set();state.papers.forEach(p=>{if(seen.has(p.id)||!getItem(p.id))return;seen.add(p.id);const o=el("option",null,getItem(p.id).title);o.value=p.id;paper.append(o);});
+ paper.replaceChildren();const seen=new Set();state.papers.filter(p=>!isTrashed(p)).forEach(p=>{if(seen.has(p.id)||!getItem(p.id))return;seen.add(p.id);const o=el("option",null,getItem(p.id).title);o.value=p.id;paper.append(o);});
  if(oldPaper&&seen.has(oldPaper))paper.value=oldPaper;
  if(!seen.size){const o=el("option",null,"Chưa có giấy để đưa");o.value="";paper.append(o);}
 }
@@ -217,7 +253,7 @@ $("soul-ask").addEventListener("click",()=>{
 });
 function openPaper(id){const item=getItem(id);if(!item)return;const body=$("dialog-body");body.replaceChildren();$("dialog-title").textContent=item.title;metadata(item,body);if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);$("paper-dialog").showModal();}
 $("close-dialog").addEventListener("click",()=>$("paper-dialog").close());
-function movePaper(uid,layer){const p=state.papers.find(x=>x.uid===uid);if(!p)return;p.location=layer===null?null:{suspect:state.suspect,layer};save();renderDesk();}
+function movePaper(uid,layer){const p=state.papers.find(x=>x.uid===uid);if(!p||isTrashed(p))return;p.location=layer===null?null:{suspect:state.suspect,layer};save();renderDesk();}
 function paperCard(p,assigned){
  const item=getItem(p.id),card=el("div","paper-card");card.draggable=true;
  card.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",p.uid);ev.dataTransfer.effectAllowed="move";});
@@ -227,8 +263,29 @@ function paperCard(p,assigned){
  else{const sel=el("select");sel.setAttribute("aria-label","Chọn lớp cho "+item.title);
  for(let i=0;i<D.suspects[state.suspect].layers;i++){const o=el("option",null,"LỚP "+(i+1));o.value=String(i);sel.append(o);}
  actions.append(sel,button("ĐẶT VÀO LỚP",()=>movePaper(p.uid,Number(sel.value))));}
+ actions.append(button("BỎ VÀO THÙNG",()=>trashPaper(p.uid),"trash-action"));
  card.append(actions);return card;
 }
+function trashCard(p){
+ const item=getItem(p.id),card=el("div","paper-card trashed-paper");
+ card.append(el("strong",null,item.title),el("small",null,item.origin));
+ const actions=el("div","card-actions");
+ actions.append(button("ĐỌC",()=>openPaper(p.id)),button("LẤY RA BÀN",()=>restorePaper(p.uid),"restore-action"));
+ card.append(actions);return card;
+}
+function renderTrashBin(){
+ const list=$("trash-papers"),papers=state.papers.filter(p=>isTrashed(p)&&getItem(p.id));
+ $("trash-count").textContent=String(papers.length);list.replaceChildren();
+ if(!papers.length)list.append(el("p","empty","Thùng đang trống."));
+ papers.forEach(p=>list.append(trashCard(p)));
+}
+const deskTrashDropZone=$("trash-bin");
+deskTrashDropZone.addEventListener("dragover",ev=>{ev.preventDefault();deskTrashDropZone.dataset.over="true";});
+deskTrashDropZone.addEventListener("dragleave",()=>{deskTrashDropZone.dataset.over="false";});
+deskTrashDropZone.addEventListener("drop",ev=>{
+ ev.preventDefault();deskTrashDropZone.dataset.over="false";
+ trashPaper(ev.dataTransfer.getData("text/plain"));
+});
 function renderDesk(){
  const box=$("suspect-buttons");box.replaceChildren();Object.entries(D.suspects).forEach(([id,s])=>{
  const b=button("#"+id+" · "+s.name.split(" ").slice(-2,-1).join(""),()=>{state.suspect=id;renderDesk();},"suspect");
@@ -250,6 +307,7 @@ function renderDesk(){
   slot.addEventListener("drop",ev=>{ev.preventDefault();slot.dataset.over="false";movePaper(ev.dataTransfer.getData("text/plain"),i);});
   layers.append(slot);
  }
+ renderTrashBin();updatePaperCount();
 }
 $("reset").addEventListener("click",()=>{if(!confirm("Xóa tiến độ Case 01 V4.3 trên trình duyệt này?"))return;localStorage.removeItem(key);location.reload();});
 function renderAdmit(){
