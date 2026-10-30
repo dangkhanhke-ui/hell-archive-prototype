@@ -25,17 +25,17 @@
 <section id="archive" class="view hidden" aria-label="IBM Archive">
 <div class="terminal"><div class="terminal-screen"><div class="terminal-content">
 <div class="archive-controls">
-<form id="search-form"><label for="query">TRA HỒ SƠ · TÊN / SỰ KIỆN / CƠ QUAN / THAM CHIẾU</label>
-<div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Ví dụ: Viedma; Samuel Olmedo; 215/VP"><button type="submit">TRA →</button></div>
+<form id="search-form"><label id="search-mode-label" for="query">TRA CỨU CHUNG</label>
+<div class="search-row"><input id="query" autocomplete="off" spellcheck="false" placeholder="Nhập đề mục thấy trên tài liệu..."><button type="submit">TRA →</button></div>
 <small class="archive-syntax">Một đề mục hoặc hai đề mục nối bằng +; năm là bộ lọc tùy chọn. Không tìm toàn văn chưa được biên mục.</small></form>
 <div class="archive-browse">
-<button data-browse="people" type="button">NGƯỜI</button><button data-browse="events" type="button">SỰ VIỆC</button><button data-browse="publications" type="button">ẤN PHẨM</button>
+<button data-browse="all" type="button">TRA CHUNG</button><button data-browse="people" type="button">NGƯỜI</button><button data-browse="events" type="button">SỰ VIỆC</button><button data-browse="publications" type="button">ẤN PHẨM</button>
 <label class="scope-label" for="scope-filter">NGUỒN</label>
 <select id="scope-filter"><option value="all">TẤT CẢ</option><option value="government">GOV</option><option value="press">PRESS</option></select></div>
 <div class="archive-utilities"><button id="archive-history" type="button">ĐÃ XEM</button><button id="archive-pins" type="button">ĐÃ GHIM</button><span class="archive-help">TÀI LIỆU CÓ NGUỒN VÀ MỐC LƯU; ẢNH GỌI QUA 000.</span></div>
 </div>
 <div class="archive-stage">
-<div id="archive-idle" class="archive-idle"><span>&gt;<span class="terminal-cursor">_</span></span><p>Nhập một tên hoặc đề mục xuất hiện trên giấy.</p></div>
+<div id="archive-idle" class="archive-idle"><span>&gt;<span class="terminal-cursor">_</span></span><p id="archive-idle-hint">Nhập một tên, sự kiện, cơ quan hoặc tham chiếu có trên giấy.</p></div>
 <div id="archive-list" class="archive-list hidden"><div class="list-head"><h2 id="results-title"></h2><span id="result-count"></span></div><div id="results"></div></div>
 <article id="reader" class="reader hidden" aria-label="Bản ghi lưu trữ"></article>
 </div></div></div></div></section>
