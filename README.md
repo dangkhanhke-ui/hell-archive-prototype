@@ -45,3 +45,7 @@ Case 01 has **24 primary evidence groups A01–A24**, **8 discovery bridges B**,
 Run: `node test-rules.cjs`.
 
 **Source precedence:** direct author decisions > Case Bible V5 > Character V4 > Gameplay V8 > Puzzle Design > Relationship Bible V3 > Case 01 Puzzle V4.3 > prototype-specific production details.
+
+## IBM search precision & audio (October 31, 2026)
+
+IBM requires a meaningful indexed word or phrase of at least three characters. A single letter, a year alone, and incomplete fragments cannot dump large portions of the catalogue. Queries match complete normalized words or consecutive phrases against filing metadata plus specifically authored filing aliases. Printed cross-references are indexed as explicit aliases, not fuzzy token matches; government/press provenance remains separate. The mechanical Web Audio tones use **3× their earlier gain** and an audible minimum click duration. Existing mute state is preserved.
