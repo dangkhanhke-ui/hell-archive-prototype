@@ -37,11 +37,14 @@ function ibmSound(kind="click"){
    error:[[250,0,.085,.02,"sawtooth"],[210,.09,.095,.018,"sawtooth"]],
    fax:[[650,0,.065,.016,"sine"],[920,.07,.08,.014,"sine"]]
   };
-  for(const [freq,delay,duration,volume,wave] of (presets[kind]||presets.click)){
+  for(const [freq,delay,rawDuration,volume,wave] of (presets[kind]||presets.click)){
+   // Exactly 3x the original gain. Minimum duration keeps key ticks audible.
+   const duration=Math.max(rawDuration,kind==="key"?.035:.04);
+   const boostedVolume=volume*3;
    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
    osc.type=wave;osc.frequency.setValueAtTime(freq,now+delay);
    gain.gain.setValueAtTime(.0001,now+delay);
-   gain.gain.exponentialRampToValueAtTime(volume,now+delay+.003);
+   gain.gain.exponentialRampToValueAtTime(boostedVolume,now+delay+.003);
    gain.gain.exponentialRampToValueAtTime(.0001,now+delay+duration);
    osc.connect(gain);gain.connect(audioContext.destination);
    osc.start(now+delay);osc.stop(now+delay+duration+.005);
