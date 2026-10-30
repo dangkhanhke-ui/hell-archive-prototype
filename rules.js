@@ -10,17 +10,21 @@ function parseQuery(value){
  let year=null;
  const last=headings.length-1;const m=headings[last].match(/(?:^|\s)(19\d{2}|20\d{2})$/);
  if(m){year=m[1];headings[last]=headings[last].slice(0,m.index).trim();if(!headings[last])headings.pop();}
+ // No one-letter guesses or year-only queries that return an entire archive.
+ if(!headings.length || headings.some(h=>normalize(h).replace(/ /g,"").length<3)){
+   return {ok:false,error:"Đề mục quá ngắn. Gõ ít nhất 3 ký tự và dùng tên/từ khóa có trên giấy (vd: Viedma, Rojas, 215/VP)."};
+ }
  return {ok:true,headings,year};
 }
 function indexedFields(record){
- return [record.id,record.title,record.origin,record.docket,record.publicId,...(record.terms||[])].filter(Boolean).map(normalize);
+ // Filing aliases are authored metadata, not fuzzy full-text search.
+ return [record.title,record.origin,record.docket,record.publicId,...(record.terms||[]),...(record.aliases||[])].filter(Boolean).map(normalize);
 }
 function matchesHeading(record,heading){
  const needle=normalize(heading);if(!needle)return true;
- const fields=indexedFields(record);
- if(fields.some(x=>x===needle||x.startsWith(needle+" ")||x.endsWith(" "+needle)||x.includes(" "+needle+" ")))return true;
- const indexed=" "+fields.join(" ")+" ";
- return needle.split(" ").every(token=>indexed.includes(" "+token+" ")||fields.some(x=>x.includes(token)));
+ // Only complete indexed words and consecutive phrases match.
+ // Never fall back to arbitrary character substrings across metadata fields.
+ return indexedFields(record).some(value=>(" "+value+" ").includes(" "+needle+" "));
 }
 function queryArchive(input,scope="all"){
  const parsed=parseQuery(input);
