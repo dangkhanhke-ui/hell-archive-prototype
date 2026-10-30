@@ -1,317 +1,183 @@
-(function () {
-  "use strict";
-  const D = window.ATWG_DATA, R = window.ATWG_RULES;
-  const key = "atwg-case01-v02";
-  const byId = id => document.getElementById(id);
-  let old = {};
-  try { old = JSON.parse(localStorage.getItem(key) || "{}"); } catch (_) { old = {}; }
-
-  const state = {
-    tab:"archive",scope:"all",query:"",selected:null,suspect:"09",
-    archiveMode:"idle",browseKind:"people",activeFolder:null,backStack:[],
-    readIds:Array.isArray(old.readIds)?old.readIds:[],
-    historyIds:Array.isArray(old.historyIds)?old.historyIds:[],
-    pins:Array.isArray(old.pins)?old.pins:[],
-    papers:Array.isArray(old.papers)?old.papers.filter(p=>p && typeof p.uid==="string" && typeof p.id==="string"):[],
-    admitted:Array.isArray(old.admitted)?old.admitted:[],lastPhoto:null
-  };
-  const findItem = id => D.records.find(r=>r.id===id) || D.photos.find(p=>p.id===id);
-  const folderById = id => D.folders.find(f=>f.id===id);
-  const folderFor = id => D.folders.find(f=>f.records.includes(id));
-  const save = () => {
-    try { localStorage.setItem(key,JSON.stringify({
-      readIds:state.readIds,historyIds:state.historyIds,pins:state.pins,
-      papers:state.papers,admitted:state.admitted
-    })); } catch (_) {}
-  };
-  const node = (tag,cls,value) => {
-    const el=document.createElement(tag);
-    if(cls)el.className=cls;
-    if(value!==undefined)el.textContent=value;
-    return el;
-  };
-  const btn = (value,action) => {
-    const el=node("button",null,value);el.type="button";el.addEventListener("click",action);return el;
-  };
-  function navigate(tab) {
-    state.tab=tab;
-    document.querySelectorAll(".view").forEach(el=>el.classList.toggle("hidden",el.id!==tab));
-    document.querySelectorAll("[data-tab]").forEach(el=>{
-      if(el.dataset.tab===tab)el.setAttribute("aria-current","page");else el.removeAttribute("aria-current");
-    });
-    if(tab==="archive")renderArchive();
-    if(tab==="desk")renderDesk();
-    if(tab==="wire")renderWire();
-    byId("paper-count").textContent=state.papers.length?"("+state.papers.length+")":"";
-  }
-  document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",()=>navigate(el.dataset.tab)));
-  document.querySelectorAll("[data-go]").forEach(el=>el.addEventListener("click",()=>navigate(el.dataset.go)));
-  function snapshot() {
-    return {archiveMode:state.archiveMode,selected:state.selected,activeFolder:state.activeFolder,
-      browseKind:state.browseKind,query:state.query,scope:state.scope};
-  }
-  function enter(mode,values) {
-    state.backStack.push(snapshot());
-    Object.assign(state,values||{},{archiveMode:mode});
-    renderArchive();
-  }
-  function backArchive() {
-    const previous=state.backStack.pop();
-    if(previous)Object.assign(state,previous);
-    else Object.assign(state,{archiveMode:"idle",selected:null,activeFolder:null});
-    renderArchive();
-  }
-  function searchNow(query) {
-    const value=String(query||"").trim();
-    byId("query").value=value;
-    enter(value?"search":"idle",{query:value,selected:null,activeFolder:null});
-  }
-  byId("search-form").addEventListener("submit",ev=>{
-    ev.preventDefault();searchNow(byId("query").value);
-  });
-  document.querySelectorAll("[data-browse]").forEach(el=>el.addEventListener("click",()=>{
-    enter("browse",{browseKind:el.dataset.browse,selected:null});
-  }));
-  byId("scope-filter").addEventListener("change",ev=>{
-    state.scope=ev.target.value;
-    if(state.archiveMode==="search"||state.archiveMode==="browse")renderArchive();
-  });
-  byId("archive-history").addEventListener("click",()=>enter("history",{selected:null}));
-  byId("archive-pins").addEventListener("click",()=>enter("pins",{selected:null}));
-
-  function meta(item) {
-    const box=node("div","doc-meta");
-    box.append(node("span",null,"MÃ: "+item.id),
-      node("span",null,"NGÀY: "+(item.date||"KHÔNG GHI")),
-      node("span",null,"NGUỒN: "+item.origin));
-    return box;
-  }
-  function paragraphs(item,target) {
-    item.body.forEach(line=>target.append(node("p",null,line)));
-  }
-  function openFolder(id) {
-    if(folderById(id))enter("folder",{activeFolder:id,selected:null});
-  }
-  function openRecord(id) {
-    const record=D.records.find(r=>r.id===id);
-    if(!record)return;
-    state.historyIds=[id,...state.historyIds.filter(x=>x!==id)].slice(0,30);
-    if(!state.readIds.includes(id))state.readIds.push(id);
-    save();
-    enter("reader",{selected:id,activeFolder:folderFor(id)?.id||null});
-  }
-  function togglePin(id) {
-    state.pins=state.pins.includes(id)?state.pins.filter(x=>x!==id):[id,...state.pins];
-    save();renderArchive();
-  }
-  function resultButton(title,subtitle,action,number) {
-    const el=btn("",action);el.className="result-item";
-    el.append(node("span","result-index",number||"□"));
-    const info=node("span","result-info");
-    info.append(node("strong",null,title),node("small",null,subtitle));
-    el.append(info,node("span","result-arrow","↗"));
-    return el;
-  }
-  function readerExtra(item,reader) {
-    const folder=folderFor(item.id);
-    if(folder) {
-      const pin=btn(state.pins.includes(folder.id)?"BỎ GHIM TẬP":"GHIM TẬP NÀY",()=>togglePin(folder.id));
-      pin.className="archive-reader-tool";reader.append(pin);
-    }
-    const refs=D.references[item.id]||[];
-    if(refs.length) {
-      const section=node("div","archive-reference-list");
-      section.append(node("h3",null,"THAM CHIẾU GHI TRÊN GIẤY"));
-      refs.forEach(ref=>{
-        if(ref.folder&&!folderById(ref.folder))return;
-        const action=ref.folder?()=>openFolder(ref.folder):()=>{
-          byId("wire-code").value=ref.photo;
-          byId("wire-message").textContent="Mã "+ref.photo+" đã được điền từ phiếu. Nhấn GỌI 000 để yêu cầu ảnh.";
-          navigate("wire");
-        };
-        section.append(btn(ref.label+" ↗",action));
-      });
-      reader.append(section);
-    }
-    const names=D.lookups[item.id]||[];
-    if(names.length) {
-      const section=node("div","archive-reference-list");
-      section.append(node("h3",null,"TRA NHANH TÊN ĐƯỢC GHI"));
-      names.forEach(name=>section.append(btn("TRA: "+name,()=>searchNow(name))));
-      reader.append(section);
-    }
-  }
-  function renderArchive() {
-    byId("scope-filter").value=state.scope;
-    byId("query").value=state.query;
-    const mode=state.archiveMode,results=byId("results"),reader=byId("reader");
-    byId("archive-idle").classList.toggle("hidden",mode!=="idle");
-    byId("archive-list").classList.toggle("hidden",mode==="idle"||mode==="reader");
-    reader.classList.toggle("hidden",mode!=="reader");
-    if(mode==="idle")return;
-    if(mode==="reader") {
-      const item=D.records.find(r=>r.id===state.selected);
-      reader.replaceChildren();
-      if(!item){backArchive();return;}
-      const back=btn("← QUAY LẠI",backArchive);back.className="reader-back";
-      reader.append(back,node("small","doc-id",item.id),node("h2",null,item.title),meta(item));
-      paragraphs(item,reader);readerExtra(item,reader);
-      reader.append(btn("IN BẢN SAO → BÀN GIẤY",()=>printPaper(item.id)),node("p","print-feedback"));
-      reader.scrollTop=0;return;
-    }
-    results.replaceChildren();
-    const heading=byId("results-title"),counter=byId("result-count");
-    if(state.backStack.length){
-      const back=btn("← QUAY LẠI",backArchive);back.className="archive-list-back";results.append(back);
-    }
-    if(mode==="search") {
-      const response=R.queryArchive(state.query,state.scope),found=response.records||[];
-      heading.textContent="TRA CỨU: "+state.query;
-      counter.textContent=response.ok?found.length+" BẢN GHI":"SAI CÚ PHÁP";
-      if(!response.ok){results.append(node("p","empty-results",response.error));return;}
-      const folders=D.folders.filter(f=>f.records.some(id=>found.some(r=>r.id===id)));
-      if(!folders.length)results.append(node("p","empty-results",
-        "Không có mục lục khớp. Thử tên ngắn hơn hoặc duyệt Người / Sự việc / Ấn phẩm."));
-      folders.forEach((folder,i)=>{
-        const hits=folder.records.filter(id=>found.some(r=>r.id===id)).length;
-        results.append(resultButton(folder.title,
-          folder.origin+" · "+hits+" mục khớp · "+folder.records.length+" tờ trong tập",
-          ()=>openFolder(folder.id),String(i+1).padStart(2,"0")));
-      });
-    } else if(mode==="browse") {
-      const name={people:"NGƯỜI",events:"SỰ VIỆC",publications:"ẤN PHẨM"}[state.browseKind];
-      const items=D.catalog[state.browseKind]||[];
-      heading.textContent="SỔ MỤC LỤC / "+name;
-      counter.textContent=items.length+" ĐỀ MỤC";
-      items.forEach((item,i)=>{
-        const n=R.queryArchive(item.query,state.scope).records.length;
-        results.append(resultButton(item.label,n+" bản ghi · chọn để tra cứu",
-          ()=>searchNow(item.query),String(i+1).padStart(2,"0")));
-      });
-    } else if(mode==="folder") {
-      const folder=folderById(state.activeFolder);
-      if(!folder){backArchive();return;}
-      heading.textContent=folder.title;
-      counter.textContent=folder.records.length+" TỜ · "+folder.origin.toUpperCase();
-      const pin=btn(state.pins.includes(folder.id)?"BỎ GHIM TẬP":"GHIM TẬP HỒ SƠ",()=>togglePin(folder.id));
-      pin.className="archive-list-pin";results.append(pin);
-      folder.records.forEach((id,i)=>{
-        const record=D.records.find(r=>r.id===id);
-        if(record)results.append(resultButton(record.title,
-          (record.date||"Không ghi ngày")+" · "+record.origin+" · "+record.id+
-          (state.readIds.includes(id)?" · ĐÃ ĐỌC":""),
-          ()=>openRecord(id),String(i+1).padStart(2,"0")));
-      });
-    } else if(mode==="history") {
-      heading.textContent="TÀI LIỆU ĐÃ XEM";counter.textContent=state.historyIds.length+" BẢN GHI";
-      if(!state.historyIds.length)results.append(node("p","empty-results","Chưa đọc tờ giấy nào."));
-      state.historyIds.forEach((id,i)=>{
-        const record=D.records.find(r=>r.id===id);
-        if(record)results.append(resultButton(record.title,record.origin+" · "+id,
-          ()=>openRecord(id),String(i+1).padStart(2,"0")));
-      });
-    } else if(mode==="pins") {
-      heading.textContent="TẬP HỒ SƠ ĐÃ GHIM";counter.textContent=state.pins.length+" TẬP";
-      if(!state.pins.length)results.append(node("p","empty-results","Mở một tập rồi chọn GHIM TẬP."));
-      state.pins.forEach((id,i)=>{
-        const folder=folderById(id);
-        if(folder)results.append(resultButton(folder.title,folder.origin+" · "+folder.records.length+" tờ",
-          ()=>openFolder(id),String(i+1).padStart(2,"0")));
-      });
-    }
-    results.scrollTop=0;
-  }
-  function printPaper(id){
-    state.papers.push({uid:`${Date.now()}-${Math.random().toString(36).slice(2)}`,id,location:null});save();
-    byId("paper-count").textContent=`(${state.papers.length})`;
-    byId("status").textContent=`ĐÃ IN ${id} · ${state.papers.length} BẢN TRÊN BÀN`;
-    if(state.tab==="archive")byId("reader").querySelector(".print-feedback").textContent="Đã gửi một bản tới Bàn giấy.";
-  }
-
-  function photoFrame(kind) {
-    // Identical chipped paint on the same left door panel; the broadcast crop changes its framing.
-    const aired=kind==="broadcast";
-    return `<svg viewBox="0 0 560 270" role="img" aria-label="Cửa kho với vệt sơn trắng hình móc ở cánh trái">
-      <rect width="560" height="270" fill="#858b83"/><path d="M0 225H560" stroke="#484e49" stroke-width="30"/>
-      <rect x="108" y="27" width="344" height="194" fill="#616960" stroke="#313a35" stroke-width="12"/>
-      <path d="M280 28V217" stroke="#242b28" stroke-width="7"/><path d="M247 115h12m43 0h12" stroke="#c4c5bc" stroke-width="7"/>
-      <path d="M141 119q20-16 31 0q-13 4-8 18" fill="none" stroke="#d9d8c6" stroke-width="8" stroke-linecap="round"/>
-      <path d="M60 33h50M58 34v34M500 33h-48M501 34v34M60 185v38h50M500 185v38h-48" fill="none" stroke="#e1e0d3" stroke-width="3" opacity=".7"/>
-      ${aired?'<rect x="0" y="230" width="560" height="40" fill="#282c2b"/><text x="15" y="255" fill="#ece9db" font-size="16" font-family="monospace">TRUY BẮT / HÌNH TẠI HIỆN TRƯỜNG · 15:20</text>':'<rect x="5" y="228" width="256" height="36" fill="#282c2b"/><text x="15" y="251" fill="#ece9db" font-size="16" font-family="monospace">12/B · 08/09 · TAKE 03</text>'}
-      <path d="M0 53H560M0 121H560M0 178H560" stroke="#ebece5" opacity=".07" stroke-width="4"/>
-    </svg>`;
-  }
-  function photoView(photo){
-    const fig=node("figure","photo");
-    // Only the fixed locally authored SVG string is inserted as markup.
-    fig.innerHTML=photoFrame(photo.kind);
-    fig.append(node("figcaption",null,`${photo.id} · ${photo.origin} · ${photo.caption}`));
-    return fig;
-  }
-  function renderWire(){
-    const view=byId("wire-result");view.replaceChildren();
-    if(state.lastPhoto){view.append(photoView(state.lastPhoto));view.append(node("p","photo-label",`Bản ${state.lastPhoto.id} đã in và đặt trên bàn.`));}
-  }
-  byId("wire-form").addEventListener("submit",ev=>{
-    ev.preventDefault();const photo=R.photoFor(byId("wire-code").value,state.readIds);
-    if(!photo){byId("wire-message").textContent="Không tìm được ảnh theo mã đã nhập trong những phiếu mày đã đọc.";state.lastPhoto=null;renderWire();return;}
-    state.lastPhoto=photo;printPaper(photo.id);byId("wire-message").textContent=`Tổng đài xác nhận ${photo.id}. Bản ảnh vừa được truyền và in.`;renderWire();
-  });
-
-  function paperCard(p,assigned){
-    const item=findItem(p.id),card=node("div",`paper-card ${D.photos.some(photo=>photo.id===p.id)?"wire-card":""}`);
-    card.draggable=true;card.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",p.uid);ev.dataTransfer.effectAllowed="move"});
-    card.append(node("strong",null,`${item.id} · ${item.title}`),node("small",null,item.origin));
-    const actions=node("div","card-actions");actions.append(btn("ĐỌC",()=>openPaper(p.id)));
-    if(assigned){actions.append(btn("THÁO RA",()=>movePaper(p.uid,null)));}
-    else {
-      const select=node("select");select.setAttribute("aria-label",`Lớp cho ${p.id}`);
-      for(let i=0;i<D.suspects[state.suspect].layers;i++){let opt=node("option",null,`LỚP ${i+1}`);opt.value=String(i);select.append(opt);}
-      actions.append(select,btn("ĐẶT VÀO LỚP",()=>movePaper(p.uid,Number(select.value))));
-    }
-    card.append(actions);return card;
-  }
-  function openPaper(id){
-    const item=findItem(id),body=byId("dialog-body");body.replaceChildren();byId("dialog-title").textContent=item.title;
-    body.append(meta(item));
-    if(item.body)paragraphs(item,body);else body.append(photoView(item));
-    byId("paper-dialog").showModal();
-  }
-  byId("close-dialog").addEventListener("click",()=>byId("paper-dialog").close());
-  function movePaper(uid,layer){
-    const paper=state.papers.find(p=>p.uid===uid);if(!paper)return;
-    paper.location=layer===null?null:{suspect:state.suspect,layer};save();renderDesk();
-  }
-  function renderDesk(){
-    document.querySelectorAll(".suspect").forEach(el=>el.setAttribute("aria-pressed",String(el.dataset.suspect===state.suspect)));
-    byId("stack-title").textContent=D.suspects[state.suspect].name;
-    byId("inventory-count").textContent=String(state.papers.filter(p=>!p.location).length);
-    const inventory=byId("inventory"),layers=byId("layers");inventory.replaceChildren();layers.replaceChildren();
-    const loose=state.papers.filter(p=>!p.location);
-    if(!loose.length)inventory.append(node("p","empty","Chưa có giấy chưa xếp. Mở IBM để in, hoặc gọi Wirephoto khi đã có mã."));
-    loose.forEach(p=>{if(findItem(p.id))inventory.append(paperCard(p,false))});
-    for(let i=0;i<D.suspects[state.suspect].layers;i++){
-      const layer=node("div","layer");layer.dataset.layer=String(i);
-      layer.append(node("h3",null,`LỚP ${String(i+1).padStart(2,"0")} · ${i===0?"BỀ MẶT":i===3?"SÂU NHẤT":"ĐI SÂU HƠN"}`));
-      const placed=state.papers.filter(p=>p.location && p.location.suspect===state.suspect && p.location.layer===i);
-      if(!placed.length)layer.append(node("small","empty","Thả giấy vào đây hoặc dùng nút ĐẶT VÀO LỚP."));
-      placed.forEach(p=>{if(findItem(p.id))layer.append(paperCard(p,true))});
-      layer.addEventListener("dragover",ev=>{ev.preventDefault();layer.dataset.over="true"});
-      layer.addEventListener("dragleave",()=>{layer.dataset.over="false"});
-      layer.addEventListener("drop",ev=>{ev.preventDefault();layer.dataset.over="false";movePaper(ev.dataTransfer.getData("text/plain"),i)});
-      layers.append(layer);
-    }
-  }
-  document.querySelectorAll(".suspect").forEach(el=>el.addEventListener("click",()=>{state.suspect=el.dataset.suspect;renderDesk()}));
-  byId("reset").addEventListener("click",()=>{if(!confirm("Xóa giấy đã in, tài liệu đã đọc và dossier của bản thử này?"))return;state.readIds=[];state.historyIds=[];state.pins=[];state.backStack=[];state.papers=[];state.admitted=[];state.lastPhoto=null;state.archiveMode="idle";state.query="";save();byId("status").textContent="BẢN THỬ ĐÃ ĐẶT LẠI";renderDesk();byId("paper-count").textContent=""});
-  byId("submit-dossier").addEventListener("click",()=>{
-    const suspect=byId("submit-suspect").value,room=byId("room").value,feedback=byId("feedback");
-    if(!room){feedback.textContent="Chọn một phòng tiếp nhận trước khi nộp.";feedback.classList.remove("hidden");return;}
-    const result=R.evaluate(suspect,room,state.papers);feedback.replaceChildren();feedback.classList.remove("hidden");
-    const messages={jurisdiction:["KHÔNG THUỘC THẨM QUYỀN", "Quầy này không nhận hồ sơ cho bản chất tội lỗi đã nộp. Giấy được trả lại nguyên vẹn."],incomplete:["HỒ SƠ CHƯA ĐỦ", "Quầy có thẩm quyền, nhưng chồng giấy chưa chứng minh trọn hành vi và căn cứ cho tầng này, hoặc có giấy đang nằm ở lớp không được nó giải thích."],admitted:["ĐƯỢC TIẾP NHẬN", `${D.suspects[suspect].name}: hồ sơ có đủ chuỗi chứng cứ từ sự kiện ngoài cùng tới quyết định và bản chất sâu nhất.`]};
-    const [title,detail]=messages[result]||["LỖI", "Hồ sơ không hợp lệ."];
-    feedback.append(node("strong",null,title),node("p",null,detail));
-    if(result==="admitted"&&!state.admitted.includes(suspect)){state.admitted.push(suspect);save();}
-  });
-  renderArchive();navigate("archive");
+(function(){
+"use strict";
+const D=window.ATWG_DATA,R=window.ATWG_RULES,key="atwg-case01-v43";
+const $=id=>document.getElementById(id);
+const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
+const button=(text,fn,cls="")=>{const b=el("button",cls,text);b.type="button";b.addEventListener("click",fn);return b;};
+let stored={};try{stored=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(_){}
+let serial=Number(stored.serial)||0;
+const newPaper=id=>({uid:"paper-"+(++serial),id,location:null});
+const state={
+ tab:"brief",scope:"all",query:"",mode:"idle",readIds:Array.isArray(stored.readIds)?stored.readIds:["A01","A02"],
+ history:Array.isArray(stored.history)?stored.history:[],pins:Array.isArray(stored.pins)?stored.pins:[],
+ papers:Array.isArray(stored.papers)?stored.papers:[newPaper("A01"),newPaper("A02")],
+ transcripts:Array.isArray(stored.transcripts)?stored.transcripts:[],
+ admitted:Array.isArray(stored.admitted)?stored.admitted:[],
+ suspect:"27",lastPhotoId:null,selected:null,browse:"people"
+};
+function save(){try{localStorage.setItem(key,JSON.stringify({serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted}));}catch(_){}}
+const getItem=id=>D.records.find(x=>x.id===id)||D.photos.find(x=>x.id===id)||state.transcripts.find(x=>x.id===id);
+const sourceLabel=item=>item.scope==="press"?"PRESS":item.scope==="government"?"GOV":item.scope==="D"?"HẬU TỬ":"WIREPHOTO";
+function metadata(item,box){
+ const m=el("div","doc-meta");m.append(el("span",null,"NGÀY: "+(item.date||"KHÔNG GHI")),el("span",null,"NGUỒN: "+item.origin),el("span",null,"KHO: "+sourceLabel(item)),el("span",null,"THAM CHIẾU: "+(item.publicId||item.id)));
+ box.append(m);
+}
+function paragraphs(item,box){(item.body||[]).forEach(x=>box.append(el("p",null,x)));}
+function navigate(tab){state.tab=tab;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==tab));document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
+ if(tab==="archive")renderArchive();if(tab==="desk")renderDesk();if(tab==="souls")renderSouls();if(tab==="wire")renderWire();if(tab==="admit")renderAdmit();
+ $("paper-count").textContent="("+state.papers.length+")";
+}
+document.querySelectorAll("[data-tab]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.tab)));
+document.querySelectorAll("[data-go]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.go)));
+function printPaper(id){if(!getItem(id))return;state.papers.push(newPaper(id));save();$("paper-count").textContent="("+state.papers.length+")";$("status").textContent="Đã in một bản: "+getItem(id).title;}
+function renderOpening(){const box=$("opening-papers");box.replaceChildren();
+ D.opening.forEach(id=>{const x=getItem(id),article=el("article","paper opening-sheet");article.append(el("small","eyebrow","BẢN BÁO / "+x.date),el("h2",null,x.title));paragraphs(x,article);
+ article.append(button("ĐỌC TRONG IBM →",()=>{openRecord(id);navigate("archive");}));box.append(article);});
+}
+function searchNow(q){state.query=String(q||"").trim();state.mode=state.query?"search":"idle";state.selected=null;$("query").value=state.query;renderArchive();}
+function openRecord(id){const x=D.records.find(r=>r.id===id);if(!x)return;state.selected=id;state.mode="reader";state.history=[id,...state.history.filter(v=>v!==id)].slice(0,80);if(!state.readIds.includes(id))state.readIds.push(id);save();renderArchive();}
+function togglePin(id){state.pins=state.pins.includes(id)?state.pins.filter(x=>x!==id):[id,...state.pins];save();renderArchive();}
+$("search-form").addEventListener("submit",ev=>{ev.preventDefault();searchNow($("query").value);});
+$("scope-filter").addEventListener("change",ev=>{state.scope=ev.target.value;if(state.mode==="reader")state.mode="search";renderArchive();});
+document.querySelectorAll("[data-browse]").forEach(x=>x.addEventListener("click",()=>{state.mode="browse";state.browse=x.dataset.browse;state.selected=null;renderArchive();}));
+$("archive-history").addEventListener("click",()=>{state.mode="history";renderArchive();});
+$("archive-pins").addEventListener("click",()=>{state.mode="pins";renderArchive();});
+function result(title,detail,act){
+ const b=button("",act,"result-item");const info=el("span","result-info");info.append(el("strong",null,title),el("small",null,detail));b.append(el("span","result-index","□"),info,el("span","result-arrow","↗"));return b;
+}
+function readerRefs(item,where){
+ if(!(item.refs||[]).length)return;
+ const box=el("div","archive-reference-list");box.append(el("h3",null,"THAM CHIẾU GHI TRÊN GIẤY"));
+ item.refs.forEach(ref=>{
+  if(ref.kind==="search")box.append(button(ref.label,()=>searchNow(ref.query)));
+  if(ref.kind==="photo")box.append(button(ref.label,()=>{$("wire-code").value=ref.code;$("wire-message").textContent="Mã ghi trên giấy đã chuyển sang tổng đài. Nhấn GỌI 000.";navigate("wire");}));
+ });where.append(box);
+}
+const browseTopics={events:["San Aurelio","Viedma","Funes","Samuel Olmedo","La Linterna","Plaza del Reloj","INV-HF-SAFE"],publications:["La Linterna","Đài Quốc gia","El Diario Nacional","Bản tin Quốc gia"]};
+function renderArchive(){
+ $("scope-filter").value=state.scope;$("query").value=state.query;
+ const mode=state.mode;$("archive-idle").classList.toggle("hidden",mode!=="idle");
+ $("archive-list").classList.toggle("hidden",mode==="idle"||mode==="reader");
+ $("reader").classList.toggle("hidden",mode!=="reader");
+ if(mode==="idle")return;
+ if(mode==="reader"){
+  const x=D.records.find(r=>r.id===state.selected);if(!x){state.mode="idle";return renderArchive();}
+  const box=$("reader");box.replaceChildren();
+  box.append(button("← KẾT QUẢ / TRA TIẾP",()=>{state.mode=state.query?"search":"idle";renderArchive();},"reader-back"),el("small","eyebrow",sourceLabel(x)),el("h2",null,x.title));metadata(x,box);paragraphs(x,box);readerRefs(x,box);
+  box.append(button("IN BẢN SAO → BÀN GIẤY",()=>{printPaper(x.id);box.append(el("p","print-feedback","Đã gửi một bản tới bàn giấy."));}));
+  box.scrollTop=0;return;
+ }
+ const out=$("results");out.replaceChildren();
+ const head=$("results-title"),count=$("result-count");
+ if(mode==="search"){
+  const res=R.queryArchive(state.query,state.scope),found=res.records||[];
+  head.textContent="MỤC LỤC: "+state.query;count.textContent=res.ok?found.length+" HỒ SƠ":"LỖI";
+  if(!res.ok){out.append(el("p","empty-results",res.error));return;}
+  if(!found.length){out.append(el("p","empty-results","Không có đề mục được biên mục. Thử tên người, cơ quan, sự kiện hoặc tham chiếu thấy trên giấy."));return;}
+  found.forEach(x=>out.append(result(x.title,
+   sourceLabel(x)+" · "+x.date+" · "+x.origin+" · "+(x.docket||x.publicId)+" · "+x.terms.slice(0,3).join(", "),
+   ()=>openRecord(x.id))));
+ }else if(mode==="history"||mode==="pins"){
+  const ids=mode==="history"?state.history:state.pins;head.textContent=mode==="history"?"TÀI LIỆU ĐÃ XEM":"TÀI LIỆU ĐÃ GHIM";count.textContent=ids.length+" MỤC";
+  if(!ids.length)out.append(el("p","empty-results","Chưa có mục nào."));
+  ids.forEach(id=>{const x=D.records.find(r=>r.id===id);if(x)out.append(result(x.title,sourceLabel(x)+" · "+x.origin,()=>openRecord(id)));});
+ }else if(mode==="browse"){
+  const names=state.browse==="people"?D.people.map(x=>x.name):browseTopics[state.browse]||[];
+  head.textContent=state.browse==="people"?"DANH MỤC NHÂN SỰ":state.browse==="events"?"DANH MỤC SỰ VIỆC":"DANH MỤC ẤN PHẨM";count.textContent=names.length+" ĐỀ MỤC";
+  names.forEach(name=>out.append(result(name,"TRA THEO ĐỀ MỤC",()=>searchNow(name))));
+ }
+ out.scrollTop=0;
+}
+function vectorPhoto(photo){
+ const presets={
+ rescue:'<rect x="25" y="82" width="320" height="122" fill="#7f857b"/><path d="M130 204V105h65v99" stroke="#30352f" stroke-width="8" fill="#bbc0b4"/><circle cx="245" cy="135" r="14"/><path d="M245 150v52m-30-35 30-7 30 13" stroke="#252a26" stroke-width="12" fill="none"/>',
+ street:'<path d="M0 225h520" stroke="#30352e" stroke-width="30"/><rect x="25" y="55" width="190" height="145" fill="#93988e"/><rect x="300" y="35" width="160" height="165" fill="#707870"/><path d="M228 208v-65m-10 12h52l-20 20h-30" stroke="#252a27" stroke-width="11" fill="none"/><circle cx="226" cy="132" r="15" fill="#252a27"/>',
+ newsroom:'<rect x="50" y="105" width="430" height="25" fill="#686e64"/><path d="M75 130l-20 110m390-110 15 110" stroke="#32372f" stroke-width="12"/><path d="M125 88h100l20 50H115z" fill="#353b34"/><rect x="140" y="43" width="80" height="58" fill="#d1d0be" transform="rotate(10 170 65)"/><path d="M305 75l90 15 -30 65 -80-20z" fill="#c3c2b1"/>',
+ honor:'<rect x="20" y="55" width="460" height="155" fill="#888c7f"/><rect x="225" y="108" width="70" height="90" fill="#484d47"/><path d="M0 225h520" stroke="#343a34" stroke-width="26"/><g fill="#323a33"><circle cx="80" cy="200" r="13"/><circle cx="140" cy="200" r="13"/><circle cx="375" cy="200" r="13"/><circle cx="430" cy="200" r="13"/></g>'
+ };
+ const fig=el("figure","photo");const svg='<svg viewBox="0 0 520 270" role="img" aria-label="Ảnh minh họa placeholder, không phải ảnh production"><rect width="520" height="270" fill="#b0b3a7"/>'+presets[photo.kind]+'<text x="12" y="258" fill="#333b33" font-family="monospace" font-size="15">WORKING / VISUAL PLACEHOLDER</text></svg>';
+ fig.innerHTML=svg;fig.append(el("figcaption",null,photo.title+" · "+photo.origin+" · "+photo.date+" · Minh họa thay thế (chưa là asset ảnh lịch sử)."));return fig;
+}
+function renderWire(){const area=$("wire-result");area.replaceChildren();if(state.lastPhotoId){const photo=D.photos.find(x=>x.id===state.lastPhotoId);if(photo)area.append(vectorPhoto(photo));}}
+$("wire-form").addEventListener("submit",ev=>{ev.preventDefault();
+ const photo=R.photoFor($("wire-code").value,state.readIds);
+ if(!photo){$("wire-message").textContent="Không tìm thấy ảnh trong những mã đã ghi trên hồ sơ mày đọc. Máy không tự đoán mã.";state.lastPhotoId=null;renderWire();return;}
+ state.lastPhotoId=photo.id;printPaper(photo.id);$("wire-message").textContent="ĐÃ TRUYỀN VÀ IN: "+photo.id;renderWire();
+});
+function renderLedger(){const box=$("ledger-grid");box.replaceChildren();D.people.forEach(p=>{
+ const card=el("div","ledger-person");card.append(el("div","ledger-face","◼"),el("small",null,"#"+p.id),el("strong",null,p.name));box.append(card);
+});}
+function renderSouls(){
+ const person=$("soul-person"),paper=$("soul-paper"),oldPerson=person.value,oldPaper=paper.value;
+ person.replaceChildren();D.people.forEach(p=>{const o=el("option",null,"#"+p.id+" · "+p.name);o.value=p.id;person.append(o);});
+ if(oldPerson&&D.people.some(p=>p.id===oldPerson))person.value=oldPerson;
+ paper.replaceChildren();const seen=new Set();state.papers.forEach(p=>{if(seen.has(p.id)||!getItem(p.id))return;seen.add(p.id);const o=el("option",null,getItem(p.id).title);o.value=p.id;paper.append(o);});
+ if(oldPaper&&seen.has(oldPaper))paper.value=oldPaper;
+ if(!seen.size){const o=el("option",null,"Chưa có giấy để đưa");o.value="";paper.append(o);}
+}
+$("soul-ask").addEventListener("click",()=>{
+ const who=$("soul-person").value,id=$("soul-paper").value,out=$("soul-response");out.replaceChildren();if(!id)return;
+ const name=D.people.find(p=>p.id===who)?.name||"Linh hồn";
+ const exchanges=R.availableExchange(who,id);
+ if(!exchanges.length){out.append(el("p",null,name+": Tôi không có điều gì kiểm chứng được về giấy này."));return;}
+ const x=exchanges[0];out.append(el("h3",null,x.topic),el("blockquote","soul-quote",x.quote),el("small",null,"Lời nói chỉ xác nhận phản ứng sau khi chết. Kiểm lại hồ sơ lịch sử."));
+ const transcriptId="D-"+who+"-"+id+"-"+D.exchanges.indexOf(x);
+ let t=state.transcripts.find(t=>t.id===transcriptId);
+ if(!t){t={id:transcriptId,title:"Đối chất: "+name+" / "+x.topic,date:"SAU NĂM 1965",origin:"Phòng đối chất địa ngục · #"+who,scope:"D",publicId:"POSTHUMOUS / "+who,body:["LỜI KHAI SAU KHI CHẾT",x.quote,"Chủ đề được đưa xem: "+getItem(id).title,"Bản ghi này chỉ chứng minh lời nói tại phòng đối chất, không phải lời khai lịch sử."]};state.transcripts.push(t);save();}
+ out.append(button("IN LỜI KHAI SAU KHI CHẾT",()=>{printPaper(t.id);out.append(el("small",null,"Đã in transcript."));}));
+});
+function openPaper(id){const item=getItem(id);if(!item)return;const body=$("dialog-body");body.replaceChildren();$("dialog-title").textContent=item.title;metadata(item,body);if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);$("paper-dialog").showModal();}
+$("close-dialog").addEventListener("click",()=>$("paper-dialog").close());
+function movePaper(uid,layer){const p=state.papers.find(x=>x.uid===uid);if(!p)return;p.location=layer===null?null:{suspect:state.suspect,layer};save();renderDesk();}
+function paperCard(p,assigned){
+ const item=getItem(p.id),card=el("div","paper-card");card.draggable=true;
+ card.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",p.uid);ev.dataTransfer.effectAllowed="move";});
+ card.append(el("strong",null,item.title),el("small",null,item.origin));
+ const actions=el("div","card-actions");actions.append(button("ĐỌC",()=>openPaper(p.id)));
+ if(assigned)actions.append(button("THÁO RA",()=>movePaper(p.uid,null)));
+ else{const sel=el("select");sel.setAttribute("aria-label","Chọn lớp cho "+item.title);
+ for(let i=0;i<D.suspects[state.suspect].layers;i++){const o=el("option",null,"LỚP "+(i+1));o.value=String(i);sel.append(o);}
+ actions.append(sel,button("ĐẶT VÀO LỚP",()=>movePaper(p.uid,Number(sel.value))));}
+ card.append(actions);return card;
+}
+function renderDesk(){
+ const box=$("suspect-buttons");box.replaceChildren();Object.entries(D.suspects).forEach(([id,s])=>{
+ const b=button("#"+id+" · "+s.name.split(" ").slice(-2,-1).join(""),()=>{state.suspect=id;renderDesk();},"suspect");
+ b.setAttribute("aria-pressed",id===state.suspect?"true":"false");box.append(b);
+ });
+ const s=D.suspects[state.suspect];$("stack-title").textContent="#"+state.suspect+" · "+s.name+(s.open?" · HỒ SƠ CÒN MỞ":"");
+ const inventory=$("inventory"),layers=$("layers");inventory.replaceChildren();layers.replaceChildren();
+ const loose=state.papers.filter(p=>!p.location&&getItem(p.id));$("inventory-count").textContent=loose.length;
+ if(!loose.length)inventory.append(el("p","empty","Chưa có giấy để xếp. Tìm và in qua IBM, FAX hoặc đối chất."));
+ loose.forEach(p=>inventory.append(paperCard(p,false)));
+ for(let i=0;i<s.layers;i++){
+  const slot=el("div","layer");slot.dataset.layer=String(i);
+  slot.append(el("h3",null,"LỚP "+(i+1)+" · "+(i===0?"BỀ MẶT":i===s.layers-1?"BẢN CHẤT SÂU NHẤT":"ĐƯỜNG HÀNH VI")));
+  const placed=state.papers.filter(p=>p.location&&p.location.suspect===state.suspect&&p.location.layer===i&&getItem(p.id));
+  if(!placed.length)slot.append(el("small","empty","Kéo hoặc đặt giấy vào đây."));
+  placed.forEach(p=>slot.append(paperCard(p,true)));
+  slot.addEventListener("dragover",ev=>{ev.preventDefault();slot.dataset.over="true";});
+  slot.addEventListener("dragleave",()=>{slot.dataset.over="false";});
+  slot.addEventListener("drop",ev=>{ev.preventDefault();slot.dataset.over="false";movePaper(ev.dataTransfer.getData("text/plain"),i);});
+  layers.append(slot);
+ }
+}
+$("reset").addEventListener("click",()=>{if(!confirm("Xóa tiến độ Case 01 V4.3 trên trình duyệt này?"))return;localStorage.removeItem(key);location.reload();});
+function renderAdmit(){
+ const select=$("submit-suspect"),old=select.value;select.replaceChildren();
+ Object.entries(D.suspects).forEach(([id,s])=>{const opt=el("option",null,"#"+id+" · "+s.name);opt.value=id;select.append(opt);});
+ if(old&&D.suspects[old])select.value=old;
+}
+$("submit-dossier").addEventListener("click",()=>{
+ const who=$("submit-suspect").value,room=$("room").value,feedback=$("feedback");feedback.replaceChildren();feedback.classList.remove("hidden");
+ if(!room){feedback.append(el("strong",null,"CHƯA CHỌN PHÒNG"));return;}
+ const result=R.evaluate(who,room,state.papers),s=D.suspects[who];
+ const msg={jurisdiction:["OUTSIDE OUR JURISDICTION","Phòng này không nhận bản chất tội trong hồ sơ. Giấy trả lại nguyên vẹn."],
+ incomplete:["HỒ SƠ CHƯA ĐỦ","Bằng chứng, quan hệ giải thích hoặc chiều sâu tội chưa chứng minh đủ để tiếp nhận. Giấy được trả lại."],
+ admitted:["ĐƯỢC TIẾP NHẬN","Các nguồn độc lập hội tụ thành một lập luận đáp ứng phòng tiếp nhận."]};
+ const lines=msg[result]||["HỒ SƠ KHÔNG HỢP LỆ","Không thể kiểm hồ sơ này."];
+ feedback.append(el("strong",null,lines[0]),el("p",null,lines[1]));
+ if(result==="admitted"&&!state.admitted.includes(who)){state.admitted.push(who);save();}
+});
+renderOpening();renderLedger();save();navigate("brief");
 })();
