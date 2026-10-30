@@ -76,3 +76,23 @@ assert.equal(R.queryByKind("San Aurelio","people").records.length,0,"person filt
 assert(R.queryByKind("La Linterna","publications").records.some(r=>r.id==="A02"),"publication search finds the newspaper");
 assert(!R.queryByKind("La Linterna","publications").records.some(r=>r.id==="A19"),"publication mode does not return government mentions of a newspaper");
 assert.equal(R.queryByKind("Viedma","publications").records.length,0,"event name is not automatically a publication");
+
+// The IBM must not expose unrestricted GOV+PRESS browse results from any UI control.
+const html=fs.readFileSync(path.join(__dirname,"index.html"),"utf8");
+const app=fs.readFileSync(path.join(__dirname,"app.js"),"utf8");
+assert.equal((html.match(/data-browse=/g)||[]).length,3,"only person / event / publication");
+assert(!html.includes('value="all"'),"no ALL source option");
+assert(!html.includes("TRA CHUNG"),"no general browse control");
+assert(html.includes('id="archive-sound-toggle"'),"IBM volume toggle present");
+assert(html.includes('src="portraits.js?v='),"portrait scripts loaded");
+assert(app.includes("function ibmSound("),"Web Audio mechanical feedback wired");
+vm.runInContext(fs.readFileSync(path.join(__dirname,"portraits.js"),"utf8"),ctx,{filename:"portraits.js"});
+const rows=ctx.window.ATWG_FACE_ROWS;
+assert.equal(rows.length,3,"30 portraits arranged in three 10-face rows");
+for(const row of rows){
+ const bytes=Buffer.from(row,"base64");
+ assert.equal(bytes.toString("ascii",0,4),"RIFF","WebP RIFF header");
+ assert.equal(bytes.toString("ascii",8,12),"WEBP","WebP image header");
+ assert(bytes.length>12000,"retain detail in cropped images");
+}
+console.log("PASS IBM GOV/PRESS, 3 query modes, 30 identity portraits and sound wiring.");
