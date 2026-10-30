@@ -1,84 +1,66 @@
-(function (root) {
-  "use strict";
-  const DATA = root.ATWG_DATA;
-  function normalize(value) {
-    return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
-  }
-  // Four documented forms: A, A_YEAR, A_B, A_B_YEAR.
-  // A/B are filing headings, NOT natural-language questions.
-  function parseQuery(input) {
-    const raw=String(input || "").trim();
-    if(!raw) return {ok:false,error:"Nhập tên người, sự việc, ấn phẩm hoặc mã hồ sơ."};
-    const parts=raw.split("_").map(p=>p.trim());
-    if(parts.length>3 || parts.some(p=>!p))return {ok:false,error:"Cú pháp: A, A_NĂM, A_B hoặc A_B_NĂM. Dùng dấu _ để phân cách."};
-    let year=null;
-    if(/^\d{4}$/.test(parts[parts.length-1])) year=parts.pop();
-    if(parts.length<1 || parts.length>2 || parts.some(p=>/^\d{4}$/.test(p)))return {ok:false,error:"Tên đề mục đứng trước; năm bốn chữ số chỉ được đặt cuối."};
-    if(/^(ai|tai sao|vì sao|tim|tìm|cho tôi|bao chi ve|báo chí về|nhung gi|những gì)\b/i.test(raw))return {ok:false,error:"Máy chỉ tra đề mục, không nhận câu hỏi. Ví dụ: Serrano_1962."};
-    return {ok:true,headings:parts,year};
-  }
-  function allHeadings(){
-    return Object.values(DATA.catalog || {}).flat();
-  }
-  function resolveHeading(raw) {
-    const q=normalize(raw);
-    const known=allHeadings().find(item=>[item.label,item.query,...(item.aliases||[])].some(v=>normalize(v)===q));
-    return normalize(known?known.query:raw);
-  }
-  function indexedFields(record) {
-    // Only title, record code, printed metadata and explicit filing terms.
-    return [record.id,record.title,record.origin,...record.terms].map(normalize);
-  }
-  function matchesHeading(record,raw) {
-    const needle=resolveHeading(raw);
-    if(!needle)return false;
-    return indexedFields(record).some(value=>value===needle || value.startsWith(needle+" ") ||
-      value.includes(" "+needle+" ") || value.endsWith(" "+needle));
-  }
-  function queryArchive(input,scope="all") {
-    const parsed=parseQuery(input);
-    if(!parsed.ok)return {...parsed,records:[]};
-    const records=DATA.records.filter(record=>
-      (scope==="all"||record.scope===scope) &&
-      (!parsed.year || (record.date||"").match(/\b\d{4}\b/)?.[0]===parsed.year) &&
-      parsed.headings.every(heading=>matchesHeading(record,heading))
-    );
-    return {...parsed,records};
-  }
-  // Backward compatible wrapper for the Case 01 rules tests.
-  function search(scope,query) {
-    if(!String(query||"").trim())return DATA.records.filter(r=>scope==="all"||r.scope===scope);
-    return queryArchive(query,scope).records;
-  }
-  function photoFor(code, readIds) {
-    const photo = DATA.photos.find(item => normalize(item.id) === normalize(code));
-    return photo && readIds.includes(photo.source) ? photo : null;
-  }
-  const expected = {
-    "09": [
-      {required:["C03"],optional:[]},
-      {required:["C01"],optional:[]},
-      {required:["S02","WP-12B","WP-12TX"],optional:["S01"]},
-      {required:["S03","S04"],optional:[]}
-    ],
-    "05": [
-      {required:["T08"],optional:["C02"]},
-      {required:["T05","T09"],optional:["T06"]},
-      {required:["T04","T07"],optional:["T03","T06"]},
-      {required:["T01","T02"],optional:[]}
-    ]
-  };
-  function evaluate(suspect, room, papers) {
-    if (!DATA.suspects[suspect]) return "invalid";
-    if (DATA.suspects[suspect].room !== room) return "jurisdiction";
-    const layers = expected[suspect];
-    const submitted = papers.filter(p => p.location && p.location.suspect === suspect);
-    const allRequired = layers.every((layer, i) => layer.required.every(id => submitted.some(p => p.id === id && p.location.layer === i)));
-    const allPlacedLogically = submitted.every(p => {
-      const layer = layers[p.location.layer];
-      return layer && [...layer.required,...layer.optional].includes(p.id);
-    });
-    return allRequired && allPlacedLogically ? "admitted" : "incomplete";
-  }
-  root.ATWG_RULES = {normalize, parseQuery, queryArchive, search, photoFor, evaluate};
+(function(root){
+"use strict";
+const D=root.ATWG_DATA;
+function normalize(value){return String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase().replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g," ");}
+function parseQuery(value){
+ const raw=String(value||"").trim();
+ if(!raw)return {ok:false,error:"Nhập tên người, sự kiện, cơ quan hoặc số hồ sơ."};
+ const headings=raw.split(/\s*\+\s*/).map(x=>x.trim());
+ if(headings.some(x=>!x)||headings.length>2)return {ok:false,error:"Dùng một hoặc hai đề mục, nối bằng dấu +."};
+ let year=null;
+ const last=headings.length-1;const m=headings[last].match(/(?:^|\s)(19\d{2}|20\d{2})$/);
+ if(m){year=m[1];headings[last]=headings[last].slice(0,m.index).trim();if(!headings[last])headings.pop();}
+ return {ok:true,headings,year};
+}
+function indexedFields(record){
+ return [record.id,record.title,record.origin,record.docket,record.publicId,...(record.terms||[])].filter(Boolean).map(normalize);
+}
+function matchesHeading(record,heading){
+ const needle=normalize(heading);if(!needle)return true;
+ const fields=indexedFields(record);
+ if(fields.some(x=>x===needle||x.startsWith(needle+" ")||x.endsWith(" "+needle)||x.includes(" "+needle+" ")))return true;
+ const indexed=" "+fields.join(" ")+" ";
+ return needle.split(" ").every(token=>indexed.includes(" "+token+" ")||fields.some(x=>x.includes(token)));
+}
+function queryArchive(input,scope="all"){
+ const parsed=parseQuery(input);
+ if(!parsed.ok)return {...parsed,records:[]};
+ const records=D.records.filter(r=>(scope==="all"||r.scope===scope)&&(!parsed.year||r.date.endsWith(parsed.year))&&parsed.headings.every(h=>matchesHeading(r,h)));
+ return {...parsed,records};
+}
+function search(scope,query){return query?queryArchive(query,scope).records:D.records.filter(r=>scope==="all"||r.scope===scope);}
+function photoFor(code,readIds){
+ const raw=String(code||"").trim();
+ const photo=D.photos.find(p=>p.id.toUpperCase()===raw.toUpperCase());if(!photo)return null;
+ return readIds.some(id=>D.records.some(r=>r.id===id&&(r.refs||[]).some(ref=>ref.kind==="photo"&&ref.code===photo.id)))?photo:null;
+}
+const layerRules={
+ "27":[{required:["A12"],allow:["A02","A03","A05","CAT-STREET"]},
+       {required:["A07"],oneOf:[["A06","A05","IMG-HF-STREET","CAT-STREET"]],allow:["A06","A05","IMG-HF-STREET","CAT-STREET","B-R1"]},
+       {required:["A08","A09","A10","A11"],allow:["B-R2"]}],
+ "14":[{required:["A17","A20"],allow:["IMG-HF-NEWSROOM"]},
+       {required:["A18","A19"],allow:["A20","B-P1"]}],
+ "05":[{required:["B-L1","A23"],allow:["B-L2"]},
+       {required:["A24"],allow:["A23","B-L2"]},
+       {required:["A22","A22-L"],allow:["A21-P","B-L1"]}]
+};
+function evaluate(suspect,room,papers){
+ const s=D.suspects[suspect];if(!s)return "invalid";
+ if(s.room!==room)return "jurisdiction";
+ if(s.open)return "incomplete";
+ const layers=layerRules[suspect];if(!layers)return "incomplete";
+ const placed=(papers||[]).filter(p=>p.location&&p.location.suspect===suspect);
+ const idsAt=i=>new Set(placed.filter(p=>p.location.layer===i).map(p=>p.id));
+ const valid=layers.every((layer,i)=>{
+  const ids=idsAt(i);
+  if(!layer.required.every(id=>ids.has(id)))return false;
+  if((layer.oneOf||[]).some(group=>!group.some(id=>ids.has(id))))return false;
+  return [...ids].every(id=>layer.required.includes(id)||(layer.allow||[]).includes(id)||(layer.oneOf||[]).some(g=>g.includes(id)));
+ });
+ return valid?"admitted":"incomplete";
+}
+function availableExchange(who,readId){
+ return (D.exchanges||[]).filter(x=>x.who===who&&x.trigger.includes(readId));
+}
+root.ATWG_RULES={normalize,parseQuery,indexedFields,matchesHeading,queryArchive,search,photoFor,evaluate,availableExchange,layerRules};
 })(window);
