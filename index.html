@@ -2,7 +2,7 @@
 <html lang="vi"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>All Thirty Were Guilty · Case 01 V4.3</title>
-<link rel="stylesheet" href="styles.css?v=case01-v43-4">
+<link rel="stylesheet" href="styles.css?v=case01-v43-5">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <main>
@@ -60,8 +60,17 @@
 <div class="section-head"><div><p class="eyebrow">DOSSIER DESK</p><h1>Bàn giấy</h1></div><button id="reset" type="button">XÓA TIẾN ĐỘ BẢN THỬ</button></div>
 <div class="segmented" id="suspect-buttons" role="group" aria-label="Chọn hồ sơ nghi phạm"></div>
 <p class="muted">Xếp theo quan hệ giải thích: chuyện được kể → cơ chế → bản chất của hành vi. Không chấm đúng/sai lúc kéo. Có thể in thêm bản từ IBM hoặc FAX để dùng cùng chứng cứ nhiều lần.</p>
-<div class="desk-layout"><div class="inventory"><h2>Giấy chưa xếp · <span id="inventory-count"></span></h2><div id="inventory"></div></div>
-<div class="stack"><h2 id="stack-title"></h2><div id="layers"></div></div></div>
+<div class="desk-layout">
+ <div class="desk-side">
+  <div class="inventory"><h2>Giấy chưa xếp · <span id="inventory-count"></span></h2><div id="inventory"></div></div>
+  <section id="trash-bin" class="trash-bin" aria-label="Thùng rác giấy">
+   <h2>▤ THÙNG RÁC · <span id="trash-count">0</span></h2>
+   <p class="muted">Bỏ hoặc kéo giấy dư vào đây; không xóa vĩnh viễn. Bấm LẤY RA BÀN để phục hồi.</p>
+   <div id="trash-papers"></div>
+  </section>
+ </div>
+ <div class="stack"><h2 id="stack-title"></h2><div id="layers"></div></div>
+</div>
 </section>
 <section id="admit" class="view hidden">
 <p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Tiếp nhận hồ sơ</h1>
@@ -78,5 +87,5 @@
 <div id="ledger-grid" class="ledger-grid"></div></section>
 </main>
 <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-<script src="data.js?v=case01-v43-4"></script><script src="rules.js?v=case01-v43-4"></script><script src="portraits.js?v=case01-v43-4"></script><script src="app.js?v=case01-v43-4"></script>
+<script src="data.js?v=case01-v43-5"></script><script src="rules.js?v=case01-v43-5"></script><script src="portraits.js?v=case01-v43-5"></script><script src="app.js?v=case01-v43-5"></script>
 </body></html>
