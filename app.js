@@ -13,7 +13,7 @@ const state={
  papers:Array.isArray(stored.papers)?stored.papers:[newPaper("A01"),newPaper("A02")],
  transcripts:Array.isArray(stored.transcripts)?stored.transcripts:[],
  admitted:Array.isArray(stored.admitted)?stored.admitted:[],
- suspect:"27",lastPhotoId:null,selected:null,browse:"people"
+ suspect:"27",lastPhotoId:null,selected:null,browse:"all"
 };
 function save(){try{localStorage.setItem(key,JSON.stringify({serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted}));}catch(_){}}
 const getItem=id=>D.records.find(x=>x.id===id)||D.photos.find(x=>x.id===id)||state.transcripts.find(x=>x.id===id);
@@ -34,12 +34,27 @@ function renderOpening(){const box=$("opening-papers");box.replaceChildren();
  D.opening.forEach(id=>{const x=getItem(id),article=el("article","paper opening-sheet");article.append(el("small","eyebrow","BẢN BÁO / "+x.date),el("h2",null,x.title));paragraphs(x,article);
  article.append(button("ĐỌC TRONG IBM →",()=>{openRecord(id);navigate("archive");}));box.append(article);});
 }
-function searchNow(q){state.query=String(q||"").trim();state.mode=state.query?"search":"idle";state.selected=null;$("query").value=state.query;renderArchive();}
+function searchNow(q,kindOverride){
+ if(kindOverride)state.browse=kindOverride;
+ state.query=String(q||"").trim();state.mode=state.query?"search":"idle";
+ state.selected=null;$("query").value=state.query;renderArchive();
+}
+const indexModes={
+ all:{label:"TRA CỨU CHUNG",hint:"Nhập một tên, sự kiện, cơ quan hoặc tham chiếu có trên giấy.",placeholder:"Nhập đề mục thấy trên tài liệu..."},
+ people:{label:"TRA THEO NGƯỜI",hint:"Gõ tên người mày đã biết từ hồ sơ hoặc Grand Ledger. Không có danh sách gợi ý sẵn.",placeholder:"Gõ tên người..."},
+ events:{label:"TRA THEO SỰ VIỆC",hint:"Gõ tên vụ, địa điểm hoặc số hồ sơ mày đã thấy trên giấy.",placeholder:"Gõ tên sự việc hoặc tham chiếu..."},
+ publications:{label:"TRA THEO ẤN PHẨM",hint:"Gõ tên tờ báo hoặc chương trình đã thấy. Không có danh mục ấn phẩm mở sẵn.",placeholder:"Gõ tên ấn phẩm..."}
+};
+function setIndexMode(kind){
+ state.browse=kind;state.scope=kind==="publications"?"press":"all";
+ state.query="";state.selected=null;state.mode="idle";
+ $("query").value="";renderArchive();$("query").focus();
+}
 function openRecord(id){const x=D.records.find(r=>r.id===id);if(!x)return;state.selected=id;state.mode="reader";state.history=[id,...state.history.filter(v=>v!==id)].slice(0,80);if(!state.readIds.includes(id))state.readIds.push(id);save();renderArchive();}
 function togglePin(id){state.pins=state.pins.includes(id)?state.pins.filter(x=>x!==id):[id,...state.pins];save();renderArchive();}
 $("search-form").addEventListener("submit",ev=>{ev.preventDefault();searchNow($("query").value);});
 $("scope-filter").addEventListener("change",ev=>{state.scope=ev.target.value;if(state.mode==="reader")state.mode="search";renderArchive();});
-document.querySelectorAll("[data-browse]").forEach(x=>x.addEventListener("click",()=>{state.mode="browse";state.browse=x.dataset.browse;state.selected=null;renderArchive();}));
+document.querySelectorAll("[data-browse]").forEach(x=>x.addEventListener("click",()=>setIndexMode(x.dataset.browse)));
 $("archive-history").addEventListener("click",()=>{state.mode="history";renderArchive();});
 $("archive-pins").addEventListener("click",()=>{state.mode="pins";renderArchive();});
 function result(title,detail,act){
@@ -49,13 +64,16 @@ function readerRefs(item,where){
  if(!(item.refs||[]).length)return;
  const box=el("div","archive-reference-list");box.append(el("h3",null,"THAM CHIẾU GHI TRÊN GIẤY"));
  item.refs.forEach(ref=>{
-  if(ref.kind==="search")box.append(button(ref.label,()=>searchNow(ref.query)));
+  if(ref.kind==="search")box.append(button(ref.label,()=>searchNow(ref.query,"all")));
   if(ref.kind==="photo")box.append(button(ref.label,()=>{$("wire-code").value=ref.code;$("wire-message").textContent="Mã ghi trên giấy đã chuyển sang tổng đài. Nhấn GỌI 000.";navigate("wire");}));
  });where.append(box);
 }
-const browseTopics={events:["San Aurelio","Viedma","Funes","Samuel Olmedo","La Linterna","Plaza del Reloj","INV-HF-SAFE"],publications:["La Linterna","Đài Quốc gia","El Diario Nacional","Bản tin Quốc gia"]};
 function renderArchive(){
  $("scope-filter").value=state.scope;$("query").value=state.query;
+ $("query").placeholder=indexModes[state.browse].placeholder;
+ $("search-mode-label").textContent=indexModes[state.browse].label;
+ $("archive-idle-hint").textContent=indexModes[state.browse].hint;
+ document.querySelectorAll("[data-browse]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.browse===state.browse)));
  const mode=state.mode;$("archive-idle").classList.toggle("hidden",mode!=="idle");
  $("archive-list").classList.toggle("hidden",mode==="idle"||mode==="reader");
  $("reader").classList.toggle("hidden",mode!=="reader");
@@ -70,21 +88,17 @@ function renderArchive(){
  const out=$("results");out.replaceChildren();
  const head=$("results-title"),count=$("result-count");
  if(mode==="search"){
-  const res=R.queryArchive(state.query,state.scope),found=res.records||[];
-  head.textContent="MỤC LỤC: "+state.query;count.textContent=res.ok?found.length+" HỒ SƠ":"LỖI";
+  const res=R.queryByKind(state.query,state.browse,state.scope),found=res.records||[];
+  head.textContent=indexModes[state.browse].label+" · "+state.query;count.textContent=res.ok?found.length+" HỒ SƠ":"LỖI";
   if(!res.ok){out.append(el("p","empty-results",res.error));return;}
   if(!found.length){out.append(el("p","empty-results","Không có đề mục được biên mục. Thử tên người, cơ quan, sự kiện hoặc tham chiếu thấy trên giấy."));return;}
   found.forEach(x=>out.append(result(x.title,
-   sourceLabel(x)+" · "+x.date+" · "+x.origin+" · "+(x.docket||x.publicId)+" · "+x.terms.slice(0,3).join(", "),
+   sourceLabel(x)+" · "+x.date+" · "+x.origin+" · "+(x.docket||x.publicId),
    ()=>openRecord(x.id))));
  }else if(mode==="history"||mode==="pins"){
   const ids=mode==="history"?state.history:state.pins;head.textContent=mode==="history"?"TÀI LIỆU ĐÃ XEM":"TÀI LIỆU ĐÃ GHIM";count.textContent=ids.length+" MỤC";
   if(!ids.length)out.append(el("p","empty-results","Chưa có mục nào."));
   ids.forEach(id=>{const x=D.records.find(r=>r.id===id);if(x)out.append(result(x.title,sourceLabel(x)+" · "+x.origin,()=>openRecord(id)));});
- }else if(mode==="browse"){
-  const names=state.browse==="people"?D.people.map(x=>x.name):browseTopics[state.browse]||[];
-  head.textContent=state.browse==="people"?"DANH MỤC NHÂN SỰ":state.browse==="events"?"DANH MỤC SỰ VIỆC":"DANH MỤC ẤN PHẨM";count.textContent=names.length+" ĐỀ MỤC";
-  names.forEach(name=>out.append(result(name,"TRA THEO ĐỀ MỤC",()=>searchNow(name))));
  }
  out.scrollTop=0;
 }
