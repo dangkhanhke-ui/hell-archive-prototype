@@ -36,11 +36,11 @@ function photoFor(code,readIds){
 }
 const layerRules={
  "27":[{required:["A12"],allow:["A02","A03","A05","CAT-STREET"]},
-       {required:["A07"],oneOf:[["A06","A05","IMG-HF-STREET","CAT-STREET"]],allow:["A06","A05","IMG-HF-STREET","CAT-STREET","B-R1"]},
-       {required:["A08","A09","A10","A11"],allow:["B-R2"]}],
- "14":[{required:["A17","A20"],allow:["IMG-HF-NEWSROOM"]},
+       {required:["A07"],oneOf:[["A06","A05","IMG-HF-STREET","CAT-STREET"]],allow:["A06","A05","IMG-HF-STREET","CAT-STREET","B-R1","A08","A09","A10"]},
+       {required:["A11"],allow:["A08","A09","A10","B-R2"]}],
+ "14":[{required:["A17"],allow:["A20","IMG-HF-NEWSROOM"]},
        {required:["A18","A19"],allow:["A20","B-P1"]}],
- "05":[{required:["B-L1","A23"],allow:["B-L2"]},
+ "05":[{required:["B-L1"],allow:["A23","B-L2"]},
        {required:["A24"],allow:["A23","B-L2"]},
        {required:["A22","A22-L"],allow:["A21-P","B-L1"]}]
 };
@@ -57,7 +57,9 @@ function evaluate(suspect,room,papers){
   if((layer.oneOf||[]).some(group=>!group.some(id=>ids.has(id))))return false;
   return [...ids].every(id=>layer.required.includes(id)||(layer.allow||[]).includes(id)||(layer.oneOf||[]).some(g=>g.includes(id)));
  });
- return valid?"admitted":"incomplete";
+ const shared={ "27":{ids:["A08","A09","A10"],layers:[1,2]}, "14":{ids:["A20"],layers:[0,1]}, "05":{ids:["A23"],layers:[0,1]} }[suspect];
+ const sharedValid=!shared||shared.ids.every(id=>placed.some(p=>p.id===id&&shared.layers.includes(p.location.layer)));
+ return valid&&sharedValid?"admitted":"incomplete";
 }
 function availableExchange(who,readId){
  return (D.exchanges||[]).filter(x=>x.who===who&&x.trigger.includes(readId));
