@@ -1,7 +1,8 @@
 const assert=require("node:assert/strict");
 const fs=require("node:fs"),vm=require("node:vm"),path=require("node:path");
 const ctx={window:{}};vm.createContext(ctx);
-for(const f of ["data.js","rules.js"])vm.runInContext(fs.readFileSync(path.join(__dirname,f),"utf8"),ctx,{filename:f});
+const root=path.resolve(__dirname,".."),read=file=>fs.readFileSync(path.join(root,file),"utf8");
+for(const f of ["src/core/data.js","src/core/rules.js"])vm.runInContext(read(f),ctx,{filename:f});
 const {ATWG_DATA:D,ATWG_RULES:R}=ctx.window;
 const ids=(q,s="all")=>R.queryArchive(q,s).records.map(x=>x.id);
 const papers=(suspect,layers)=>layers.flatMap(([layer,items])=>items.map(id=>({id,location:{suspect,layer}})));
@@ -78,22 +79,22 @@ assert(!R.queryByKind("La Linterna","publications").records.some(r=>r.id==="A19"
 assert.equal(R.queryByKind("Viedma","publications").records.length,0,"event name is not automatically a publication");
 
 // The IBM must not expose unrestricted GOV+PRESS browse results from any UI control.
-const html=fs.readFileSync(path.join(__dirname,"index.html"),"utf8");
-const app=fs.readFileSync(path.join(__dirname,"app.js"),"utf8");
+const html=read("index.html");
+const app=read("src/game/app.js");
 assert.equal((html.match(/data-browse=/g)||[]).length,3,"only person / event / publication");
 assert(!html.includes('value="all"'),"no ALL source option");
 assert(!html.includes("TRA CHUNG"),"no general browse control");
 assert(html.includes('id="archive-sound-toggle"'),"IBM volume toggle present");
-assert(html.includes('src="portraits.js?v='),"portrait scripts loaded");
-assert(app.includes("function ibmSound("),"Web Audio mechanical feedback wired");
-vm.runInContext(fs.readFileSync(path.join(__dirname,"portraits.js"),"utf8"),ctx,{filename:"portraits.js"});
-const rows=ctx.window.ATWG_FACE_ROWS;
-assert.equal(rows.length,3,"30 portraits arranged in three 10-face rows");
-for(const row of rows){
- const bytes=Buffer.from(row,"base64");
- assert.equal(bytes.toString("ascii",0,4),"RIFF","WebP RIFF header");
- assert.equal(bytes.toString("ascii",8,12),"WEBP","WebP image header");
- assert(bytes.length>12000,"retain detail in cropped images");
+assert(html.includes('src="src/core/manifest.js?v='),"asset manifest loaded");
+assert(app.includes("const ibmSound=kind=>window.ATWG_AUDIO.play"),"Audio module wired");
+vm.runInContext(read("src/core/manifest.js"),ctx,{filename:"manifest.js"});
+const portraitPaths=ctx.window.ATWG_MANIFEST.portraits;
+assert.equal(Object.keys(portraitPaths).length,30,"30 separately swappable portraits");
+for(const [id,filepath] of Object.entries(portraitPaths)){
+ const bytes=fs.readFileSync(path.join(root,filepath));
+ assert.equal(bytes.toString("ascii",0,4),"RIFF",id+" portrait RIFF header");
+ assert.equal(bytes.toString("ascii",8,12),"WEBP",id+" portrait WebP header");
+ assert(bytes.length>2000&&bytes.length<30000,id+" portrait budget");
 }
 console.log("PASS IBM GOV/PRESS, 3 query modes, 30 identity portraits and sound wiring.");
 
@@ -114,5 +115,5 @@ for(const record of D.records){for(const ref of record.refs||[]){
 assert(!R.queryByKind("a","events").records.length,"one-letter queries also blocked in modes");
 assert(!R.queryByKind("a","people").records.length);
 assert(!R.queryByKind("a","publications").records.length);
-assert(app.includes("const boostedVolume=volume*3"),"audio gain must be tripled");
+assert(read("src/core/audio.js").includes("const boostedVolume=volume*3"),"audio gain must be tripled");
 console.log("PASS exact-word IBM search and 3x amplified Web Audio.");
