@@ -201,7 +201,7 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  game.tools[1].click();
  const firstClip=game.scene().items.find(x=>x.kind==='clip');
  drag(firstClip.uid,folder.x+29,folder.y+40);
- assert(folder.clipped,'clip must seal dossier');
+ assert(folder.clipped,'clip must seal dossier; scene='+JSON.stringify(game.scene().items.map(x=>({uid:x.uid,kind:x.kind,x:x.x,y:x.y,clipped:x.clipped,stack:x.stack?.length}))));
  const folderDom=element(folder.uid),fastener=folderDom.children.find(x=>x.className==='desk-folder-fastener');
  assert(fastener,'visible clip should have independent interactive target');
  fastener.click();
