@@ -22,6 +22,27 @@ function make(api){
  const inspector=document.getElementById('desk-inspector'),tools=document.getElementById('desk-toolbox');
  const trashDrawer=document.getElementById('desk-trash-drawer'),trashList=document.getElementById('desk-trash-list');
  const status=document.getElementById('desk-stage-status'),readyBtn=document.getElementById('desk-ready-button');
+ // Load the real tabletop only upon first visiting the Desk. Preserve the SVG
+ // fallback until the photograph has decoded; never alter the pointer geometry.
+ let tabletopRequested=false;
+ function prepareTabletop(){
+  if(tabletopRequested)return;
+  tabletopRequested=true;
+  const source=root.ATWG_ASSETS?.prop('tabletop');
+  if(!source)return;
+  rootEl.style.backgroundImage='url("'+source+'")';
+  rootEl.style.backgroundSize='100% 100%';
+  rootEl.style.backgroundPosition='center';
+  if(typeof root.Image!=='function'){rootEl.classList.add('desk-photo-ready');return;}
+  const preview=new root.Image();
+  preview.onload=()=>rootEl.classList.add('desk-photo-ready');
+  preview.onerror=()=>{
+   rootEl.classList.remove('desk-photo-ready');
+   rootEl.style.backgroundImage='';
+  };
+  preview.src=source;
+ }
+
  const scene=state.scene||(state.scene={items:[],seq:0,z:20,active:null,pending:null});
  const paperIds=()=>new Set(state.papers.map(p=>p.uid));
  function paintProp(node,kind){
@@ -343,7 +364,7 @@ function tryDropSubmissionTray(folder){
   if(!papers.length){trashList.append(elt('p',null,'Thùng đang trống.'));return;}
   for(const p of papers){const doc=getItem(p.id);const row=elt('div','desk-trash-row');row.append(elt('span',null,doc?.title||p.id));row.append(btn('LẤY RA',()=>restore(p)));trashList.append(row);}
  }
- function render(){ensure();resize();world.replaceChildren();
+ function render(){prepareTabletop();ensure();resize();world.replaceChildren();
   for(const obj of [...scene.items].sort((a,b)=>a.z-b.z)){const e=renderItem(obj);if(e)world.append(e);}
   showInspector();renderTrash();
   const f=activeFolder();readyBtn.hidden=!(f?.clipped&&f.nameId&&f.stack.some(t=>t.kind==='paper'));
