@@ -70,3 +70,7 @@
 #desk-stage-status{flex:1 1 100%;color:#e6d4b1;margin:0;font-size:11px}
 #desk #desk-ready-button{z-index:100;position:relative}
 @media(max-width:680px){#desk-toolbox{left:1%;bottom:1%;min-width:0;width:54%;padding:4px;gap:2px}#desk-toolbox button{font-size:9px;padding:3px}#desk-toolbox::before,#desk-stage-status{font-size:8px}}
+/* Bìa/giấy/kẹp có phân tầng cứng trong desk-scene.js, không bị click đổi sai lớp. */
+#desk-tray-status{position:absolute;right:2.2%;top:30%;width:18.8%;color:#e8d6af;text-align:center;pointer-events:none;z-index:3;font:700 clamp(8px,.85vw,12px)/1.3 Georgia,serif;text-shadow:0 1px 2px #000e}
+#desk-submission-tray{transition:filter .13s ease}
+#desk-stage[data-tray-over="true"] #desk-submission-tray{filter:drop-shadow(0 0 18px #f3d18b) brightness(1.35)}
