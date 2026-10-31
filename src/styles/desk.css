@@ -97,3 +97,33 @@
  box-shadow:0 0 26px #f0d18b99,inset 0 0 18px #f0d18b44;
  pointer-events:none;z-index:1;
 }
+
+/* Full-resolution authored tabletop scene, not a thumbnail inside a dashboard. */
+#desk{width:100%;max-width:none!important;padding:0!important;margin:0!important;min-height:100svh}
+#desk-stage{
+ width:min(100vw,177.6833svh)!important;
+ aspect-ratio:1672/941!important;
+ height:auto!important;min-height:0!important;
+ margin:auto;overflow:hidden;max-width:none!important;
+ background-position:center!important;background-size:100% 100%!important;
+ border:0!important;box-shadow:none!important;
+}
+#desk-stage.desk-photo-ready #desk-backdrop{display:none!important}
+#desk .desk-briefing{width:min(100%,1672px);max-width:none;margin:0 auto;padding:8px 22px;gap:8px}
+#desk .desk-briefing h1{font-size:clamp(16px,1.65vw,28px)}
+#desk .desk-hint{font-size:clamp(9px,.75vw,13px);max-width:700px}
+#desk .desk-stage-tooltip{max-width:1672px;margin:5px auto;padding:0 20px}
+#desk-inspector{width:min(100%,1672px);margin:5px auto 0}
+#desk-trash-drawer{width:min(100%,1672px);margin:5px auto}
+#desk-stage.desk-photo-ready #desk-toolbox{left:1.8%;bottom:2.5%;width:29%;max-width:440px}
+#desk-stage.desk-photo-ready #desk-tray-status{
+ top:21.5%;right:2%;width:18%;font-size:clamp(8px,.8vw,13px);
+ background:#1b150fb5;border-color:#c7aa7b55;
+}
+#desk-stage.desk-photo-ready[data-tray-over=true]::after{top:6.8%;right:1.8%;height:25.6%;width:19%}
+@media(max-width:650px){
+ #desk .desk-briefing{padding:4px 10px}
+ #desk .desk-hint{display:none}
+ #desk-stage{width:100vw!important}
+ #desk-stage.desk-photo-ready #desk-toolbox{width:37%;left:1%;bottom:1%;min-width:0;padding:3px}
+}
