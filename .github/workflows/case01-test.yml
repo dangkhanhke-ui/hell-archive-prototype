@@ -1,7 +1,7 @@
 name: Case 01 static game integrity
 on:
   push:
-    branches: [main, refactor-asset-pipeline-game-structure-2026, feat-actual-desk-ibm-photos-20261031, fix-fullscreen-photo-scenes-20261031]
+    branches: [main, refactor-asset-pipeline-game-structure-2026, feat-actual-desk-ibm-photos-20261031, fix-fullscreen-photo-scenes-20261031, fix-minimal-ui-real-props-20261031]
   pull_request:
 jobs:
   validate:
