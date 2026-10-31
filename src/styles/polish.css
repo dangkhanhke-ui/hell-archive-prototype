@@ -152,3 +152,7 @@ button:focus,select:focus,input:focus{border-color:#dce5efb3!important}
 #desk .desk-folder-fastener .desk-custom-prop{filter:none!important;box-shadow:none!important}
 #desk .desk-prop.desk-clip .desk-custom-prop{filter:none!important;box-shadow:none!important}
 #desk .desk-page *,#desk .desk-paper *,#paper-viewer-layer .paper-zoom-sheet *:not(.paper-zoom-x){font-family:"Times New Roman",Times,serif!important}
+
+/* Floating sheets: separate windows, other tabletop pages remain clickable. */
+.paper-viewer-screen{pointer-events:none!important;background:transparent!important}
+.paper-zoom-sheet{pointer-events:auto!important;translate:var(--paper-shift-x,0px) var(--paper-shift-y,0px);transition:translate .18s ease-out}
