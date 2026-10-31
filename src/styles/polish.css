@@ -42,13 +42,32 @@ h1,h2,h3,strong{font-family:Inter,"Segoe UI",Arial,sans-serif!important;font-wei
 #desk .desk-custom-prop{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;image-rendering:auto;filter:drop-shadow(3px 5px 5px #0008)}
 #desk .desk-folder>.desk-custom-prop{filter:drop-shadow(5px 7px 9px #0008)}
 #desk .desk-prop-label{font-size:12px!important;font-weight:500!important;color:#23272b!important;text-shadow:none!important}
-#archive .terminal-content,#archive .terminal-screen,#archive .reader{color:#e8eef3!important}
-#archive .terminal-screen{background:radial-gradient(ellipse at center,#101a20cf 0%,#080e14e0 75%,#05070be8 100%)!important}
-#archive .terminal-content label,#archive .terminal-content small{color:#c6d0da!important}
-#archive .archive-idle,#archive .archive-idle *{color:#dce7f2!important}
+/* IBM is a distinct archival terminal: square controls, legible monospace and original green phosphor. */
+#archive .terminal-content,#archive .terminal-content *,#archive .terminal-screen,#archive .reader{
+ font-family:"Courier New",Consolas,monospace!important;
+ font-weight:400!important;
+ letter-spacing:.015em!important;
+}
+#archive .terminal-content{color:#9bd6a6!important}
+#archive .terminal-content label,#archive .terminal-content small,#archive .archive-idle,#archive .archive-idle *,#archive .reader{color:#9bd6a6!important}
+#archive .terminal-screen{
+ background:radial-gradient(ellipse at center,#061a12df 0%,#050b09e3 76%,#010403f0 100%)!important;
+}
+#archive .terminal-content button,#archive .terminal-content input,#archive .terminal-content select,
+#archive .terminal-content textarea,#archive .terminal-content .archive-browse,
+#archive .terminal-content .archive-utilities button{
+ border-radius:0!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ font-family:"Courier New",Consolas,monospace!important;
+ font-weight:400!important;
+}
+#archive .terminal-content button{background:#0b2015e8!important;border:1px solid #619a71!important;color:#a4dda9!important}
+#archive .terminal-content button:hover,#archive .terminal-content button:focus-visible{background:#1b3824!important;border-color:#b0ddb8!important}
+#archive .terminal-content button[aria-pressed="true"]{background:#20452c!important;color:#d0f4d7!important}
+#archive .terminal-content input,#archive .terminal-content select,#archive .terminal-content textarea{
+ background:#08170eea!important;border:1px solid #609772!important;color:#b9e7bf!important;
+}
+#archive .terminal-content input::placeholder{color:#668d70!important}
 #archive .archive-syntax,#archive .archive-help{display:none!important}
-#archive input,#archive select{background:#0e1720dd!important;border-color:#bac7d16b!important}
-#archive button{border-radius:999px!important;background:#18222bdc!important;color:#e9eff5!important;border-color:#b6c3ce69!important}
-#archive button[aria-pressed="true"]{background:#31404dcf!important}
-
 #desk.hidden{display:none!important}
