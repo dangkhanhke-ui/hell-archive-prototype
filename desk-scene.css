@@ -62,3 +62,11 @@
 #desk-admission-preview small{display:block;color:#c7c3b6}
 #desk-stage:focus-within{border-color:#8b7351}
 @media(max-width:700px){#desk-toolbox{gap:5px}#desk-toolbox button{padding:7px 9px;font-size:11px}#desk-inspector{padding:8px 9px}#desk-inspector .desk-action{padding:6px}#desk-stage{border-width:4px}}
+
+#desk-toolbox{position:absolute;bottom:2%;left:2%;z-index:5000;margin:0;width:36%;max-width:390px;min-width:235px;background:linear-gradient(135deg,#31291e,#524531);border:3px ridge #897256;box-shadow:4px 7px 14px #000b}
+#desk-toolbox::before{content:"VẬT DỤNG TRONG NGĂN BÀN";display:block;flex:0 0 100%;margin:0;color:#dccaa7;font-size:9px}
+#desk-toolbox button{flex:1 1 28%;padding:6px 7px;white-space:normal;line-height:1.2;min-width:0;border-color:#a48962;background:#665039;font-size:11px}
+#desk-toolbox #desk-bin-button{background:#4c3c33}
+#desk-stage-status{flex:1 1 100%;color:#e6d4b1;margin:0;font-size:11px}
+#desk #desk-ready-button{z-index:100;position:relative}
+@media(max-width:680px){#desk-toolbox{left:1%;bottom:1%;min-width:0;width:54%;padding:4px;gap:2px}#desk-toolbox button{font-size:9px;padding:3px}#desk-toolbox::before,#desk-stage-status{font-size:8px}}
