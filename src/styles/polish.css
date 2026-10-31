@@ -203,3 +203,12 @@ body:has(#archive:not(.hidden)) main{width:100%!important;max-width:none!importa
 #archive .ibm-photo-full{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;pointer-events:none!important}
 #archive .terminal-screen{position:absolute!important;left:22.45%!important;top:16.4%!important;width:53.7%!important;height:60.3%!important}
 #archive.hidden{display:none!important}
+
+/* Authoritative IBM layout: scene state controls viewport rather than brittle :has
+   and the back control is a direct body child above the scene. */
+html.ibm-fullscreen-active,body.ibm-fullscreen-active{width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important;overscroll-behavior:none!important;margin:0!important;padding:0!important}
+body.ibm-fullscreen-active>main{width:100%!important;max-width:none!important;height:100%!important;min-height:0!important;overflow:hidden!important;margin:0!important;padding:0!important}
+body.ibm-fullscreen-active #archive{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;max-width:none!important;overflow:hidden!important;margin:0!important;padding:0!important;z-index:100!important;animation:none!important;transform:none!important}
+body.ibm-fullscreen-active #archive>.terminal{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;overflow:hidden!important}
+body>#room-return:not([hidden]){display:flex!important;position:fixed!important;z-index:2147483647!important;left:12px!important;top:12px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+body>#room-return[hidden]{display:none!important}
