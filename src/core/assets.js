@@ -13,7 +13,7 @@ function bind(el,section,key,fallback){
  return el;
 }
 root.ATWG_ASSETS=Object.freeze({
- manifest,url:lookup,portrait,bind,prop:kind=>lookup("props",kind),
+ manifest,url:lookup,portrait,bind,prop:kind=>lookup("props",kind),ui:key=>lookup("ui",key),
  wirephoto:id=>lookup("wirephoto",id),audio:kind=>lookup("audio",kind)
 });
 })(window);
