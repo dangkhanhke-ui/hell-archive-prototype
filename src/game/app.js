@@ -66,7 +66,12 @@ function navigate(tab){
  document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==tab));
  document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
  if(document.body?.classList)document.body.classList.toggle("room-hub-active",tab==="room");
- const back=$("room-return");if(back)back.hidden=tab==="room";
+ const back=$("room-return");
+ if(back){
+  back.hidden=tab==="room";
+  back.setAttribute("aria-hidden",tab==="room"?"true":"false");
+  if(back.style?.setProperty)back.style.setProperty("display",tab==="room"?"none":"flex","important");
+ }
  if(tab==="archive")renderArchive();if(tab==="desk")renderDesk();if(tab==="souls")renderSouls();if(tab==="wire")renderWire();if(tab==="admit")renderAdmit();if(tab==="ledger")renderLedger();
  updatePaperCount();
 }
