@@ -1,0 +1,25 @@
+/* All Thirty Were Guilty / supplied 1965 interrogation chamber, 1672x941. */
+.tabs{display:none!important}
+body.room-hub-active{background:#020201;overflow-x:hidden}
+body.room-hub-active main{width:100%;max-width:none;margin:0;padding:0;min-height:100svh}
+#room{min-height:100svh;width:100%;background:radial-gradient(ellipse at center,#161310,#030302 78%);display:grid;place-items:center;overflow:hidden}
+.room-canvas{position:relative;isolation:isolate;width:min(100vw,177.6833156svh);aspect-ratio:1672 / 941;background:#0b0907;overflow:hidden;box-shadow:0 0 54px 20px #0009}
+.room-image{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:fill;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.room-canvas::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;box-shadow:inset 0 0 55px 12px #03030277}
+.room-identity{position:absolute;top:3.4%;left:3.1%;z-index:4;display:flex;flex-direction:column;gap:2px;pointer-events:none;color:#ddd0b3;text-shadow:0 2px 8px #000,0 0 6px #000b;font-family:Georgia,"Times New Roman",serif;letter-spacing:.13em}
+.room-identity small{color:#c2ad8c;font-size:clamp(8px,.75vw,12px)}
+.room-identity strong{font-size:clamp(10px,1.2vw,18px)}
+.room-hotspot{position:absolute;z-index:6;left:var(--hx);top:var(--hy);transform:translate(-50%,-50%);width:clamp(28px,3vw,46px);height:clamp(28px,3vw,46px);display:grid;place-items:center;border:0!important;border-radius:50%;padding:0;background:transparent!important;cursor:pointer;outline:none;touch-action:manipulation}
+.room-halo{position:absolute;width:70%;height:70%;border-radius:50%;border:1px solid #efdda9aa;box-shadow:0 0 14px #e7bf7388,0 0 5px #fbe7be77;animation:roomPulse 2.8s ease-out infinite;pointer-events:none}
+.room-dot{position:relative;width:clamp(7px,.75vw,12px);height:clamp(7px,.75vw,12px);border-radius:50%;background:#f5e3b7;border:1px solid #fff6dc;box-shadow:0 0 5px #fff8e9,0 0 15px #e9c680e8,0 0 31px #f0bf60b0;transition:transform .15s,box-shadow .15s;pointer-events:none}
+.room-tag{position:absolute;left:50%;top:calc(100% + 5px);transform:translate(-50%,4px);font:700 clamp(9px,.7vw,12px)/1.2 Georgia,serif;letter-spacing:.11em;white-space:nowrap;color:#f7e3ad;background:#080806de;border:1px solid #c7ad71b5;padding:7px 11px;border-radius:2px;box-shadow:0 4px 17px #000b;text-shadow:0 1px 2px #000;opacity:0;visibility:hidden;transition:opacity .14s,transform .14s,visibility .14s;pointer-events:none}
+.room-hotspot:is(:hover,:focus-visible) .room-tag{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.room-hotspot:is(:hover,:focus-visible) .room-dot{transform:scale(1.35);box-shadow:0 0 9px #fff9e9,0 0 23px #f7d78f,0 0 42px #f0bf60}
+.room-hotspot:focus-visible{outline:2px solid #fff1c6;outline-offset:2px}
+.room-instruction{position:absolute;bottom:3%;left:50%;transform:translateX(-50%);width:max-content;max-width:80%;z-index:4;color:#d8c9aa;text-align:center;pointer-events:none;text-shadow:0 2px 5px #000,0 0 13px #000;letter-spacing:.17em;font:700 clamp(8px,.7vw,11px)/1.4 Georgia,serif}
+#room-return{position:fixed;top:16px;left:18px;z-index:4000;background:#12110de9;border:1px solid #ac966c;color:#f5e5c3;font:700 13px/1.25 Georgia,serif;letter-spacing:.075em;padding:11px 16px;border-radius:2px;box-shadow:0 6px 20px #000a;cursor:pointer}
+#room-return:hover,#room-return:focus-visible{background:#393127;outline:2px solid #ddc38b}
+#room-return[hidden]{display:none!important}
+@keyframes roomPulse{0%{transform:scale(.7);opacity:.83}65%{transform:scale(1.65);opacity:0}100%{transform:scale(1.65);opacity:0}}
+@media(max-width:690px){.room-identity{top:2%;left:2%}.room-instruction{bottom:1.2%;letter-spacing:.06em}.room-tag{font-size:10px;letter-spacing:.03em;padding:5px 7px}.room-hotspot{width:38px;height:38px}.room-dot{width:8px;height:8px}}
+@media(prefers-reduced-motion:reduce){.room-halo{animation:none;opacity:.6}.room-tag,.room-dot{transition:none}}
