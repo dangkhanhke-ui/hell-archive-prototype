@@ -9,7 +9,7 @@ root.ATWG_MANIFEST=Object.freeze({
  ui:Object.freeze({ibmShell:"assets/ui/ibm-shell.webp"}),
  portraits:Object.freeze(portraits),
  // Optional: leave null until an authored prop replaces the existing in-game SVG.
- props:Object.freeze({folder:null,clip:null,nameplate:null,divider:null,trash:null,tray:null,tabletop:"assets/props/tabletop.webp"}),
+ props:Object.freeze({folder:"assets/props/folder.webp",clip:"assets/props/clip.webp",nameplate:"assets/props/nameplate.webp",divider:null,trash:null,tray:null,tabletop:"assets/props/tabletop.webp"}),
  // Use original provenance IDs as keys; never fabricate a wirephoto for a private crime.
  wirephoto:Object.freeze({}),
  // Synthesized audio is the fallback; add a file path only after uploading a sample.
