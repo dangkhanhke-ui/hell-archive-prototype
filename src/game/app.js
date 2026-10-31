@@ -1,10 +1,10 @@
 (function(){
 "use strict";
-const D=window.ATWG_DATA,R=window.ATWG_RULES,key="atwg-case01-v43";
+const D=window.ATWG_DATA,R=window.ATWG_RULES,key=window.ATWG_SAVE.key;
 const $=id=>document.getElementById(id);
 const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
 const button=(text,fn,cls="")=>{const b=el("button",cls,text);b.type="button";b.addEventListener("click",fn);return b;};
-let stored={};try{stored=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(_){}
+const stored=window.ATWG_SAVE.read(localStorage);
 let serial=Number(stored.serial)||0;
 const newPaper=id=>({uid:"paper-"+(++serial),id,location:null});
 const state={
@@ -15,7 +15,7 @@ const state={
  admitted:Array.isArray(stored.admitted)?stored.admitted:[],
  suspect:"27",lastPhotoId:null,selected:null,browse:"events",scene:stored.scene||null
 };
-function save(){try{localStorage.setItem(key,JSON.stringify({serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted,scene:state.scene}));}catch(_){}}
+function save(){window.ATWG_SAVE.write(localStorage,{serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted,scene:state.scene});}
 const isTrashed=p=>Boolean(p.location&&p.location.zone==="trash");
 const activePaperCount=()=>state.papers.filter(p=>!isTrashed(p)).length;
 function updatePaperCount(){$("paper-count").textContent="("+activePaperCount()+")";}
@@ -29,64 +29,10 @@ function restorePaper(uid){
  paper.location=null;save();updatePaperCount();
  $("status").textContent="Đã phục hồi giấy về khu tham khảo.";if(state.tab==="desk")renderDesk();
 }
-// IBM mechanical feedback is synthesized locally, not loaded from a third-party service.
+// Sound synthesis and sample loading live in the lazy core/audio service.
 const SOUND_KEY="atwg-ibm-sound-v1";
-let soundOn=localStorage.getItem(SOUND_KEY)!=="off";
-let audioContext=null,lastKeySound=0,lastPrinterSound=-100;
-// Local mechanical printer rasp: paper hiss + 67 Hz feed chatter + 122 Hz roller.
-function mechanicalPrinter(ctx,now){
- if(now-lastPrinterSound<.24)return;
- if(!ctx.createBuffer||!ctx.createBufferSource||!ctx.createBiquadFilter)return;
- lastPrinterSound=now;
- const sr=ctx.sampleRate||44100,n=Math.floor(sr*.74);
- const buffer=ctx.createBuffer(1,n,sr),samples=buffer.getChannelData(0);
- for(let i=0;i<n;i++){
-  const t=i/sr,env=Math.max(0,Math.min(1,t/.035,(.74-t)/.13));
-  const feed=Math.sin(2*Math.PI*67*t)>0?1:.38;
-  samples[i]=((Math.random()*2-1)*.77+Math.sin(2*Math.PI*122*t)*.23)*env*feed;
- }
- const source=ctx.createBufferSource();source.buffer=buffer;
- const filter=ctx.createBiquadFilter();filter.type="highpass";filter.frequency.value=240;
- const gain=ctx.createGain();
- gain.gain.setValueAtTime(.0001,now);
- gain.gain.exponentialRampToValueAtTime(.27,now+.035);
- gain.gain.setValueAtTime(.27,now+.59);
- gain.gain.exponentialRampToValueAtTime(.0001,now+.74);
- source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
- source.start(now);source.stop(now+.75);
-}
-function ibmSound(kind="click"){
- if(!soundOn)return;
- const Ctx=window.AudioContext||window.webkitAudioContext;
- if(!Ctx)return; // no audio support, or headless tests
- try{
-  if(!audioContext)audioContext=new Ctx();
-  if(audioContext.state==="suspended")void audioContext.resume();
-  const now=audioContext.currentTime;
-  if(kind==="print"){mechanicalPrinter(audioContext,now);return;}
-  const presets={
-   click:[[620,0,.015,.012,"triangle"]],
-   key:[[780,0,.009,.006,"square"]],
-   search:[[420,0,.045,.018,"triangle"],[630,.055,.036,.015,"triangle"]],
-   open:[[520,0,.035,.015,"sine"]],
-   print:[[380,0,.035,.019,"square"],[340,.055,.045,.018,"square"],[450,.12,.038,.018,"triangle"]],
-   error:[[250,0,.085,.02,"sawtooth"],[210,.09,.095,.018,"sawtooth"]],
-   fax:[[650,0,.065,.016,"sine"],[920,.07,.08,.014,"sine"]]
-  };
-  for(const [freq,delay,rawDuration,volume,wave] of (presets[kind]||presets.click)){
-   // Exactly 3x the original gain. Minimum duration keeps key ticks audible.
-   const duration=Math.max(rawDuration,kind==="key"?.035:.04);
-   const boostedVolume=volume*3;
-   const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-   osc.type=wave;osc.frequency.setValueAtTime(freq,now+delay);
-   gain.gain.setValueAtTime(.0001,now+delay);
-   gain.gain.exponentialRampToValueAtTime(boostedVolume,now+delay+.003);
-   gain.gain.exponentialRampToValueAtTime(.0001,now+delay+duration);
-   osc.connect(gain);gain.connect(audioContext.destination);
-   osc.start(now+delay);osc.stop(now+delay+duration+.005);
-  }
- }catch(_){/* keep archive functional if a browser blocks audio */ }
-}
+let soundOn=localStorage.getItem(SOUND_KEY)!=="off",lastKeySound=0;
+const ibmSound=kind=>window.ATWG_AUDIO.play(kind,soundOn);
 function updateSoundToggle(){
  const toggle=$("archive-sound-toggle");
  toggle.textContent=soundOn?"ÂM THANH: BẬT":"ÂM THANH: TẮT";
@@ -117,20 +63,12 @@ function navigate(tab){
  document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
  if(document.body?.classList)document.body.classList.toggle("room-hub-active",tab==="room");
  const back=$("room-return");if(back)back.hidden=tab==="room";
- if(tab==="archive")renderArchive();if(tab==="desk")renderDesk();if(tab==="souls")renderSouls();if(tab==="wire")renderWire();if(tab==="admit")renderAdmit();
+ if(tab==="archive")renderArchive();if(tab==="desk")renderDesk();if(tab==="souls")renderSouls();if(tab==="wire")renderWire();if(tab==="admit")renderAdmit();if(tab==="ledger")renderLedger();
  updatePaperCount();
 }
 document.querySelectorAll("[data-tab]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.tab)));
 document.querySelectorAll("[data-go]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.go)));
-// Hotspots are pinned to the exact positions of physical objects in the supplied photo.
-document.querySelectorAll("[data-room-target]").forEach(marker=>marker.addEventListener("click",()=>{
- ibmSound("open");navigate(marker.dataset.roomTarget);
-}));
-$("room-return")?.addEventListener("click",()=>{ibmSound("click");navigate("room");});
-document.addEventListener?.("keydown",ev=>{
- if(ev.key!=="Escape"||state.tab==="room"||$("paper-dialog")?.open)return;
- navigate("room");
-});
+window.ATWG_ROOM.setup(navigate,ibmSound);
 function printPaper(id){if(!getItem(id))return;ibmSound("print");state.papers.push(newPaper(id));save();updatePaperCount();$("status").textContent="Đã in một bản: "+getItem(id).title;}
 function renderOpening(){const box=$("opening-papers");box.replaceChildren();
  D.opening.forEach(id=>{const x=getItem(id),article=el("article","paper opening-sheet");article.append(el("small","eyebrow","BẢN BÁO / "+x.date),el("h2",null,x.title));paragraphs(x,article);
@@ -217,6 +155,18 @@ function renderArchive(){
  out.scrollTop=0;
 }
 function vectorPhoto(photo){
+ const actual=window.ATWG_ASSETS.wirephoto(photo.id);
+ if(actual){
+  const frame=el("figure","photo"),image=el("img","wirephoto-asset");
+  image.src=actual;image.alt=photo.title+" · "+photo.origin;image.loading="lazy";image.decoding="async";
+  image.addEventListener("error",()=>{
+   image.remove?.();
+   const fallback=vectorPhoto({...photo,id:photo.id+"-missing"});
+   frame.prepend?.(fallback.firstElementChild||fallback);
+  });
+  frame.append(image,el("figcaption",null,photo.title+" · "+photo.origin+" · "+photo.date));
+  return frame;
+ }
  const presets={
  rescue:'<rect x="25" y="82" width="320" height="122" fill="#7f857b"/><path d="M130 204V105h65v99" stroke="#30352f" stroke-width="8" fill="#bbc0b4"/><circle cx="245" cy="135" r="14"/><path d="M245 150v52m-30-35 30-7 30 13" stroke="#252a26" stroke-width="12" fill="none"/>',
  street:'<path d="M0 225h520" stroke="#30352e" stroke-width="30"/><rect x="25" y="55" width="190" height="145" fill="#93988e"/><rect x="300" y="35" width="160" height="165" fill="#707870"/><path d="M228 208v-65m-10 12h52l-20 20h-30" stroke="#252a27" stroke-width="11" fill="none"/><circle cx="226" cy="132" r="15" fill="#252a27"/>',
@@ -232,20 +182,22 @@ $("wire-form").addEventListener("submit",ev=>{ev.preventDefault();
  if(!photo){$("wire-message").textContent="Không tìm thấy ảnh trong những mã đã ghi trên hồ sơ mày đọc. Máy không tự đoán mã.";state.lastPhotoId=null;renderWire();return;}
  state.lastPhotoId=photo.id;ibmSound("fax");printPaper(photo.id);$("wire-message").textContent="ĐÃ TRUYỀN VÀ IN: "+photo.id;renderWire();
 });
-function renderLedger(){const box=$("ledger-grid");box.replaceChildren();D.people.forEach(p=>{
- const card=el("div","ledger-person"),face=el("div","ledger-face");
- const n=Number(p.id)-1,row=Math.floor(n/10),col=n%10;
- face.classList.add("ledger-portrait");
- face.setAttribute("role","img");
- face.setAttribute("aria-label","Chân dung #"+p.id+" · "+p.name);
- const sprite=window.ATWG_FACE_ROWS?.[row];
- if(sprite){
-  face.style.backgroundImage='url("data:image/webp;base64,'+sprite+'")';
-  face.style.backgroundSize="1000% 100%";
-  face.style.backgroundPosition=(col/9*100)+"% 0";
- }else{face.textContent="◼";}
- card.append(face,el("small",null,"#"+p.id),el("strong",null,p.name));box.append(card);
-});}
+let ledgerRendered=false;
+function renderLedger(){
+ if(ledgerRendered)return;
+ ledgerRendered=true;
+ const box=$("ledger-grid");box.replaceChildren();
+ D.people.forEach(p=>{
+  const card=el("div","ledger-person"),face=el("img","ledger-face ledger-portrait");
+  face.alt="Chân dung #"+p.id+" · "+p.name;
+  face.width=192;face.height=256;face.loading="lazy";face.decoding="async";
+  const source=window.ATWG_ASSETS.portrait(p.id);
+  if(source)face.src=source;
+  else{face.classList.add("portrait-missing");face.alt="Chưa có chân dung #"+p.id;}
+  face.addEventListener("error",()=>{face.removeAttribute?.("src");face.classList.add("portrait-missing");});
+  card.append(face,el("small",null,"#"+p.id),el("strong",null,p.name));box.append(card);
+ });
+}
 function renderSouls(){
  const person=$("soul-person"),paper=$("soul-paper"),oldPerson=person.value,oldPaper=paper.value;
  person.replaceChildren();D.people.forEach(p=>{const o=el("option",null,"#"+p.id+" · "+p.name);o.value=p.id;person.append(o);});
@@ -295,5 +247,5 @@ $("submit-dossier").addEventListener("click",()=>{
  feedback.append(el("strong",null,lines[0]),el("p",null,lines[1]));
  if(result==="admitted"&&!state.admitted.includes(pack.subject)){state.admitted.push(pack.subject);save();}
 });
-renderOpening();renderLedger();save();navigate("room");
+renderOpening();save();navigate("room");
 })();
