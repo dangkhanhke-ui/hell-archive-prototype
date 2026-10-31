@@ -234,11 +234,31 @@ function openPaper(id){
  const body=el("div","paper-zoom-content");metadata(item,body);
  if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);
  sheet.append(body);screen.append(sheet);layer.append(screen);
+ const openCount=layer.children.length-1;
+ const horizontal=(openCount%4-1.5)*135,vertical=(Math.floor(openCount/4)%3-1)*32;
+ sheet.style.setProperty("--paper-shift-x",horizontal+"px");
+ sheet.style.setProperty("--paper-shift-y",vertical+"px");
  screen.style.zIndex=String(++paperWindowZ+10000);
- screen.addEventListener("pointerdown",event=>{if(event.target===screen)screen.remove();});
  sheet.addEventListener("pointerdown",()=>{screen.style.zIndex=String(++paperWindowZ+10000);});
  sheet.focus({preventScroll:true});
 }
+// Click the bare room/tabletop to dismiss the top sheet. Clicking another
+// physical document instead opens it too, without closing existing sheets.
+document.addEventListener?.("pointerdown",event=>{
+ const layer=$("paper-viewer-layer");
+ if(!layer?.children.length)return;
+ if(event.target.closest?.(".paper-zoom-sheet,.desk-page,.desk-paper"))return;
+ const windows=Array.from(layer.children);
+ windows.sort((a,b)=>Number(b.style.zIndex||0)-Number(a.style.zIndex||0));
+ windows[0]?.remove();
+});
+document.addEventListener?.("keydown",event=>{
+ if(event.key!=="Escape")return;
+ const layer=$("paper-viewer-layer");
+ if(!layer?.children.length)return;
+ const windows=Array.from(layer.children).sort((a,b)=>Number(b.style.zIndex||0)-Number(a.style.zIndex||0));
+ windows[0]?.remove();event.stopImmediatePropagation?.();
+},true);
 $("close-dialog").addEventListener("click",()=>$("paper-dialog").close());
 // The physical tabletop is an independent 2D world with its own saved spatial state.
 const desk=window.ATWG_DESK.create({state,save,getItem,openPaper,navigate,data:D});
