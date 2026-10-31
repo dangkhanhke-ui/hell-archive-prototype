@@ -24,6 +24,15 @@ function make(api){
  const status=document.getElementById('desk-stage-status'),readyBtn=document.getElementById('desk-ready-button');
  const scene=state.scene||(state.scene={items:[],seq:0,z:20,active:null,pending:null});
  const paperIds=()=>new Set(state.papers.map(p=>p.uid));
+ function paintProp(node,kind){
+  const source=root.ATWG_ASSETS?.prop(kind);
+  if(!source){node.innerHTML=icons[kind]||"";return;}
+  const image=elt("img","desk-custom-prop");
+  image.src=source;image.alt="";image.loading="lazy";image.decoding="async";image.draggable=false;
+  image.addEventListener("error",()=>{node.innerHTML=icons[kind]||"";});
+  node.replaceChildren(image);
+ }
+
  const newId=prefix=>prefix+'-'+(++scene.seq);
  const folderById=uid=>scene.items.find(x=>x.uid===uid&&x.kind==='folder');
  const itemById=uid=>scene.items.find(x=>x.uid===uid);
@@ -290,7 +299,7 @@ function tryDropSubmissionTray(folder){
  }
  function renderFolder(item){
   const el=elt('div','desk-object desk-folder'+(scene.active===item.uid?' desk-active':'')+(item.clipped?' desk-sealed':''));
-  el.dataset.uid=item.uid;el.innerHTML=icons.folder;placeStyle(el,item,...bounds.folder);
+  el.dataset.uid=item.uid;paintProp(el,'folder');placeStyle(el,item,...bounds.folder);
   const caption=elt('div','desk-folder-caption',item.nameId?('#'+item.nameId+' '+(api.data.people.find(x=>x.id===item.nameId)?.name||'')):'HỒ SƠ CHƯA GẮN TÊN');el.append(caption);
   // Each page covers the previous physically; no auto-flow or cards laid in rows.
   let visualIndex=0;
@@ -304,7 +313,7 @@ function tryDropSubmissionTray(folder){
    paperEl.append(sheetText(p));
    bindPointer(paperEl,obj,{attached:item.uid});el.append(paperEl);visualIndex++;
   }
-  if(item.clipped){const clip=elt('div','desk-folder-fastener');clip.innerHTML=icons.clip;el.append(clip);}
+  if(item.clipped){const clip=elt('div','desk-folder-fastener');paintProp(clip,'clip');el.append(clip);}
   if(item.nameId){el.append(elt('div','desk-folder-name',('#'+item.nameId+' · '+(api.data.people.find(x=>x.id===item.nameId)?.name||''))));}
   if(item.clipped&&item.nameId&&item.stack.some(t=>t.kind==='paper')){
    const ready=btn('→ TIẾP NHẬN',()=>submitFolder(item),'desk-folder-ready');el.append(ready);
@@ -324,7 +333,7 @@ function tryDropSubmissionTray(folder){
   }
   const element=elt('div','desk-object desk-prop desk-'+item.kind+(scene.selected===item.uid?' desk-active':''));
   element.dataset.uid=item.uid;
-  placeStyle(element,item,...(bounds[item.kind]||bounds.clip));element.innerHTML=icons[item.kind]||'';
+  placeStyle(element,item,...(bounds[item.kind]||bounds.clip));paintProp(element,item.kind);
   if(item.kind==='nameplate'&&item.nameId){element.append(elt('span','desk-prop-label','#'+item.nameId));}
   bindPointer(element,item);return element;
  }
