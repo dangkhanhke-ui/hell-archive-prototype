@@ -135,14 +135,14 @@ function make(api){
    const record=getItem(paper.id);inspector.append(elt('strong',null,record?.title||'Bản giấy'));
    const f=paper.location?.folderId&&folderById(paper.location.folderId);
    if(f){
-    inspector.append(elt('small',null,'Đang nằm trong bìa '+f.uid+'. Thứ tự trong bìa: dưới → trên.'));
+    
     inspectorButton('ĐỌC PHÓNG TO',()=>openPaper(paper.id));
     if(!f.clipped){
      inspectorButton('RÚT RA BÀN',()=>detach(paper,selected,f));
      inspectorButton('ĐƯA LÊN 1 TỜ',()=>reorder(f,paper.uid,1));
      inspectorButton('ĐƯA XUỐNG 1 TỜ',()=>reorder(f,paper.uid,-1));
      inspectorButton('CHÈN NGĂN TRƯỚC',()=>insertDivider(f,paper.uid));
-    }else inspector.append(elt('small',null,'Hồ sơ đã kẹp. Tháo kẹp trước khi đổi giấy.'));
+    }
    }else{
     inspectorButton('ĐỌC PHÓNG TO',()=>openPaper(paper.id));
     if(activeFolder()&&!activeFolder().clipped)inspectorButton('ĐƯA VÀO BÌA ĐANG CHỌN',()=>attach(paper,activeFolder()));
@@ -151,15 +151,15 @@ function make(api){
   }else if(selected.kind==='folder'){
    inspector.append(elt('strong',null,'BÌA HỒ SƠ · '+selected.uid));
    scene.active=selected.uid;
-   inspector.append(elt('small',null,'Bên trong: '+selected.stack.filter(t=>t.kind==='paper').length+' tờ giấy. Chồng giấy xếp từ đáy (lớp ngoài) lên trên (lớp sâu).'));
+   
    if(selected.nameId){const name=api.data.people.find(p=>p.id===selected.nameId);inspector.append(elt('small',null,'Bảng tên: #'+selected.nameId+' · '+(name?.name||'')));}
-   if(selected.clipped)inspectorButton('THÁO KẸP',()=>{selected.clipped=false;msg('Đã mở kẹp, có thể sửa chồng.');});
-   else inspector.append(elt('small',null,'Kéo chiếc kẹp từ góc bàn thả lên bìa để chốt.'));
+   if(selected.clipped)inspectorButton('THÁO KẸP',()=>{selected.clipped=false;msg('');});
+   
    if(selected.clipped&&selected.nameId&&selected.stack.some(t=>t.kind==='paper'))inspectorButton('→ TIẾP NHẬN',()=>submitFolder(selected));
    if(!selected.clipped)inspectorButton('CHÈN NGĂN Ở ĐỈNH',()=>selected.stack.push({kind:'divider',uid:newId('divider')}));
   }else if(selected.kind==='clip'){
    inspector.append(elt('strong',null,'KẸP KIM LOẠI'));
-   inspector.append(elt('small',null,'Kéo kẹp đặt vào bìa có giấy để chốt. Có thể tạo thêm bao nhiêu kẹp tùy ý.'));
+   
    if(activeFolder())inspectorButton('KẸP BÌA ĐANG CHỌN',()=>fasten(selected,activeFolder()));
   }else if(selected.kind==='nameplate'){
    inspector.append(elt('strong',null,'BẢNG TÊN HỒ SƠ'));
@@ -170,7 +170,7 @@ function make(api){
    if(activeFolder())inspectorButton('GẮN LÊN BÌA ĐANG CHỌN',()=>markName(selected,activeFolder()));
   }else if(selected.kind==='divider'){
    inspector.append(elt('strong',null,'NGĂN PHÂN LỚP'));
-   inspector.append(elt('small',null,'Ngăn này tách lớp chứng cứ ngoài ở dưới và lớp sâu hơn ở trên.'));
+   
    const f=folderById(selected.folderId);
    if(f&&!f.clipped)inspectorButton('RÚT NGĂN',()=>{f.stack=f.stack.filter(t=>t.uid!==selected.uid);scene.selected=f.uid;});
   }
@@ -239,19 +239,19 @@ function placeStyle(el,item,w,h){
  }
  function attach(paper,folder){if(folder.clipped)return false;
   for(const item of scene.items.filter(x=>x.kind==='folder'))item.stack=item.stack.filter(t=>t.uid!==paper.uid);
-  folder.stack.push({kind:'paper',uid:paper.uid});paper.location={folderId:folder.uid};scene.active=folder.uid;msg('Đã thêm giấy vào bìa. Tờ mới nằm trên cùng.');persist();return true;
+  folder.stack.push({kind:'paper',uid:paper.uid});paper.location={folderId:folder.uid};scene.active=folder.uid;msg('');persist();return true;
  }
  function detach(paper,item,folder,moving=false){
   if(folder.clipped)return;
   folder.stack=folder.stack.filter(t=>t.uid!==paper.uid);
   paper.location=null;
   if(!moving){item.x=clamp(folder.x+330,15,W-140);item.y=folder.y+25;}
-  scene.selected=item.uid;persist();msg('Đã rút giấy, chồng còn lại giữ nguyên.');
+  scene.selected=item.uid;persist();msg('');
  }
  function reorder(folder,uid,dir){const i=folder.stack.findIndex(t=>t.uid===uid);if(i<0)return;
   const j=i+dir;if(j<0||j>=folder.stack.length)return;
   const a=folder.stack[i];folder.stack[i]=folder.stack[j];folder.stack[j]=a;
-  persist();msg('Đã thay đổi thứ tự giấy trong bìa.');
+  persist();msg('');
  }
  function insertDivider(folder,paperUid){const i=folder.stack.findIndex(t=>t.uid===paperUid);if(i<1)return;
   if(folder.stack[i-1]?.kind==='divider')return;
@@ -275,28 +275,28 @@ function tryDropPaper(item){
   .filter(f=>cx>=f.x+25&&cx<=f.x+bounds.folder[0]-25&&cy>=f.y+25&&cy<=f.y+bounds.folder[1]-25)
   .sort((a,b)=>b.z-a.z)[0];
  if(!folder)return false;
- attach(paper,folder);msg('Giấy đã vào bìa. Đặt thêm giấy hoặc kẹp để chốt.');return true;
+ attach(paper,folder);msg('');return true;
 }
 function tryDropClip(item){const f=hitFolderByOverlap(item);if(f)fasten(item,f);}
  function fasten(item,folder){
  if(folder.clipped){msg('Bìa này đã kẹp. Tháo kẹp trước khi thay giấy.');return;}
- if(!folder.stack.some(x=>x.kind==='paper')){msg('Bìa còn rỗng. Kéo giấy vào giữa bìa trước khi đặt kẹp.');return;}
+ if(!folder.stack.some(x=>x.kind==='paper')){msg('Bìa trống');return;}
   folder.clipped=true;scene.items=scene.items.filter(x=>x.uid!==item.uid);scene.selected=folder.uid;scene.active=folder.uid;
-  msg('Đã kẹp hồ sơ. Có thể tháo kẹp nếu cần sửa.');persist();
+  msg('');persist();
  }
  function tryDropPlate(item){const f=hitFolderByOverlap(item);if(f)markName(item,f);}
- function markName(item,folder){if(!item.nameId){msg('Chọn một trong 30 cái tên trên bảng tên trước.');return;}
+ function markName(item,folder){if(!item.nameId){msg('Chưa chọn tên');return;}
   folder.nameId=item.nameId;scene.items=scene.items.filter(x=>x.uid!==item.uid);scene.selected=folder.uid;scene.active=folder.uid;
-  msg('Đã gắn bảng tên vào bìa.');persist();
+  msg('');persist();
  }
  function overlapsTray(item){return item.kind==='folder'&&intersection(itemRect(item),intakeTray)>=22000;}
 function tryDropSubmissionTray(folder){
  if(!overlapsTray(folder))return false;
  scene.active=folder.uid;scene.selected=folder.uid;
- if(!folder.stack.some(t=>t.kind==='paper')){msg('Khay chưa nhận: bìa chưa có giấy. Kéo giấy vào giữa bìa.');return false;}
- if(!folder.clipped){msg('Khay chưa nhận: chưa đặt kẹp lên bìa.');return false;}
- if(!folder.nameId){msg('Khay chưa nhận: chọn tên trong 30 người rồi gắn bảng tên lên bìa.');return false;}
- msg('Khay đã nhận hồ sơ. Đang mở Tiếp nhận.');
+ if(!folder.stack.some(t=>t.kind==='paper')){msg('Thiếu giấy');return false;}
+ if(!folder.clipped){msg('Thiếu kẹp');return false;}
+ if(!folder.nameId){msg('Thiếu tên');return false;}
+ msg('');
  submitFolder(folder);return true;
 }
  function inBin(point){return point&&point.x>=wasteBin.x&&point.y>=wasteBin.y&&point.x<=wasteBin.x+wasteBin.w&&point.y<=wasteBin.y+wasteBin.h;}
@@ -315,11 +315,11 @@ function tryDropSubmissionTray(folder){
  }
  function discard(paper){const old=paper.location?.folderId&&folderById(paper.location.folderId);
   if(old){if(old.clipped){msg('Tháo kẹp trước khi bỏ giấy khỏi bìa.');return;}old.stack=old.stack.filter(t=>t.uid!==paper.uid);}
-  paper.location={zone:'trash'};scene.selected=null;msg('Giấy vào thùng rác. Có thể phục hồi.');persist();
+  paper.location={zone:'trash'};scene.selected=null;msg('');persist();
  }
  function restore(paper){paper.location=null;
   const item=itemById(paper.uid);if(item){item.x=270+scene.z%6*28;item.y=80+scene.z%5*26;item.z=++scene.z;}
-  msg('Giấy trở lại bàn.');persist();render();
+  msg('');persist();render();
  }
  function submitFolder(folder){if(!folder||!folder.clipped||!folder.nameId||!folder.stack.some(t=>t.kind==='paper'))return;
   scene.pending=folder.uid;scene.active=folder.uid;persist();navigate('admit');
@@ -358,7 +358,7 @@ function tryDropSubmissionTray(folder){
  }
  function showDividerInspector(folder,token){
   inspector.replaceChildren();inspector.append(elt('strong',null,'NGĂN PHÂN LỚP'));
-  inspector.append(elt('p',null,'Các tờ bên dưới thuộc lớp ngoài, phía trên thuộc lớp sâu hơn.'));
+  
   if(!folder.clipped)inspectorButton('RÚT NGĂN',()=>{folder.stack=folder.stack.filter(x=>x.uid!==token.uid);scene.selected=folder.uid;});
  }
  function renderItem(item){if(item.kind==='folder')return renderFolder(item);
@@ -395,7 +395,7 @@ function tryDropSubmissionTray(folder){
     kind==='folder'?100+scene.seq%6*37:kind==='clip'?160+scene.seq%7*38:120+scene.seq%6*51,
     kind==='folder'?{stack:[],nameId:null,clipped:false}:{});
    scene.selected=item.uid;if(kind==='folder')scene.active=item.uid;
-   msg(kind==='folder'?'Đặt bìa ở nơi mày muốn.':'Đã lấy đạo cụ, kéo nó tới bất kỳ chỗ nào.');render();
+   msg('');render();
   });
  }
  function toggleBin(){scene.trashOpen=!scene.trashOpen;persist();renderTrash();}
