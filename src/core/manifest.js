@@ -6,7 +6,7 @@ for(let n=1;n<=30;n++){const id=String(n).padStart(2,"0");portraits[id]="assets/
 root.ATWG_MANIFEST=Object.freeze({
  version:"assets-v2",
  room:Object.freeze({main:"assets/room/main.webp"}),
- ui:Object.freeze({ibmShell:"assets/ui/ibm-shell.webp"}),
+ ui:Object.freeze({ibmShell:"assets/ui/ibm-shell.webp",faxMachine:"assets/wire/fax-machine.webp"}),
  portraits:Object.freeze(portraits),
  // Optional: leave null until an authored prop replaces the existing in-game SVG.
  props:Object.freeze({folder:"assets/props/folder.webp",clip:"assets/props/clip.webp",nameplate:"assets/props/nameplate.webp",divider:null,trash:null,tray:null,tabletop:"assets/props/tabletop.webp"}),
