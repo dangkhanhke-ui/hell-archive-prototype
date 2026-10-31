@@ -2,7 +2,8 @@
 <html lang="vi"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>All Thirty Were Guilty · Case 01 V4.3</title>
-<link rel="stylesheet" href="styles.css?v=case01-v43-5">
+<link rel="stylesheet" href="styles.css?v=case01-v43-6">
+<link rel="stylesheet" href="desk-scene.css?v=case01-v43-6">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <main>
@@ -57,26 +58,56 @@
 </div><aside class="rulebox"><h2>Bản ghi đối chất</h2><p>Lời có liên quan được lưu thành transcript ghi rõ <strong>LỜI KHAI SAU KHI CHẾT</strong> và có thể in ra bàn. Những transcript ấy chỉ xác nhận người chết đã nói gì ở đây, không thay hồ sơ công tố năm 1963.</p></aside></div>
 </section>
 <section id="desk" class="view hidden">
-<div class="section-head"><div><p class="eyebrow">DOSSIER DESK</p><h1>Bàn giấy</h1></div><button id="reset" type="button">XÓA TIẾN ĐỘ BẢN THỬ</button></div>
-<div class="segmented" id="suspect-buttons" role="group" aria-label="Chọn hồ sơ nghi phạm"></div>
-<p class="muted">Xếp theo quan hệ giải thích: chuyện được kể → cơ chế → bản chất của hành vi. Không chấm đúng/sai lúc kéo. Có thể in thêm bản từ IBM hoặc FAX để dùng cùng chứng cứ nhiều lần.</p>
-<div class="desk-layout">
- <div class="desk-side">
-  <div class="inventory"><h2>Giấy chưa xếp · <span id="inventory-count"></span></h2><div id="inventory"></div></div>
-  <section id="trash-bin" class="trash-bin" aria-label="Thùng rác giấy">
-   <h2>▤ THÙNG RÁC · <span id="trash-count">0</span></h2>
-   <p class="muted">Bỏ hoặc kéo giấy dư vào đây; không xóa vĩnh viễn. Bấm LẤY RA BÀN để phục hồi.</p>
-   <div id="trash-papers"></div>
-  </section>
+ <div class="desk-briefing">
+  <div><p class="eyebrow">THE DOSSIER DESK · MONTELARA, 1965</p><h1>Bàn điều tra</h1></div>
+  <p class="desk-hint"><strong>Giữ và kéo</strong> để đặt đồ ở bất kỳ đâu. <strong>Click giấy</strong> để phóng to.
+  Click một bìa để chọn bìa. Thứ tự hình ảnh khác thứ tự chứng cứ.</p>
+  <button id="desk-ready-button" type="button" hidden>→ TIẾP NHẬN HỒ SƠ ĐÃ KẸP</button>
  </div>
- <div class="stack"><h2 id="stack-title"></h2><div id="layers"></div></div>
-</div>
+ <div id="desk-stage" tabindex="0" aria-label="Mặt bàn điều tra tự do: kéo giấy, bìa, kẹp và bảng tên">
+ <svg id="desk-backdrop" viewBox="0 0 1280 800" preserveAspectRatio="none" aria-hidden="true">
+  <defs>
+   <linearGradient id="wood" x1="0" y1="0" x2=".82" y2="1"><stop stop-color="#66513d"/><stop offset=".5" stop-color="#70513b"/><stop offset="1" stop-color="#392b21"/></linearGradient>
+   <pattern id="grain" width="190" height="160" patternUnits="userSpaceOnUse">
+    <path d="M0 15C50 7 95 32 190 17M0 49C80 66 130 36 190 56M0 85C60 69 100 101 190 83M0 118C65 135 122 108 190 120M0 147C74 135 112 169 190 146" stroke="#b08b65" stroke-opacity=".16" stroke-width="3" fill="none"/>
+    <path d="M40 0Q48 70 39 160M156 0Q162 74 154 160" stroke="#231e18" stroke-opacity=".1" stroke-width="2" fill="none"/>
+   </pattern>
+   <radialGradient id="lamp" cx=".21" cy=".17" r=".85"><stop stop-color="#dec28a" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
+   <linearGradient id="brass" x1="0" x2="0" y2="1"><stop stop-color="#c4a76c"/><stop offset=".5" stop-color="#77603b"/><stop offset="1" stop-color="#c1a676"/></linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#wood)"/>
+  <rect width="1280" height="800" fill="url(#grain)"/>
+  <g opacity=".27" stroke="#2f251c" stroke-width="6"><path d="M0 262H1280M0 526H1280"/></g>
+  <rect x="14" y="13" width="1252" height="774" rx="13" fill="none" stroke="#211911" stroke-width="13"/>
+  <rect x="18" y="19" width="1244" height="764" rx="8" fill="none" stroke="url(#brass)" stroke-opacity=".34" stroke-width="3"/>
+  <rect width="1280" height="800" fill="url(#lamp)"/>
+  <g opacity=".24" fill="#d8c398"><circle cx="32" cy="32" r="6"/><circle cx="1248" cy="32" r="6"/><circle cx="32" cy="768" r="6"/><circle cx="1248" cy="768" r="6"/></g>
+  <!-- a real physical bin in a desk corner; moving a paper onto it is intentional disposal -->
+  <g transform="translate(1095 670)"><ellipse cx="92" cy="106" rx="82" ry="18" fill="#1b1510" opacity=".55"/>
+   <path d="M12 11L25 108Q91 140 162 108L172 11Z" fill="#252927" stroke="#131a17" stroke-width="5"/>
+   <path d="M12 11Q90 -6 172 11L164 27Q92 13 23 27Z" fill="#78817a" stroke="#1d231f" stroke-width="4"/>
+   <path d="M42 31l9 76M85 34v83M128 29l-5 77" stroke="#59665d" stroke-width="10" stroke-opacity=".65"/>
+   <text x="92" y="88" fill="#d9d1b8" text-anchor="middle" font-size="14" font-family="Georgia" letter-spacing="1">THÙNG RÁC</text></g>
+  <g transform="translate(74 35) rotate(-8)" opacity=".38"><rect width="213" height="46" rx="2" fill="#171812"/><text x="17" y="30" font-family="Georgia" font-size="16" fill="#e4d6ad">ARCHIVO · 1965</text></g>
+ </svg>
+ <div id="desk-world"></div>
+ <div id="desk-toolbox">
+  <button type="button" data-new-prop="folder">▤ LẤY BÌA</button>
+  <button type="button" data-new-prop="clip">⌁ LẤY KẸP</button>
+  <button type="button" data-new-prop="nameplate">▣ BẢNG TÊN</button>
+  <button type="button" id="desk-bin-button">▥ MỞ THÙNG RÁC (<span id="desk-trash-count">0</span>)</button>
+  <p id="desk-stage-status" role="status" aria-live="polite">Giấy mới in sẽ nằm trên bàn. Đặt chồng, chọn bìa, kẹp và ghi tên khi sẵn sàng.</p>
+ </div>
+ </div>
+ <div id="desk-inspector" aria-live="polite"></div>
+ <div id="desk-trash-drawer" hidden><div class="row"><h2>Giấy đã bỏ</h2><button id="desk-trash-close" type="button">ĐÓNG</button></div><div id="desk-trash-list"></div></div>
+ <p class="desk-stage-tooltip">Ảnh và giấy được giữ nguyên nguồn. Để tạo nhiều bìa, kẹp hoặc bảng tên, cứ bấm lấy thêm. Không có tự động sắp hàng.</p>
 </section>
 <section id="admit" class="view hidden">
 <p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Tiếp nhận hồ sơ</h1>
 <p>Chọn linh hồn và phòng tiếp nhận. Một vụ án có thể cho thấy tội nghiêm trọng mà vẫn chưa chứng minh được <strong>tội sâu nhất</strong> của người đó.</p>
 <div class="columns"><div class="paper">
-<label for="submit-suspect">HỒ SƠ</label><select id="submit-suspect"></select>
+<div id="desk-admission-preview"><strong>Chưa chọn hồ sơ đã kẹp</strong><small>Gắn bảng tên và dùng kẹp trên bàn trước khi nộp.</small></div>
 <label for="room">PHÒNG TIẾP NHẬN</label><select id="room"><option value="">CHỌN PHÒNG</option>
 <option value="I">I · Kiêu ngạo</option><option value="II">II · Dục vọng</option><option value="III">III · Hưởng thụ quá độ</option><option value="IV">IV · Tham lam</option><option value="V">V · Phẫn nộ</option><option value="VI">VI · Cuồng tín</option><option value="VII">VII · Bạo lực</option><option value="VIII">VIII · Gian trá</option><option value="IX">IX · Phản bội</option></select>
 <button id="submit-dossier" type="button">NỘP HỒ SƠ</button><div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
@@ -87,5 +118,5 @@
 <div id="ledger-grid" class="ledger-grid"></div></section>
 </main>
 <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-<script src="data.js?v=case01-v43-5"></script><script src="rules.js?v=case01-v43-5"></script><script src="portraits.js?v=case01-v43-5"></script><script src="app.js?v=case01-v43-5"></script>
+<script src="data.js?v=case01-v43-6"></script><script src="rules.js?v=case01-v43-6"></script><script src="portraits.js?v=case01-v43-6"></script><script src="desk-scene.js?v=case01-v43-6"></script><script src="app.js?v=case01-v43-6"></script>
 </body></html>
