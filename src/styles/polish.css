@@ -156,3 +156,10 @@ button:focus,select:focus,input:focus{border-color:#dce5efb3!important}
 /* Floating sheets: separate windows, other tabletop pages remain clickable. */
 .paper-viewer-screen{pointer-events:none!important;background:transparent!important}
 .paper-zoom-sheet{pointer-events:auto!important;translate:var(--paper-shift-x,0px) var(--paper-shift-y,0px);transition:translate .18s ease-out}
+
+/* Icon-only back control for every gameplay station: no labels or tooltips. */
+#room-return{position:fixed!important;top:12px!important;left:12px!important;z-index:9000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;padding:0!important;margin:0!important;border:1px solid #e4edf48a!important;border-radius:2px!important;background:#11161ac9!important;color:#eef4fb!important;font:400 22px/1 "Courier New",monospace!important;letter-spacing:0!important;white-space:nowrap!important;overflow:hidden!important;text-indent:0!important;box-shadow:none!important}
+#room-return::before,#room-return::after{content:none!important}
+#room-return span{display:block!important;font:inherit!important;line-height:1!important;color:inherit!important}
+#room-return[hidden]{display:none!important}
+#room-return:hover,#room-return:focus-visible{border-color:#f4faff!important;box-shadow:0 0 7px #d9eaff33!important;background:#151b20e8!important}
