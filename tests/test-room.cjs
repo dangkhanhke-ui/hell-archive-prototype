@@ -94,3 +94,12 @@ assert(cssPolish.includes("body:has(#archive:not(.hidden)){overflow:hidden!impor
 assert(cssPolish.includes("#archive .ibm-photo-full{position:absolute!important"),"IBM photo must share CRT coordinate system");
 assert(cssPolish.includes("object-fit:fill!important"),"IBM must not crop photo away from the CRT overlay");
 console.log("PASS IBM viewport pinned to screen, no scroll and photo/CRT alignment.");
+
+const faxCSS=read("src/styles/fax.css"),faxJS=read("src/game/fax.js");
+assert(html.includes('src="assets/wire/fax-machine.webp"'),"MAX FAX uses the author-supplied photograph");
+assert.equal((html.match(/data-fax-key=/g)||[]).length,12,"all twelve physical keypad buttons must exist");
+assert(html.includes('id="fax-display"')&&html.includes('id="fax-dialogue"'),"physical fax screen and call dialogue present");
+assert(html.includes('id="wire-form"')&&html.includes('id="wire-code"'),"legacy validated Wirephoto print form preserved");
+assert(!html.includes('TỔNG ĐÀI TRUYỀN ẢNH · 000')&&!html.includes('<h1>Wirephoto</h1>'),"remove web-style fax heading");
+assert(faxCSS.includes(".fax-pressed")&&faxJS.includes('digits==="0000"'),"key press animation and 0000 dialing");
+console.log("PASS MAX FAX author photo, numeric keypad, 0000 switchboard and existing evidence-backed print form.");
