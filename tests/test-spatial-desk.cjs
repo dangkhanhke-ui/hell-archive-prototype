@@ -154,3 +154,27 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert(moved.x>previous.x-1&&moved.y>previous.y-1,'moved paper remains at drop location');
  console.log('PASS cached tabletop rectangle, compositor transforms and no layout-changing left/top drag.');
 }
+
+// The photo's bottom-right bin must accept a paper if the pointer is over the
+// actual visible bin, even when the page's left/top are still far away.
+{
+ const seed={serial:2,readIds:['A01','A02'],history:[],pins:[],
+  papers:[{uid:'paper-1',id:'A01',location:null},{uid:'paper-2',id:'A02',location:null}],
+  transcripts:[],admitted:[]};
+ const game=start(seed);game.nav('desk');
+ const first=game.objects().find(o=>o.dataset.uid==='paper-1');assert(first);
+ // Move the sheet while grasping near its far edge, drop with pointer inside bin.
+ first.pointer('pointerdown',{x:150,y:150});
+ first.pointer('pointermove',{x:1160,y:710});
+ first.pointer('pointerup',{x:1160,y:710});
+ assert.equal(game.papers().find(p=>p.uid==='paper-1').location.zone,'trash','bin receives paper under pointer');
+ assert(!game.papers().find(p=>p.uid==='paper-2').location,'other copy must not be discarded');
+ // The bin is not a giant invisible delete zone.
+ const second=game.objects().find(o=>o.dataset.uid==='paper-2');assert(second);
+ second.pointer('pointerdown',{x:150,y:150});
+ second.pointer('pointermove',{x:500,y:490});
+ second.pointer('pointerup',{x:500,y:490});
+ assert.equal(game.papers().find(p=>p.uid==='paper-2').location,null,'drop away from the bin preserves paper');
+ assert.equal(game.papers().filter(p=>p.location?.zone==='trash').length,1);
+ console.log('PASS trash bin pointer-area drop, other paper preserved and no false disposal.');
+}
