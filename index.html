@@ -2,9 +2,10 @@
 <html lang="vi"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>All Thirty Were Guilty · Case 01 V4.3</title>
-<link rel="stylesheet" href="src/styles/global.css?v=assetstruct3">
-<link rel="stylesheet" href="src/styles/desk.css?v=assetstruct3">
-<link rel="stylesheet" href="src/styles/room.css?v=assetstruct3">
+<link rel="stylesheet" href="src/styles/global.css?v=assetstruct4">
+<link rel="stylesheet" href="src/styles/desk.css?v=assetstruct4">
+<link rel="stylesheet" href="src/styles/room.css?v=assetstruct4">
+<link rel="stylesheet" href="src/styles/polish.css?v=assetstruct4">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <main>
@@ -21,7 +22,7 @@
 <section id="room" class="view room-view" aria-label="Phòng điều tra Montelara">
  <div class="room-canvas">
   <img class="room-image" src="assets/room/main.webp" data-asset="room.main" width="1672" height="941" alt="Phòng điều tra công nghiệp năm 1965: máy IBM ở bên trái, máy truyền ảnh cạnh đó, bàn hồ sơ ở bên phải và khu đối chất phía xa." decoding="async" fetchpriority="high" draggable="false">
-  <div class="room-identity" aria-hidden="true"><small>MONTELARA / 1965</small><strong>PHÒNG ĐIỀU TRA</strong></div>
+  
   <button class="room-hotspot" data-room-target="archive" type="button" aria-label="Dùng máy IBM Archive" style="--hx:12.2%;--hy:67.5%">
    <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">IBM ARCHIVE</span>
   </button>
@@ -40,7 +41,7 @@
   <button class="room-hotspot" data-room-target="ledger" type="button" aria-label="Mở sổ Grand Ledger" style="--hx:94.4%;--hy:69.0%">
    <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">GRAND LEDGER</span>
   </button>
-  <div class="room-instruction">DI CHUỘT ĐẾN ĐIỂM SÁNG · CLICK ĐỂ TƯƠNG TÁC</div>
+  
  </div>
 </section>
 <section id="brief" class="view hidden">
@@ -84,62 +85,23 @@
 <div id="soul-response" class="soul-response" aria-live="polite"></div>
 </div><aside class="rulebox"><h2>Bản ghi đối chất</h2><p>Lời có liên quan được lưu thành transcript ghi rõ <strong>LỜI KHAI SAU KHI CHẾT</strong> và có thể in ra bàn. Những transcript ấy chỉ xác nhận người chết đã nói gì ở đây, không thay hồ sơ công tố năm 1963.</p></aside></div>
 </section>
-<section id="desk" class="view hidden">
- <div class="desk-briefing">
-  <div><p class="eyebrow">THE DOSSIER DESK · MONTELARA, 1965</p><h1>Bàn điều tra</h1></div>
-  <p class="desk-hint"><strong>Giữ và kéo</strong> để đặt đồ ở bất kỳ đâu. <strong>Click giấy</strong> để phóng to.
-  Click một bìa để chọn bìa. Thứ tự hình ảnh khác thứ tự chứng cứ.</p>
-  <button id="desk-ready-button" type="button" hidden>→ TIẾP NHẬN HỒ SƠ ĐÃ KẸP</button>
+<section id="desk" class="view hidden" aria-label="Bàn giấy">
+ <button id="desk-ready-button" type="button" hidden aria-label="Chuyển hồ sơ đã kẹp sang Tiếp nhận">Tiếp nhận →</button>
+ <div id="desk-stage" tabindex="0" aria-label="Mặt bàn điều tra">
+  <svg id="desk-backdrop" viewBox="0 0 1280 800" preserveAspectRatio="none" aria-hidden="true"><rect width="1280" height="800" fill="#18191b"/></svg>
+  <div id="desk-world"></div>
+  <div id="desk-tray-status" aria-live="polite"></div>
+  <button id="desk-bin-hotspot" type="button" aria-label="Thùng rác. Mở giấy đã bỏ" title="Thùng rác"><span class="sr-only">Thùng rác</span></button>
+  <div id="desk-toolbox" aria-label="Dụng cụ">
+   <button type="button" data-new-prop="folder" title="Lấy bìa" aria-label="Lấy bìa"><span class="tool-label">Bìa</span></button>
+   <button type="button" data-new-prop="clip" title="Lấy kẹp" aria-label="Lấy kẹp"><span class="tool-label">Kẹp</span></button>
+   <button type="button" data-new-prop="nameplate" title="Lấy bảng tên" aria-label="Lấy bảng tên"><span class="tool-label">Tên</span></button>
+   <button type="button" id="desk-bin-button" aria-label="Mở thùng rác" title="Thùng rác" hidden><span id="desk-trash-count">0</span></button>
+   <p id="desk-stage-status" role="status" aria-live="polite"></p>
+  </div>
  </div>
- <div id="desk-stage" tabindex="0" aria-label="Mặt bàn điều tra tự do: kéo giấy, bìa, kẹp và bảng tên">
- <svg id="desk-backdrop" viewBox="0 0 1280 800" preserveAspectRatio="none" aria-hidden="true">
-  <defs>
-   <linearGradient id="wood" x1="0" y1="0" x2=".82" y2="1"><stop stop-color="#66513d"/><stop offset=".5" stop-color="#70513b"/><stop offset="1" stop-color="#392b21"/></linearGradient>
-   <pattern id="grain" width="190" height="160" patternUnits="userSpaceOnUse">
-    <path d="M0 15C50 7 95 32 190 17M0 49C80 66 130 36 190 56M0 85C60 69 100 101 190 83M0 118C65 135 122 108 190 120M0 147C74 135 112 169 190 146" stroke="#b08b65" stroke-opacity=".16" stroke-width="3" fill="none"/>
-    <path d="M40 0Q48 70 39 160M156 0Q162 74 154 160" stroke="#231e18" stroke-opacity=".1" stroke-width="2" fill="none"/>
-   </pattern>
-   <radialGradient id="lamp" cx=".21" cy=".17" r=".85"><stop stop-color="#dec28a" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
-   <linearGradient id="brass" x1="0" x2="0" y2="1"><stop stop-color="#c4a76c"/><stop offset=".5" stop-color="#77603b"/><stop offset="1" stop-color="#c1a676"/></linearGradient>
-  </defs>
-  <rect width="1280" height="800" fill="url(#wood)"/>
-  <rect width="1280" height="800" fill="url(#grain)"/>
-  <g opacity=".27" stroke="#2f251c" stroke-width="6"><path d="M0 262H1280M0 526H1280"/></g>
-  <rect x="14" y="13" width="1252" height="774" rx="13" fill="none" stroke="#211911" stroke-width="13"/>
-  <rect x="18" y="19" width="1244" height="764" rx="8" fill="none" stroke="url(#brass)" stroke-opacity=".34" stroke-width="3"/>
-  <rect width="1280" height="800" fill="url(#lamp)"/>
-  <g opacity=".24" fill="#d8c398"><circle cx="32" cy="32" r="6"/><circle cx="1248" cy="32" r="6"/><circle cx="32" cy="768" r="6"/><circle cx="1248" cy="768" r="6"/></g>
-  <!-- Physical intake tray. The folder itself is draggable into this area. -->
-  <g id="desk-submission-tray" transform="translate(1008 52)">
-   <path d="M8 20L28 3H224L245 20V190L224 207H28L8 190Z" fill="#3d3b30" stroke="#c4a873" stroke-width="5"/>
-   <rect x="21" y="30" width="211" height="153" rx="5" fill="#202920" stroke="#9e9673" stroke-width="3"/>
-   <path d="M31 43L49 66H210L221 43" fill="none" stroke="#cdbb92" stroke-width="3"/>
-   <path d="M41 138H210M41 147H210M41 156H210" stroke="#b2a388" stroke-width="2" opacity=".5"/>
-   <rect x="36" y="77" width="181" height="53" rx="3" fill="#d9c7a2" stroke="#6e5a39" stroke-width="2"/>
-   <text x="126" y="101" fill="#322718" text-anchor="middle" font-size="17" font-family="Georgia" font-weight="bold">KHAY TIẾP NHẬN</text>
-   <text x="126" y="119" fill="#4b3b2b" text-anchor="middle" font-size="10" font-family="Georgia">HỒ SƠ ĐÃ KẸP + TÊN</text>
-  </g>
-    <!-- a real physical bin in a desk corner; moving a paper onto it is intentional disposal -->
-  <g transform="translate(1095 670)"><ellipse cx="92" cy="106" rx="82" ry="18" fill="#1b1510" opacity=".55"/>
-   <path d="M12 11L25 108Q91 140 162 108L172 11Z" fill="#252927" stroke="#131a17" stroke-width="5"/>
-   <path d="M12 11Q90 -6 172 11L164 27Q92 13 23 27Z" fill="#78817a" stroke="#1d231f" stroke-width="4"/>
-   <path d="M42 31l9 76M85 34v83M128 29l-5 77" stroke="#59665d" stroke-width="10" stroke-opacity=".65"/>
-   <text x="92" y="88" fill="#d9d1b8" text-anchor="middle" font-size="14" font-family="Georgia" letter-spacing="1">THÙNG RÁC</text></g>
-  <g transform="translate(74 35) rotate(-8)" opacity=".38"><rect width="213" height="46" rx="2" fill="#171812"/><text x="17" y="30" font-family="Georgia" font-size="16" fill="#e4d6ad">ARCHIVO · 1965</text></g>
- </svg>
- <div id="desk-world"></div>
- <div id="desk-tray-status" aria-live="polite">KÉO BÌA ĐÃ KẸP & GẮN TÊN VÀO ĐÂY</div>
- <div id="desk-toolbox">
-  <button type="button" data-new-prop="folder">▤ LẤY BÌA</button>
-  <button type="button" data-new-prop="clip">⌁ LẤY KẸP</button>
-  <button type="button" data-new-prop="nameplate">▣ BẢNG TÊN</button>
-  <button type="button" id="desk-bin-button">▥ MỞ THÙNG RÁC (<span id="desk-trash-count">0</span>)</button>
-  <p id="desk-stage-status" role="status" aria-live="polite">Giấy mới in sẽ nằm trên bàn. Đặt chồng, chọn bìa, kẹp và ghi tên khi sẵn sàng.</p>
- </div>
- </div>
- <div id="desk-inspector" aria-live="polite"></div>
- <div id="desk-trash-drawer" hidden><div class="row"><h2>Giấy đã bỏ</h2><button id="desk-trash-close" type="button">ĐÓNG</button></div><div id="desk-trash-list"></div></div>
- <p class="desk-stage-tooltip">Ảnh và giấy được giữ nguyên nguồn. Để tạo nhiều bìa, kẹp hoặc bảng tên, cứ bấm lấy thêm. Không có tự động sắp hàng.</p>
+ <div id="desk-inspector" aria-live="polite" hidden></div>
+ <div id="desk-trash-drawer" hidden><div class="row"><h2>Thùng rác</h2><button id="desk-trash-close" type="button">Đóng</button></div><div id="desk-trash-list"></div></div>
 </section>
 <section id="admit" class="view hidden">
 <p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Tiếp nhận hồ sơ</h1>
@@ -156,13 +118,13 @@
 <div id="ledger-grid" class="ledger-grid"></div></section>
 </main>
 <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-<script defer src="src/core/manifest.js?v=assetstruct3"></script>
-<script defer src="src/core/assets.js?v=assetstruct3"></script>
-<script defer src="src/core/save.js?v=assetstruct3"></script>
-<script defer src="src/core/audio.js?v=assetstruct3"></script>
-<script defer src="src/core/data.js?v=assetstruct3"></script>
-<script defer src="src/core/rules.js?v=assetstruct3"></script>
-<script defer src="src/game/room.js?v=assetstruct3"></script>
-<script defer src="src/game/desk.js?v=assetstruct3"></script>
-<script defer src="src/game/app.js?v=assetstruct3"></script>
+<script defer src="src/core/manifest.js?v=assetstruct4"></script>
+<script defer src="src/core/assets.js?v=assetstruct4"></script>
+<script defer src="src/core/save.js?v=assetstruct4"></script>
+<script defer src="src/core/audio.js?v=assetstruct4"></script>
+<script defer src="src/core/data.js?v=assetstruct4"></script>
+<script defer src="src/core/rules.js?v=assetstruct4"></script>
+<script defer src="src/game/room.js?v=assetstruct4"></script>
+<script defer src="src/game/desk.js?v=assetstruct4"></script>
+<script defer src="src/game/app.js?v=assetstruct4"></script>
 </body></html>
