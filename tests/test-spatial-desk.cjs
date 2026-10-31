@@ -271,3 +271,44 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert(game.objects().find(x=>x.dataset.uid===clip.uid),'recovered clip visible');
  console.log('PASS clip size, disposal, recovery.');
 }
+
+// Regression: historic saves may have filed or trashed both opening newspapers.
+// Preserve those originals, create visible tabletop copies exactly once, and
+// never reset the user's later moves or pile arrangement on subsequent visits.
+{
+ const old={
+  serial:2,readIds:["A01","A02"],history:[],pins:[],
+  papers:[
+   {uid:"paper-1",id:"A01",location:{folderId:"folder-1"}},
+   {uid:"paper-2",id:"A02",location:{zone:"trash"}}
+  ],
+  transcripts:[],admitted:[],
+  scene:{initialized:true,z:40,seq:1,active:"folder-1",items:[
+   {kind:"folder",uid:"folder-1",x:330,y:135,z:36,stack:[{kind:"paper",uid:"paper-1"}],nameId:null,clipped:false},
+   {kind:"paper",uid:"paper-1",x:348,y:162,z:37},
+   {kind:"paper",uid:"paper-2",x:400,y:210,z:38}
+  ]}
+ };
+ const a=start(old);a.nav('desk');
+ const saved=a.papers(),scene=a.scene();
+ for(const id of ["A01","A02"]){
+  const visible=saved.filter(p=>p.id===id&&!p.location);
+  assert.equal(visible.length,1,"recovered newspaper "+id+" must have one visible tabletop copy");
+  assert(a.objects().some(x=>x.dataset.uid===visible[0].uid),"newspaper "+id+" must actually render on desk");
+ }
+ assert.equal(saved.find(p=>p.uid==="paper-1").location.folderId,"folder-1","existing filed copy must not be moved");
+ assert.equal(saved.find(p=>p.uid==="paper-2").location.zone,"trash","existing discarded copy must remain recoverable");
+ assert(scene.openingNewsprintV1,"newspaper repair must be stored in scene");
+ const first=a.objects().find(x=>x.dataset.uid===saved.find(p=>p.id==="A01"&&!p.location).uid);
+ const masthead=first.children[0].children.find(x=>x.className==="desk-news-masthead");
+ assert(masthead?.textContent==="El Diario Nacional","opening A01 paper must show its original newspaper masthead");
+ const topPapers=scene.items.filter(x=>["paper-3","paper-4"].includes(x.uid));
+ assert(Math.abs(topPapers[0].x-topPapers[1].x)>300,"opening papers must be side by side, not piled atop each other");
+ const count=saved.length;
+ a.nav('room');a.nav('desk');
+ assert.equal(a.papers().length,count,"visiting Desk again must not duplicate newspapers");
+ const second=start();second.nav('desk');
+ assert.equal(second.papers().length,count,"reloading saved game must not duplicate newspapers");
+ assert(second.objects().some(x=>x.dataset.uid==="paper-3"),"recovered copy must persist after reload");
+ console.log("PASS opening A01/A02 newspapers repaired once on old saves, preserved originals, shown side by side.");
+}
