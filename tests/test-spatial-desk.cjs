@@ -177,7 +177,8 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert(!game.papers().find(p=>p.uid==='paper-2').location,'other copy must not be discarded');
  // The bin is not a giant invisible delete zone.
  const second=game.objects().find(o=>o.dataset.uid==='paper-2');assert(second);
- second.pointer('pointerdown',{x:150,y:150});
+ const secondPose=game.scene().items.find(o=>o.uid==='paper-2');
+ second.pointer('pointerdown',{x:secondPose.x+45,y:secondPose.y+55});
  second.pointer('pointermove',{x:500,y:490});
  second.pointer('pointerup',{x:500,y:490});
  assert.equal(game.papers().find(p=>p.uid==='paper-2').location,null,'drop away from the bin preserves paper');
