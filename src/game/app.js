@@ -239,11 +239,22 @@ function openPaper(id){
  sheet.tabIndex=0;sheet.setAttribute("role","document");sheet.setAttribute("aria-label",item.title);
  const top=el("div","paper-zoom-top"),close=el("button","paper-zoom-x","×");
  close.type="button";close.setAttribute("aria-label","Đóng tờ giấy");close.addEventListener("click",event=>{event.stopPropagation();screen.remove();});
+ const isNewspaper=D.opening.includes(item.id);
+ if(isNewspaper)sheet.classList.add("paper-zoom-newspaper");
  const heading=el("h2","paper-zoom-title",item.title);
- top.append(close);sheet.append(top,heading);
- const body=el("div","paper-zoom-content");metadata(item,body);
+ top.append(close);sheet.append(top);
+ if(isNewspaper){
+  const masthead=el("div","paper-news-masthead",item.origin.split(" · ")[0]);
+  const edition=el("div","paper-news-edition",(item.origin.includes(" · ")?item.origin.split(" · ").slice(1).join(" · ")+"  ·  ":"")+item.date);
+  sheet.append(masthead,edition);
+ }
+ sheet.append(heading);
+ const body=el("div",isNewspaper?"paper-zoom-content paper-news-columns":"paper-zoom-content");
+ if(!isNewspaper)metadata(item,body);
  if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);
- sheet.append(body);screen.append(sheet);layer.append(screen);
+ sheet.append(body);
+ if(isNewspaper)sheet.append(el("div","paper-news-footer",item.publicId||item.id));
+ screen.append(sheet);layer.append(screen);
  const openCount=layer.children.length-1;
  const horizontal=(openCount%4-1.5)*135,vertical=(Math.floor(openCount/4)%3-1)*32;
  sheet.style.setProperty("--paper-shift-x",horizontal+"px");
@@ -271,7 +282,7 @@ document.addEventListener?.("keydown",event=>{
 },true);
 $("close-dialog").addEventListener("click",()=>$("paper-dialog").close());
 // The physical tabletop is an independent 2D world with its own saved spatial state.
-const desk=window.ATWG_DESK.create({state,save,getItem,openPaper,navigate,data:D});
+const desk=window.ATWG_DESK.create({state,save,getItem,openPaper,navigate,newPaper,data:D});
 function renderDesk(){desk.render();}
 $("reset").addEventListener("click",()=>{if(!confirm("Xóa tiến độ Case 01 V4.3 trên trình duyệt này?"))return;localStorage.removeItem(key);location.reload();});
 function renderAdmit(){
