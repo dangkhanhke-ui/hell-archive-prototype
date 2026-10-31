@@ -65,7 +65,12 @@ function navigate(tab){
  state.tab=tab;
  document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==tab));
  document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
- if(document.body?.classList)document.body.classList.toggle("room-hub-active",tab==="room");
+ if(document.body?.classList){
+  document.body.classList.toggle("room-hub-active",tab==="room");
+  document.body.classList.toggle("ibm-fullscreen-active",tab==="archive");
+ }
+ document.documentElement.classList.toggle("ibm-fullscreen-active",tab==="archive");
+ if(tab==="archive")window.scrollTo?.(0,0);
  const back=$("room-return");
  if(back){
   back.hidden=tab==="room";
