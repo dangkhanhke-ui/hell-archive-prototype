@@ -82,3 +82,8 @@ roomButtons.find(x=>x.dataset.roomTarget==="archive").click();
 for(const fn of doc.events.keydown||[])fn({key:"Escape"});
 assert.equal(scene("room").hidden,false,"Escape should return player to room");
 console.log("PASS room image anchors, 6 glowing interactive stations, return navigation, save integrity and Escape.");
+
+assert(html.includes('id="room-return"')&&html.includes('<span aria-hidden="true">&lt;</span>'),"room return is the sole icon in every scene");
+assert(!/id="room-return"[^>]*title=/.test(html),"room return must not show a verbose browser tooltip");
+assert(!/id="room-return"[^>]*>[^<]*QUAY LẠI PHÒNG/.test(html),"no visible return-to-room text");
+console.log("PASS shared room-back button is icon-only without tooltip.");
