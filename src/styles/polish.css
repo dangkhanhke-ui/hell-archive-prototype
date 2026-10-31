@@ -50,3 +50,5 @@ h1,h2,h3,strong{font-family:Inter,"Segoe UI",Arial,sans-serif!important;font-wei
 #archive input,#archive select{background:#0e1720dd!important;border-color:#bac7d16b!important}
 #archive button{border-radius:999px!important;background:#18222bdc!important;color:#e9eff5!important;border-color:#b6c3ce69!important}
 #archive button[aria-pressed="true"]{background:#31404dcf!important}
+
+#desk.hidden{display:none!important}
