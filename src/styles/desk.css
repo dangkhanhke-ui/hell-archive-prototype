@@ -127,3 +127,8 @@
  #desk-stage{width:100vw!important}
  #desk-stage.desk-photo-ready #desk-toolbox{width:37%;left:1%;bottom:1%;min-width:0;padding:3px}
 }
+
+/* A sealed paperclip is an actual interactive object, not decorative art. */
+.desk-folder-fastener{pointer-events:auto!important;cursor:grab!important;border:0!important;background:transparent!important;padding:0!important;border-radius:0!important;z-index:2500!important;touch-action:none}
+.desk-folder-fastener:hover,.desk-folder-fastener:focus-visible{filter:drop-shadow(0 0 8px #dce5eeab)!important;outline:1px solid #dce5ee85;outline-offset:2px}
+.desk-folder-fastener .desk-custom-prop{pointer-events:none!important}
