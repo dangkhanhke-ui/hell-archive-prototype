@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
 class Dom {
  constructor(tag='div',id='') {this.tag=tag;this.id=id;this.children=[];this.events={};this.dataset={};this.style={};this.hidden=false;this.textContent='';this.className='';this.innerHTML='';this._value='';this.classList={add(){},remove(){},toggle(){}};}
- append(...xs){this.children.push(...xs)}replaceChildren(...xs){this.children=xs}addEventListener(n,f){(this.events[n]||=[]).push(f)}removeEventListener(n,f){this.events[n]=(this.events[n]||[]).filter(x=>x!==f)}setAttribute(){}focus(){}showModal(){}setPointerCapture(){}
+ append(...xs){this.children.push(...xs)}replaceChildren(...xs){this.children=xs}addEventListener(n,f){(this.events[n]||=[]).push(f)}removeEventListener(n,f){this.events[n]=(this.events[n]||[]).filter(x=>x!==f)}setAttribute(){}focus(){}showModal(){}setPointerCapture(){}remove(){this.removed=true;}
  get value(){return this._value||this.children.find(x=>x.tag==='option')?.value||''}set value(v){this._value=v}
  getBoundingClientRect(){return{left:0,top:0,width:1280,height:800}}
  closest(){return null}
@@ -10,7 +10,7 @@ class Dom {
  pointer(ev,props={}){for(const fn of this.events[ev]||[])fn({button:0,clientX:props.x??200,clientY:props.y??200,pointerId:1,target:this,preventDefault(){},stopPropagation(){}})}
  submit(){for(const fn of this.events.submit||[])fn({preventDefault(){}})}
 }
-const ids='opening-papers paper-count query scope-filter archive-idle archive-idle-hint search-mode-label archive-sound-toggle archive-list reader results results-title result-count search-form archive-history archive-pins wire-code wire-message wire-result wire-form ledger-grid soul-person soul-paper soul-response soul-ask paper-dialog dialog-title dialog-body close-dialog suspect-buttons stack-title inventory layers inventory-count reset submit-suspect room feedback submit-dossier status desk-stage desk-world desk-inspector desk-toolbox desk-trash-drawer desk-trash-list desk-stage-status desk-ready-button desk-bin-button desk-trash-close desk-trash-count desk-admission-preview'.split(' ');
+const ids='opening-papers paper-count query scope-filter archive-idle archive-idle-hint search-mode-label archive-sound-toggle archive-list reader results results-title result-count search-form archive-history archive-pins wire-code wire-message wire-result wire-form ledger-grid soul-person soul-paper soul-response soul-ask paper-dialog dialog-title dialog-body close-dialog paper-viewer-layer suspect-buttons stack-title inventory layers inventory-count reset submit-suspect room feedback submit-dossier status desk-stage desk-world desk-inspector desk-toolbox desk-trash-drawer desk-trash-list desk-stage-status desk-ready-button desk-bin-button desk-trash-close desk-trash-count desk-admission-preview'.split(' ');
 const store={values:{},getItem(k){return this.values[k]||null},setItem(k,v){this.values[k]=v},removeItem(k){delete this.values[k]}};
 function start(oldSave){if(oldSave)store.values['atwg-case01-v43']=JSON.stringify(oldSave);
 const nodes=Object.fromEntries(ids.map(id=>[id,new Dom('div',id)]));
@@ -35,7 +35,7 @@ first.pointer('pointerdown',{x:150,y:150});first.pointer('pointermove',{x:300,y:
 const pose=a.scene().items.find(x=>x.uid==='paper-1');assert(pose.x>200&&pose.y>175,'free drag preserves drop coordinates');
 // Inspect via click, no drag.
 let sheet=a.objects().find(x=>x.dataset.uid==='paper-1');sheet.pointer('pointerdown',{x:300,y:250});sheet.pointer('pointerup',{x:300,y:250});
-assert(a.nodes['dialog-title'].textContent.includes('San Aurelio'),'click-to-zoom document');
+assert(a.nodes['paper-viewer-layer'].children.some(x=>x.children.some(y=>y.children.some(z=>z.textContent?.includes('San Aurelio')))),'click-to-zoom paper sheet');
 // Unlimited props, re-position freely.
 a.tools[0].click();a.tools[0].click();a.tools[1].click();a.tools[2].click();
 let f=a.scene().items.filter(x=>x.kind==='folder');assert.equal(f.length,2);const clip=a.scene().items.find(x=>x.kind==='clip');
