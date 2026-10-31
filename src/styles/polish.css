@@ -115,3 +115,32 @@ h1,h2,h3,h4,h5,h6,strong,small,label,.room-tag,.desk-object,
 #archive .terminal-content .archive-controls,
 #archive .terminal-content .archive-results{border-radius:0!important}
 #archive .terminal-content label,#archive .terminal-content small{color:#86b98d!important}
+
+/* Precise cold-white controls, paper type and a truly photographic IBM viewport. */
+:root{--hud-fg:#e6ebf0;--hud-line:#d5dce47d}
+*:focus-visible{outline:1px solid #e9f2ffb8!important;outline-offset:1px!important;box-shadow:0 0 0 .35px #ffffff6e,0 0 7px #dcecff31!important}
+button:focus,select:focus,input:focus{border-color:#dce5efb3!important}
+#room-return{width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;border-radius:5px!important;display:grid;place-items:center;font-size:20px!important;font-family:"Courier New",monospace!important;line-height:1!important;background:#101417ad!important;border:1px solid #e7eff789!important}
+#room-return[hidden]{display:none!important}
+#archive{width:100vw!important;max-width:none!important;height:100svh!important;min-height:100svh!important;padding:0!important;margin:0!important;overflow:hidden!important;display:block!important}
+#archive .terminal{position:absolute!important;inset:0!important;width:100vw!important;height:100svh!important;min-height:0!important;aspect-ratio:auto!important;max-width:none!important;overflow:hidden!important;box-shadow:none!important;background:#040404!important}
+#archive .ibm-photo-full{position:absolute;inset:0;width:100%;height:100%;object-fit:cover!important;object-position:50% 50%;pointer-events:none}
+#archive .terminal-screen{left:22.45%!important;top:16.4%!important;width:53.7%!important;height:60.3%!important}
+#paper-viewer-layer{position:fixed;inset:0;z-index:8000;pointer-events:none}
+.paper-viewer-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vh,35px);pointer-events:auto;background:rgba(5,7,9,.12)}
+.paper-viewer-screen:not(:first-child){background:transparent}
+.paper-zoom-sheet{position:relative;box-sizing:border-box;width:min(72vw,760px);height:min(90vh,980px);overflow:auto;background:#e9e2d0!important;color:#231e19!important;padding:clamp(35px,5vw,64px)!important;box-shadow:0 18px 54px #0009!important;border:1px solid #b5ab97!important;border-radius:1px!important;transform:rotate(-.28deg)}
+.paper-zoom-sheet,.paper-zoom-sheet *:not(button){font-family:"Times New Roman",Times,serif!important;font-weight:400}
+.paper-zoom-sheet h2{font-family:"Times New Roman",Times,serif!important;font-size:clamp(27px,3vw,43px)!important;font-weight:700!important;line-height:1.08!important;margin:12px 0 28px!important;color:#221c17!important}
+.paper-zoom-sheet p{font-size:17px!important;line-height:1.65!important;color:#25201b!important;white-space:normal}
+.paper-zoom-sheet small,.paper-zoom-sheet figcaption{font-size:12px!important;color:#514c43!important}
+.paper-zoom-top{height:0;position:sticky;top:0;z-index:2}
+.paper-zoom-x{position:absolute!important;right:-42px;top:-37px;min-width:25px!important;width:25px!important;height:25px!important;line-height:1!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#43403a!important;font:300 24px Arial,sans-serif!important}
+.paper-zoom-x:hover{color:#080808!important;background:transparent!important}
+#paper-dialog[hidden]{display:none!important}
+#desk .desk-page,#desk .desk-page *,#desk .desk-paper,#desk .desk-paper *{font-family:"Times New Roman",Times,serif!important}
+#desk .desk-custom-prop,#desk .desk-folder-fastener,#desk .desk-prop.desk-clip{filter:none!important;box-shadow:none!important}
+#desk .desk-folder-fastener{width:57px!important;height:145px!important;top:10px!important;left:18px!important;transform:rotate(-12deg)!important}
+#desk .desk-prop.desk-clip{filter:none!important}
+#desk .desk-folder-name{font-family:"Courier New",monospace!important;font-size:11px!important;border-radius:2px!important}
+@media(max-width:650px){.paper-zoom-sheet{width:min(94vw,640px);height:86svh;padding:30px 22px!important}.paper-zoom-x{right:-8px;top:-20px}#archive .ibm-photo-full{object-fit:cover!important}}
