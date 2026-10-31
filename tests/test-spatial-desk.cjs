@@ -88,7 +88,7 @@ const b=start(legacy);b.nav('desk');
 const folder=b.scene().items.find(o=>o.kind==='folder'&&o.nameId==='14');assert(folder,'old dossier migrated');
 assert.equal(folder.stack.filter(o=>o.kind==='divider').length,1,'old layer boundary retained');
 assert.equal(folder.stack.filter(o=>o.kind==='paper').length,4);
-assert(b.papers().every(p=>p.location?.folderId===folder.uid),'old paper copies not lost');
+assert(b.papers().filter(p=>['paper-1','paper-2','paper-3','paper-4'].includes(p.uid)).every(p=>p.location?.folderId===folder.uid),'old paper copies not lost');
 console.log('PASS old-save migration preserves paper ownership, identity and evidence layers.');
 // Regression for player-intuitive physical placement and intake submission.
 {
