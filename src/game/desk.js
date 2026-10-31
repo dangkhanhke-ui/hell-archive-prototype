@@ -6,7 +6,7 @@
 'use strict';
 const W=1280,H=800;
 const intakeTray={x:1010,y:55,w:245,h:205};
-const bounds={paper:[225,300],folder:[308,386],clip:[78,60],nameplate:[178,62]};
+const bounds={paper:[225,300],folder:[308,386],clip:[57,145],nameplate:[192,71]};
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const elt=(tag,cl,txt)=>{const n=document.createElement(tag);if(cl)n.className=cl;if(txt!==undefined)n.textContent=txt;return n;};
 const btn=(label,fn,cl)=>{const b=elt('button',cl,label);b.type='button';b.addEventListener('click',fn);return b;};
@@ -127,7 +127,7 @@ function make(api){
   inspector.replaceChildren();
   if(scene.virtualDivider && scene.virtualDivider.uid===scene.selected){const f=folderById(scene.virtualDivider.folderId),tok=f?.stack.find(t=>t.uid===scene.selected);if(f&&tok){showDividerInspector(f,tok);return;}}
   const selected=scene.selected&&itemById(scene.selected);
-  if(!selected){inspector.append(elt('p',null,'Nhấp một tờ giấy hoặc bìa hồ sơ để thao tác. Giữ chuột và kéo để đặt tự do.'));return;}
+  if(!selected){inspector.hidden=true;return;}inspector.hidden=false;
   const paper=state.papers.find(p=>p.uid===selected.uid);
   if(selected.kind==='paper'&&paper){
    const record=getItem(paper.id);inspector.append(elt('strong',null,record?.title||'Bản giấy'));
@@ -370,7 +370,7 @@ function tryDropSubmissionTray(folder){
   const f=activeFolder();readyBtn.hidden=!(f?.clipped&&f.nameId&&f.stack.some(t=>t.kind==='paper'));
   if(!readyBtn.hidden)readyBtn.onclick=()=>submitFolder(f);
   const caption=document.getElementById('desk-tray-status');
-  if(caption)caption.textContent=readyBtn.hidden?'KÉO BÌA ĐÃ KẸP & GẮN TÊN VÀO ĐÂY':'SẴN SÀNG · KÉO HỒ SƠ VÀO KHAY';
+  if(caption)caption.textContent='';
  }
  // The object tray is unlimited supply, not a grid where objects must remain.
  for(const tool of tools.querySelectorAll('[data-new-prop]')){
@@ -383,7 +383,9 @@ function tryDropSubmissionTray(folder){
    msg(kind==='folder'?'Đặt bìa ở nơi mày muốn.':'Đã lấy đạo cụ, kéo nó tới bất kỳ chỗ nào.');render();
   });
  }
- document.getElementById('desk-bin-button').addEventListener('click',()=>{scene.trashOpen=!scene.trashOpen;persist();renderTrash();});
+ function toggleBin(){scene.trashOpen=!scene.trashOpen;persist();renderTrash();}
+ document.getElementById('desk-bin-button').addEventListener('click',toggleBin);
+ document.getElementById('desk-bin-hotspot')?.addEventListener('click',toggleBin);
  document.getElementById('desk-trash-close').addEventListener('click',()=>{scene.trashOpen=false;persist();renderTrash();});
  rootEl.addEventListener('pointerdown',ev=>{if(ev.target!==rootEl&&ev.target!==world)return;scene.selected=null;render();});
  return {render,getSubmission,submitFolder,scene,trash:discard,restore};
