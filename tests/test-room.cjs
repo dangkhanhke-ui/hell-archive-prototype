@@ -19,7 +19,7 @@ assert.equal((html.match(/data-room-target=/g)||[]).length,6,"exactly six real r
 assert(html.includes('id="room-return"'),"Station return-to-room button missing");
 class Dom{
  constructor(tag="div",id=""){
-  this.tag=tag;this.id=id;this.children=[];this.events={};this.dataset={};this.style={};this.hidden=false;
+  this.tag=tag;this.id=id;this.children=[];this.events={};this.dataset={};this.style={setProperty(name,value){this[name]=value;}};this.hidden=false;
   this.className="";this.innerHTML="";this.textContent="";this._value="";
   this.classList={add(){},remove(){},toggle:(cls,on)=>{if(cls==="hidden")this.hidden=!!on}};
  }
@@ -62,6 +62,7 @@ const scene=id=>views.find(v=>v.id===id);
 assert.equal(scene("room").hidden,false,"Room must be the initial gameplay screen");
 assert(nodes["room-return"].hidden,"Don't show back button inside room");
 assert(bodyModes.has("room-hub-active"),"Room should have immersive viewport styling");
+assert(nodes["archive"].style["--ibm-shell-photo"]?.includes("assets/ui/ibm-shell.webp"),"The IBM 2260 must load the author's photo");
 const firstSave=JSON.parse(storage.values["atwg-case01-v43"]);
 for(const [target] of spots){
  roomButtons.find(x=>x.dataset.roomTarget===target).click();
@@ -74,6 +75,8 @@ for(const [target] of spots){
  assert(bodyModes.has("room-hub-active"),"Room viewport class must be restored");
 }
 assert.deepEqual(JSON.parse(storage.values["atwg-case01-v43"]).papers,firstSave.papers,"Room visits must not delete printed papers");
+assert(nodes["desk-stage"].style.backgroundImage?.includes("assets/props/tabletop.webp"),"Desk must use the supplied metallic desk photograph");
+assert(html.includes('id="desk-backdrop"'),"Legacy desk SVG fallback must remain in HTML");
 // Escape is an additional return affordance outside reading dialogs.
 roomButtons.find(x=>x.dataset.roomTarget==="archive").click();
 for(const fn of doc.events.keydown||[])fn({key:"Escape"});
