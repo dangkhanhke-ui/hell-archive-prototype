@@ -87,3 +87,10 @@ assert(html.includes('id="room-return"')&&html.includes('<span aria-hidden="true
 assert(!/id="room-return"[^>]*title=/.test(html),"room return must not show a verbose browser tooltip");
 assert(!/id="room-return"[^>]*>[^<]*QUAY LẠI PHÒNG/.test(html),"no visible return-to-room text");
 console.log("PASS shared room-back button is icon-only without tooltip.");
+
+const cssPolish=fs.readFileSync(path.join(root,"src/styles/polish.css"),"utf8");
+assert(cssPolish.includes("#archive:not(.hidden){position:fixed!important"),"active IBM must stay fixed to the screen");
+assert(cssPolish.includes("body:has(#archive:not(.hidden)){overflow:hidden!important"),"active IBM must prevent document scroll");
+assert(cssPolish.includes("#archive .ibm-photo-full{position:absolute!important"),"IBM photo must share CRT coordinate system");
+assert(cssPolish.includes("object-fit:fill!important"),"IBM must not crop photo away from the CRT overlay");
+console.log("PASS IBM viewport pinned to screen, no scroll and photo/CRT alignment.");
