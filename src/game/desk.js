@@ -153,7 +153,7 @@ function make(api){
    scene.active=selected.uid;
    
    if(selected.nameId){const name=api.data.people.find(p=>p.id===selected.nameId);inspector.append(elt('small',null,'Bảng tên: #'+selected.nameId+' · '+(name?.name||'')));}
-   if(selected.clipped)inspectorButton('THÁO KẸP',()=>{selected.clipped=false;msg('');});
+   if(selected.clipped)inspectorButton('THÁO KẸP',()=>unfasten(selected));
    
    if(selected.clipped&&selected.nameId&&selected.stack.some(t=>t.kind==='paper'))inspectorButton('→ TIẾP NHẬN',()=>submitFolder(selected));
    if(!selected.clipped)inspectorButton('CHÈN NGĂN Ở ĐỈNH',()=>selected.stack.push({kind:'divider',uid:newId('divider')}));
@@ -224,7 +224,10 @@ function placeStyle(el,item,w,h){
      if(item.kind==='clip')tryDropClip(item);
      if(item.kind==='nameplate')tryDropPlate(item);
      if(item.kind==='paper'&&!opts.attached){if(!tryDropTrash(item,space(e,dragRect)))tryDropPaper(item);}
-     if(item.kind==='folder'&&tryDropSubmissionTray(item))return;
+     if(item.kind==='folder'){
+      if(tryDropFolderTrash(item,space(e,dragRect))){persist();render();return;}
+      if(tryDropSubmissionTray(item))return;
+     }
      persist();render();
     }else{
      if(item.kind==='paper'){const p=state.papers.find(p=>p.uid===item.uid);if(p)openPaper(p.id);}
@@ -264,7 +267,7 @@ function placeStyle(el,item,w,h){
 }
 function itemRect(item){const [w,h]=bounds[item.kind]||bounds.paper;return{x:item.x,y:item.y,w,h};}
 function hitFolderByOverlap(item){
- return scene.items.filter(x=>x.kind==='folder').map(f=>({f,area:intersection(itemRect(item),itemRect(f))}))
+ return scene.items.filter(x=>x.kind==='folder'&&!x.trashed).map(f=>({f,area:intersection(itemRect(item),itemRect(f))}))
   .filter(x=>x.area>=900).sort((a,b)=>b.area-a.area||b.f.z-a.f.z)[0]?.f||null;
 }
 function tryDropPaper(item){
@@ -278,7 +281,15 @@ function tryDropPaper(item){
  attach(paper,folder);msg('');return true;
 }
 function tryDropClip(item){const f=hitFolderByOverlap(item);if(f)fasten(item,f);}
- function fasten(item,folder){
+ function unfasten(folder){
+ if(!folder?.clipped)return;
+ folder.clipped=false;
+ const x=clamp(folder.x+216,0,W-bounds.clip[0]),y=clamp(folder.y+20,0,H-bounds.clip[1]);
+ addItem('clip',x,y,{});
+ scene.active=folder.uid;scene.selected=folder.uid;
+ msg('');persist();
+}
+function fasten(item,folder){
  if(folder.clipped){msg('Bìa này đã kẹp. Tháo kẹp trước khi thay giấy.');return;}
  if(!folder.stack.some(x=>x.kind==='paper')){msg('Bìa trống');return;}
   folder.clipped=true;scene.items=scene.items.filter(x=>x.uid!==item.uid);scene.selected=folder.uid;scene.active=folder.uid;
@@ -300,7 +311,17 @@ function tryDropSubmissionTray(folder){
  submitFolder(folder);return true;
 }
  function inBin(point){return point&&point.x>=wasteBin.x&&point.y>=wasteBin.y&&point.x<=wasteBin.x+wasteBin.w&&point.y<=wasteBin.y+wasteBin.h;}
- function tryDropTrash(item,pointer){
+ function tryDropFolderTrash(folder,pointer){
+ if(folder.kind!=='folder'||folder.trashed)return false;
+ const overlap=intersection(itemRect(folder),wasteBin);
+ if(!inBin(pointer)&&overlap<Math.min(5500,bounds.folder[0]*bounds.folder[1]*.065))return false;
+ folder.trashed=true;
+ if(scene.pending===folder.uid)scene.pending=null;
+ if(scene.active===folder.uid)scene.active=null;
+ scene.selected=null;msg('');
+ return true;
+}
+function tryDropTrash(item,pointer){
   const paper=state.papers.find(p=>p.uid===item.uid);
   if(!paper||trash(paper))return false;
   const paperBox=itemRect(item);
@@ -321,11 +342,11 @@ function tryDropSubmissionTray(folder){
   const item=itemById(paper.uid);if(item){item.x=270+scene.z%6*28;item.y=80+scene.z%5*26;item.z=++scene.z;}
   msg('');persist();render();
  }
- function submitFolder(folder){if(!folder||!folder.clipped||!folder.nameId||!folder.stack.some(t=>t.kind==='paper'))return;
+ function submitFolder(folder){if(!folder||folder.trashed||!folder.clipped||!folder.nameId||!folder.stack.some(t=>t.kind==='paper'))return;
   scene.pending=folder.uid;scene.active=folder.uid;persist();navigate('admit');
  }
  function getSubmission(){
-  const folder=folderById(scene.pending);if(!folder||!folder.clipped||!folder.nameId)return null;
+  const folder=folderById(scene.pending);if(!folder||folder.trashed||!folder.clipped||!folder.nameId)return null;
   const papers=[],segments=[];let layer=0;
   for(const token of folder.stack){if(token.kind==='divider'){layer++;continue;}
    const p=state.papers.find(p=>p.uid===token.uid);if(!p||trash(p))continue;
@@ -349,7 +370,7 @@ function tryDropSubmissionTray(folder){
    paperEl.append(sheetText(p));
    bindPointer(paperEl,obj,{attached:item.uid});el.append(paperEl);visualIndex++;
   }
-  if(item.clipped){const clip=elt('div','desk-folder-fastener');paintProp(clip,'clip');el.append(clip);}
+  if(item.clipped){const clip=elt('button','desk-folder-fastener');clip.type='button';clip.setAttribute('aria-label','Tháo kẹp');clip.title='Tháo kẹp';paintProp(clip,'clip');clip.addEventListener('pointerdown',ev=>ev.stopPropagation());clip.addEventListener('click',ev=>{ev.stopPropagation();unfasten(item);render();});el.append(clip);}
   if(item.nameId){el.append(elt('div','desk-folder-name',('#'+item.nameId+' · '+(api.data.people.find(x=>x.id===item.nameId)?.name||''))));}
   if(item.clipped&&item.nameId&&item.stack.some(t=>t.kind==='paper')){
    const ready=btn('→ TIẾP NHẬN',()=>submitFolder(item),'desk-folder-ready');el.append(ready);
@@ -361,7 +382,7 @@ function tryDropSubmissionTray(folder){
   
   if(!folder.clipped)inspectorButton('RÚT NGĂN',()=>{folder.stack=folder.stack.filter(x=>x.uid!==token.uid);scene.selected=folder.uid;});
  }
- function renderItem(item){if(item.kind==='folder')return renderFolder(item);
+ function renderItem(item){if(item.kind==='folder')return item.trashed?null:renderFolder(item);
   if(item.kind==='paper'){
    const paper=state.papers.find(p=>p.uid===item.uid);if(!paper||trash(paper)||paper.location?.folderId)return null;
    const element=elt('div','desk-object desk-page');element.dataset.uid=item.uid;
@@ -373,11 +394,13 @@ function tryDropSubmissionTray(folder){
   if(item.kind==='nameplate'&&item.nameId){element.append(elt('span','desk-prop-label','#'+item.nameId));}
   bindPointer(element,item);return element;
  }
- function renderTrash(){trashList.replaceChildren();const papers=state.papers.filter(trash);document.getElementById('desk-trash-count').textContent=String(papers.length);
+ function renderTrash(){trashList.replaceChildren();const papers=state.papers.filter(trash);
+  const folders=scene.items.filter(x=>x.kind==='folder'&&x.trashed);document.getElementById('desk-trash-count').textContent=String(papers.length+folders.length);
   if(!scene.trashOpen){trashDrawer.hidden=true;return;}
   trashDrawer.hidden=false;
-  if(!papers.length){trashList.append(elt('p',null,'Thùng đang trống.'));return;}
-  for(const p of papers){const doc=getItem(p.id);const row=elt('div','desk-trash-row');row.append(elt('span',null,doc?.title||p.id));row.append(btn('LẤY RA',()=>restore(p)));trashList.append(row);}
+  if(!papers.length&&!folders.length){trashList.append(elt('p',null,'Thùng đang trống.'));return;}
+  for(const p of papers){const doc=getItem(p.id);const row=elt('div','desk-trash-row');row.append(elt('span',null,doc?.title||p.id));row.append(btn('LẤY RA',()=>{restore(p);render();}));trashList.append(row);}
+  for(const folder of folders){const row=elt('div','desk-trash-row');row.append(elt('span',null,'Hồ sơ '+(folder.nameId?'#'+folder.nameId:folder.uid)));row.append(btn('LẤY RA',()=>{folder.trashed=false;folder.x=330;folder.y=120;folder.z=++scene.z;scene.active=folder.uid;scene.selected=folder.uid;persist();render();}));trashList.append(row);}
  }
  function render(){prepareTabletop();ensure();resize();world.replaceChildren();
   for(const obj of [...scene.items].sort((a,b)=>a.z-b.z)){const e=renderItem(obj);if(e)world.append(e);}
