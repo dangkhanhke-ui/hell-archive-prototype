@@ -76,3 +76,24 @@
 #desk-stage[data-tray-over="true"] #desk-submission-tray{filter:drop-shadow(0 0 18px #f3d18b) brightness(1.35)}
 
 .desk-custom-prop,.desk-folder>.desk-custom-prop,.desk-prop>.desk-custom-prop,.desk-folder-fastener>.desk-custom-prop{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
+
+/* The actual author-supplied metallic desk is the interaction surface.
+   The historical SVG background survives as a no-asset fallback only. */
+#desk-stage.desk-photo-ready{border:0;box-shadow:0 15px 35px #000c;background-color:#211c18}
+#desk-stage.desk-photo-ready #desk-backdrop{display:none}
+#desk-stage.desk-photo-ready #desk-toolbox{
+ background:linear-gradient(140deg,#201c1ae9,#45352ce0);
+ border:2px solid #87735d;box-shadow:0 5px 14px #000b;
+}
+/* The in-photo drawer (top right) is the submission tray; bin bottom right. */
+#desk-stage.desk-photo-ready #desk-tray-status{
+ top:30%;right:2%;width:18.5%;
+ padding:4px 5px;background:#15110eb8;border:1px solid #ae946e7a;
+ text-shadow:0 1px 4px #000;
+}
+#desk-stage.desk-photo-ready[data-tray-over="true"]::after{
+ content:"";position:absolute;right:1.8%;top:6.8%;width:19%;height:25.6%;
+ border:3px solid #e8ce93;border-radius:5px;
+ box-shadow:0 0 26px #f0d18b99,inset 0 0 18px #f0d18b44;
+ pointer-events:none;z-index:1;
+}
