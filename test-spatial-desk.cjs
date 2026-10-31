@@ -83,3 +83,46 @@ assert.equal(folder.stack.filter(o=>o.kind==='divider').length,1,'old layer boun
 assert.equal(folder.stack.filter(o=>o.kind==='paper').length,4);
 assert(b.papers().every(p=>p.location?.folderId===folder.uid),'old paper copies not lost');
 console.log('PASS old-save migration preserves paper ownership, identity and evidence layers.');
+// Regression for player-intuitive physical placement and intake submission.
+{
+ const seed={serial:2,readIds:['A01','A02'],history:[],pins:[],papers:[
+  {uid:'paper-1',id:'A01',location:null},{uid:'paper-2',id:'A02',location:null}
+ ],transcripts:[],admitted:[]};
+ const p=start(seed);p.nav('desk');p.tools[0].click();
+ const folder=p.scene().items.find(x=>x.kind==='folder');
+ const element=uid=>p.objects().find(x=>x.dataset.uid===uid);
+ function drag(uid,x,y){
+  const item=p.scene().items.find(x=>x.uid===uid);assert(item);
+  const el=element(uid);assert(el);
+  const dx=x-item.x,dy=y-item.y;
+  el.pointer('pointerdown',{x:200,y:200});
+  el.pointer('pointermove',{x:200+dx,y:200+dy});
+  el.pointer('pointerup',{x:200+dx,y:200+dy});
+ }
+ element(folder.uid).pointer('pointerdown');element(folder.uid).pointer('pointerup');
+ assert(+element('paper-1').style.zIndex>+element(folder.uid).style.zIndex,'folder always behind loose paper');
+ p.tools[1].click();
+ const clip=p.scene().items.find(x=>x.kind==='clip');
+ assert(+element(clip.uid).style.zIndex>+element('paper-1').style.zIndex,'clip stays above paper and folder');
+ drag(clip.uid,folder.x+20,folder.y+45);
+ assert(!p.scene().items.find(x=>x.uid===folder.uid).clipped,'empty folder cannot fasten');
+ drag('paper-1',folder.x+35,folder.y+60);
+ assert.equal(p.papers().find(x=>x.uid==='paper-1').location.folderId,folder.uid,'dropping paper into folder should file it');
+ drag(clip.uid,folder.x+23,folder.y+47);
+ assert(p.scene().items.find(x=>x.uid===folder.uid).clipped,'tapping clip already on paper should fasten');
+ drag(folder.uid,918,103);
+ assert.equal(p.scene().pending,null,'tray rejects unnamed folder');
+ assert(p.nodes['desk-stage-status'].textContent.includes('bảng tên'),'tray explains what is missing');
+ drag(folder.uid,420,110);
+ p.tools[2].click();
+ const plate=p.scene().items.find(x=>x.kind==='nameplate');
+ element(plate.uid).pointer('pointerdown');element(plate.uid).pointer('pointerup');
+ const selector=p.nodes['desk-inspector'].children.find(x=>x.tag==='select');assert(selector);
+ selector.value='27';for(const fn of selector.events.change||[])fn({target:selector});
+ drag(plate.uid,450,140);
+ assert.equal(p.scene().items.find(x=>x.uid===folder.uid).nameId,'27','nameplate labels folder by overlap');
+ drag(folder.uid,918,103);
+ assert.equal(p.scene().pending,folder.uid,'tray submits specifically this sealed dossier');
+ assert(p.nodes['desk-admission-preview'].children.some(x=>x.textContent?.includes('Rojas')),'admission preserves subject');
+ console.log('PASS visual layer hierarchy, physical page/clip/nameplate overlap and submission tray.');
+}
