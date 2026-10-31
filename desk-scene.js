@@ -36,7 +36,9 @@ function make(api){
  }
  function ensure(){
   if(scene.initialized){
-   for(const p of state.papers){if(!take(scene.items,p.uid)){const i=scene.items.length;scene.items.push({kind:'paper',uid:p.uid,x:140+(i%6)*31,y:112+(i%7)*24,rot:(i%5-2)*2,z:++scene.z});}}
+   let added=false;
+   for(const p of state.papers){if(!take(scene.items,p.uid)){const i=scene.items.length;scene.items.push({kind:'paper',uid:p.uid,x:140+(i%6)*31,y:112+(i%7)*24,rot:(i%5-2)*2,z:++scene.z});added=true;}}
+   if(added)persist();
    return;
   }
   scene.initialized=true;
