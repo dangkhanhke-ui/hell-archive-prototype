@@ -4,7 +4,7 @@ const D=window.ATWG_DATA,R=window.ATWG_RULES,key=window.ATWG_SAVE.key;
 const $=id=>document.getElementById(id);
 // The photographic IBM shell is a backdrop; the live CRT stays real HTML.
 const shellPhoto=window.ATWG_ASSETS.ui("ibmShell");
-if(shellPhoto)$("archive").style.setProperty("--ibm-shell-photo",'url("'+shellPhoto+'")');
+if(shellPhoto&&$("archive").style.setProperty)$("archive").style.setProperty("--ibm-shell-photo",'url("'+shellPhoto+'")');
 
 const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
 const button=(text,fn,cls="")=>{const b=el("button",cls,text);b.type="button";b.addEventListener("click",fn);return b;};
