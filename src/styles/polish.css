@@ -255,3 +255,15 @@ body>#room-return:not([hidden]){display:flex!important}
 .view:not(#archive):not(#desk) .paper select:focus-visible{
  outline:1px solid #303c48!important;outline-offset:1px!important;
 }
+
+/* IBM CRT readability: modest +15% typography, unchanged terminal art/geometry. */
+#archive .terminal-content{font-size:clamp(10px,1.02vw,17px)!important}
+#archive .terminal-content button,
+#archive .terminal-content input,
+#archive .terminal-content select,
+#archive .terminal-content textarea{font-size:clamp(10px,.88vw,14px)!important}
+#archive .archive-syntax,#archive .terminal-content small{font-size:.82em!important}
+@media(max-width:650px){
+ #archive .terminal-content{font-size:clamp(7px,1.2vw,11px)!important}
+ #archive .terminal-content button,#archive .terminal-content input,#archive .terminal-content select{font-size:clamp(7px,1.12vw,11px)!important}
+}
