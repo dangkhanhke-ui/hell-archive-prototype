@@ -267,25 +267,24 @@ $("reset").addEventListener("click",()=>{if(!confirm("Xóa tiến độ Case 01 
 function renderAdmit(){
  const pack=desk.getSubmission(),preview=$("desk-admission-preview"),send=$("submit-dossier");
  preview.replaceChildren();
- if(!pack){preview.append(el("strong",null,"CHƯA CÓ HỒ SƠ ĐÃ KẸP"),el("p",null,"Trở về Bàn: lấy bìa, xếp giấy, gắn bảng tên và đặt kẹp lên hồ sơ trước khi nộp."));send.disabled=true;return;}
+ if(!pack){send.disabled=true;return;}
  send.disabled=false;
  const person=D.people.find(p=>p.id===pack.subject);
- preview.append(el("strong",null,"#"+pack.subject+" · "+(person?.name||"HỒ SƠ KHÔNG RÕ TÊN")));
- preview.append(el("small",null,pack.papers.length+" tờ giấy · "+pack.layers+" lớp suy luận · ĐÃ KẸP"));
- preview.append(el("p",null,"Chọn phòng tiếp nhận. Hồ sơ chỉ được kiểm tra khi nộp; không báo đúng/sai trong lúc xếp."));
+ preview.append(el("strong",null,"#"+pack.subject+" · "+(person?.name||"")));
+ 
 }
 $("submit-dossier").addEventListener("click",()=>{
- const pack=desk.getSubmission(),room=$("room").value,feedback=$("feedback");
+ const pack=desk.getSubmission(),room=$("admission-room").value,feedback=$("feedback");
  feedback.replaceChildren();feedback.classList.remove("hidden");
  if(!pack){feedback.append(el("strong",null,"CHƯA ĐÓNG HỒ SƠ"),el("p",null,"Kẹp và gắn tên lên bìa tại Bàn trước."));return;}
  if(!room){feedback.append(el("strong",null,"CHƯA CHỌN PHÒNG"));return;}
  const raw=R.evaluate(pack.subject,room,pack.papers);
  const result=raw==="invalid"?"jurisdiction":raw;
- const msg={jurisdiction:["OUTSIDE OUR JURISDICTION","Phòng này không nhận bản chất tội trong hồ sơ. Giấy và kẹp trả lại nguyên vẹn."],
- incomplete:["HỒ SƠ CHƯA ĐỦ","Các lớp chứng cứ hoặc bản chất tội chưa được chứng minh. Hồ sơ vẫn giữ nguyên để chỉnh sửa."],
- admitted:["ĐƯỢC TIẾP NHẬN","Chứng cứ và chiều sâu trách nhiệm đáp ứng phòng tiếp nhận."]};
+ const msg={jurisdiction:["KHÔNG TIẾP NHẬN",""],
+ incomplete:["CHƯA ĐỦ CHỨNG CỨ",""],
+ admitted:["ĐÃ TIẾP NHẬN",""]};
  const lines=msg[result]||["HỒ SƠ KHÔNG HỢP LỆ","Cần tiếp tục điều tra."];
- feedback.append(el("strong",null,lines[0]),el("p",null,lines[1]));
+ feedback.append(el("strong",null,lines[0]));
  if(result==="admitted"&&!state.admitted.includes(pack.subject)){state.admitted.push(pack.subject);save();}
 });
 renderOpening();save();navigate("room");
