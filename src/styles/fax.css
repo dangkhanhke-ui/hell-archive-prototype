@@ -1,0 +1,26 @@
+/* MAX FAX 1965: actual author-supplied photographic interface. No web panel. */
+#wire:not(.hidden){position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#030303!important;z-index:300}
+#wire.hidden{display:none!important}
+body:has(#wire:not(.hidden)),html:has(#wire:not(.hidden)){overflow:hidden!important}
+.fax-stage{position:absolute;inset:0;overflow:hidden;background:#030303}
+.fax-photo{position:absolute;width:100%;height:100%;inset:0;object-fit:fill;pointer-events:none;user-select:none}
+#fax-display{position:absolute;left:54.5%;top:47%;width:26%;height:23%;display:flex;align-items:center;justify-content:center;color:#eff5ed!important;font:400 clamp(18px,3.2vw,56px)/1 "Courier New",monospace!important;letter-spacing:.3em!important;text-shadow:0 0 5px #e2ffe599,0 0 18px #a9e3b34a;pointer-events:none;user-select:none}
+#fax-keypad [data-fax-key],.fax-machine-control{position:absolute!important;left:var(--fx)!important;top:var(--fy)!important;transform:translate(-50%,-50%)!important;transition:filter 65ms,scale 65ms,translate 65ms!important;background:transparent!important;border:0!important;border-radius:3px!important;outline:0!important;box-shadow:none!important;padding:0!important;color:transparent!important;font-size:0!important;cursor:pointer;touch-action:manipulation}
+#fax-keypad [data-fax-key]{width:3.3%!important;height:5.5%!important;min-width:0!important;min-height:0!important}
+.fax-machine-control{width:4.3%!important;height:4.2%!important;min-width:0!important;min-height:0!important}
+#fax-keypad [data-fax-key]:hover,.fax-machine-control:hover{background:#f1f5fb19!important;box-shadow:inset 0 0 9px #f2f6fc55!important}
+#fax-keypad [data-fax-key].fax-pressed,.fax-machine-control.fax-pressed,
+#fax-keypad [data-fax-key]:active,.fax-machine-control:active{translate:0 3px!important;filter:brightness(.66)!important;box-shadow:inset 0 3px 6px #0008!important}
+#fax-keypad [data-fax-key]:focus-visible,.fax-machine-control:focus-visible{outline:1px solid #e6efff9c!important;outline-offset:1px!important}
+#fax-dialogue{position:absolute;left:43%;top:82.4%;width:45%;max-height:16%;box-sizing:border-box;padding:9px 13px;background:#080b0cd9;border:1px solid #dbe8ef48;color:#e5ebf2!important;backdrop-filter:blur(3px);overflow:auto}
+#fax-dialogue[hidden]{display:none!important}
+#fax-voice{margin:0 0 8px!important;font:400 clamp(10px,1.15vw,17px)/1.4 "Courier New",monospace!important;color:#e5ecf2!important}
+#wire-form{display:flex;align-items:center;gap:7px;margin:0}
+#wire-code{flex:1;min-width:0;background:#090d0ec9!important;border:0!important;border-bottom:1px solid #b9c6d0a5!important;border-radius:0!important;color:#ecf2f7!important;padding:5px!important;font:400 clamp(11px,1.2vw,18px) "Courier New",monospace!important;letter-spacing:.035em!important;box-shadow:none!important}
+#wire-code::placeholder{color:#9da9b2!important}
+#wire-form button{color:#eff3f7!important;background:transparent!important;border:1px solid #b5c4d178!important;border-radius:0!important;padding:5px 10px!important;box-shadow:none!important}
+#wire-message{margin:4px 0 0!important;color:#e7ecf2!important;font:400 11px "Courier New",monospace!important}
+#wire-result{position:fixed;right:1%;bottom:1%;width:min(24vw,300px);max-height:22vh;overflow:auto;pointer-events:auto;color:#dce5ec}
+#wire-result:empty{display:none}
+#wire-result .photo{display:none!important}
+@media(max-width:700px){#fax-dialogue{top:79%;left:31%;width:64%;padding:6px}#fax-voice{font-size:10px!important}#fax-display{font-size:20px!important}#wire-result{display:none}}
