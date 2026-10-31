@@ -2,10 +2,10 @@
 <html lang="vi"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>All Thirty Were Guilty · Case 01 V4.3</title>
-<link rel="stylesheet" href="src/styles/global.css?v=assetstruct9">
-<link rel="stylesheet" href="src/styles/desk.css?v=assetstruct9">
-<link rel="stylesheet" href="src/styles/room.css?v=assetstruct9">
-<link rel="stylesheet" href="src/styles/polish.css?v=assetstruct10">
+<link rel="stylesheet" href="src/styles/global.css?v=assetstruct11">
+<link rel="stylesheet" href="src/styles/desk.css?v=assetstruct11">
+<link rel="stylesheet" href="src/styles/room.css?v=assetstruct11">
+<link rel="stylesheet" href="src/styles/polish.css?v=assetstruct11">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <main>
@@ -24,22 +24,22 @@
   <img class="room-image" src="assets/room/main.webp" data-asset="room.main" width="1672" height="941" alt="Phòng điều tra công nghiệp năm 1965: máy IBM ở bên trái, máy truyền ảnh cạnh đó, bàn hồ sơ ở bên phải và khu đối chất phía xa." decoding="async" fetchpriority="high" draggable="false">
   
   <button class="room-hotspot" data-room-target="archive" type="button" aria-label="Dùng máy IBM Archive" style="--hx:12.2%;--hy:67.5%">
-   <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">IBM ARCHIVE</span>
+   <span class="room-halo"></span><span class="room-dot"></span>
   </button>
   <button class="room-hotspot" data-room-target="wire" type="button" aria-label="Dùng máy truyền ảnh Wirephoto 000" style="--hx:30.6%;--hy:66.6%">
-   <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">WIREPHOTO 000</span>
+   <span class="room-halo"></span><span class="room-dot"></span>
   </button>
   <button class="room-hotspot" data-room-target="souls" type="button" aria-label="Đi tới khu đối chất" style="--hx:49.1%;--hy:49.0%">
-   <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">ĐỐI CHẤT</span>
+   <span class="room-halo"></span><span class="room-dot"></span>
   </button>
   <button class="room-hotspot" data-room-target="desk" type="button" aria-label="Đến bàn giấy để xếp chứng cứ" style="--hx:66.2%;--hy:77.3%">
-   <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">BÀN GIẤY</span>
+   <span class="room-halo"></span><span class="room-dot"></span>
   </button>
   <button class="room-hotspot" data-room-target="brief" type="button" aria-label="Đọc bản tin ban đầu" style="--hx:83.0%;--hy:64.2%">
-   <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">BẢN TIN</span>
+   <span class="room-halo"></span><span class="room-dot"></span>
   </button>
   <button class="room-hotspot" data-room-target="ledger" type="button" aria-label="Mở sổ Grand Ledger" style="--hx:94.4%;--hy:69.0%">
-   <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">GRAND LEDGER</span>
+   <span class="room-halo"></span><span class="room-dot"></span>
   </button>
   
  </div>
@@ -70,10 +70,10 @@
 </div></div></div></div></section>
 <section id="wire" class="view hidden">
 <p class="eyebrow">TỔNG ĐÀI TRUYỀN ẢNH · 000</p><h1>Wirephoto</h1>
-<div class="columns"><div class="paper"><p>Gõ mã ảnh <strong>thực sự in trong một hồ sơ đã đọc</strong>. Tổng đài chỉ truyền bản ảnh có hồ sơ nguồn; mỗi yêu cầu thành công in một bản mới.</p>
+<div class="columns"><div class="paper">
 <form id="wire-form"><label for="wire-code">MÃ ẢNH</label><div class="search-row"><input id="wire-code" placeholder="IMG-…" autocomplete="off"><button type="submit">GỌI 000</button></div></form>
 <p id="wire-message" role="status" aria-live="polite"></p><div id="wire-result"></div></div>
-<aside class="rulebox"><h2>Giới hạn của ảnh</h2><p>Ảnh hiện trường phải có người chụp, thời điểm và nơi lưu. Bản vẽ trong prototype chỉ là placeholder, chưa phải asset Wirephoto hoàn thiện. Không có ảnh siêu nhiên về một lệnh giết bí mật.</p></aside></div>
+</div>
 </section>
 <section id="souls" class="view hidden">
 <p class="eyebrow">POSTHUMOUS TESTIMONY</p><h1>Đối chất với linh hồn</h1>
@@ -104,27 +104,25 @@
  <div id="desk-trash-drawer" hidden><div class="row"><h2>Thùng rác</h2><button id="desk-trash-close" type="button">Đóng</button></div><div id="desk-trash-list"></div></div>
 </section>
 <section id="admit" class="view hidden">
-<p class="eyebrow">NINE INFERNAL ADMISSION ROOMS</p><h1>Tiếp nhận hồ sơ</h1>
-<p>Chọn linh hồn và phòng tiếp nhận. Một vụ án có thể cho thấy tội nghiêm trọng mà vẫn chưa chứng minh được <strong>tội sâu nhất</strong> của người đó.</p>
+
 <div class="columns"><div class="paper">
-<div id="desk-admission-preview"><strong>Chưa chọn hồ sơ đã kẹp</strong><small>Gắn bảng tên và dùng kẹp trên bàn trước khi nộp.</small></div>
-<label for="room">PHÒNG TIẾP NHẬN</label><select id="room"><option value="">CHỌN PHÒNG</option>
+<div id="desk-admission-preview"></div>
+<select id="admission-room" aria-label="Phòng tiếp nhận"><option value="">CHỌN PHÒNG</option>
 <option value="I">I · Kiêu ngạo</option><option value="II">II · Dục vọng</option><option value="III">III · Hưởng thụ quá độ</option><option value="IV">IV · Tham lam</option><option value="V">V · Phẫn nộ</option><option value="VI">VI · Cuồng tín</option><option value="VII">VII · Bạo lực</option><option value="VIII">VIII · Gian trá</option><option value="IX">IX · Phản bội</option></select>
 <button id="submit-dossier" type="button">NỘP HỒ SƠ</button><div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
-</div><aside class="rulebox"><h2>Giấy không mất</h2><p>Nộp sai được trả lại nguyên vẹn. Dossier phải chứng minh hành vi, khả năng lựa chọn và điều kiện của phòng tiếp nhận, không chỉ tìm đúng tên.</p><p>Đối với một linh hồn, Case 01 chỉ là phần đầu cuộc điều tra.</p></aside></div>
+</div></div>
 </section>
-<section id="ledger" class="view hidden"><p class="eyebrow">THE GRAND LEDGER</p><h1>Ba mươi cái tên</h1>
-<p class="muted">Sổ gốc chỉ có số ID và tên. Không có nghề, case, tầng hay lời giải sẵn. Danh mục nhân sự được tra riêng bằng IBM.</p>
+<section id="ledger" class="view hidden" aria-label="Grand Ledger">
 <div id="ledger-grid" class="ledger-grid"></div></section>
 </main>
 <div id="paper-viewer-layer" aria-label="Những tờ giấy đang xem"></div><dialog id="paper-dialog" aria-labelledby="dialog-title" hidden><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button" aria-label="Đóng">×</button></div><div id="dialog-body"></div></dialog>
-<script defer src="src/core/manifest.js?v=assetstruct9"></script>
-<script defer src="src/core/assets.js?v=assetstruct9"></script>
-<script defer src="src/core/save.js?v=assetstruct9"></script>
-<script defer src="src/core/audio.js?v=assetstruct9"></script>
-<script defer src="src/core/data.js?v=assetstruct9"></script>
-<script defer src="src/core/rules.js?v=assetstruct9"></script>
-<script defer src="src/game/room.js?v=assetstruct9"></script>
-<script defer src="src/game/desk.js?v=assetstruct9"></script>
-<script defer src="src/game/app.js?v=assetstruct9"></script>
+<script defer src="src/core/manifest.js?v=assetstruct11"></script>
+<script defer src="src/core/assets.js?v=assetstruct11"></script>
+<script defer src="src/core/save.js?v=assetstruct11"></script>
+<script defer src="src/core/audio.js?v=assetstruct11"></script>
+<script defer src="src/core/data.js?v=assetstruct11"></script>
+<script defer src="src/core/rules.js?v=assetstruct11"></script>
+<script defer src="src/game/room.js?v=assetstruct11"></script>
+<script defer src="src/game/desk.js?v=assetstruct11"></script>
+<script defer src="src/game/app.js?v=assetstruct11"></script>
 </body></html>
