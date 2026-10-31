@@ -139,6 +139,7 @@ function make(api){
     inspectorButton('ĐỌC PHÓNG TO',()=>openPaper(paper.id));
     if(!f.clipped){
      inspectorButton('RÚT RA BÀN',()=>detach(paper,selected,f));
+     inspectorButton('BỎ VÀO THÙNG',()=>discard(paper));
      inspectorButton('ĐƯA LÊN 1 TỜ',()=>reorder(f,paper.uid,1));
      inspectorButton('ĐƯA XUỐNG 1 TỜ',()=>reorder(f,paper.uid,-1));
      inspectorButton('CHÈN NGĂN TRƯỚC',()=>insertDivider(f,paper.uid));
@@ -154,6 +155,7 @@ function make(api){
    
    if(selected.nameId){const name=api.data.people.find(p=>p.id===selected.nameId);inspector.append(elt('small',null,'Bảng tên: #'+selected.nameId+' · '+(name?.name||'')));}
    if(selected.clipped)inspectorButton('THÁO KẸP',()=>unfasten(selected));
+   inspectorButton('BỎ HỒ SƠ',()=>{selected.trashed=true;if(scene.pending===selected.uid)scene.pending=null;scene.selected=null;if(scene.active===selected.uid)scene.active=null;persist();});
    
    if(selected.clipped&&selected.nameId&&selected.stack.some(t=>t.kind==='paper'))inspectorButton('→ TIẾP NHẬN',()=>submitFolder(selected));
    if(!selected.clipped)inspectorButton('CHÈN NGĂN Ở ĐỈNH',()=>selected.stack.push({kind:'divider',uid:newId('divider')}));
@@ -405,7 +407,7 @@ function tryDropTrash(item,pointer){
  function render(){prepareTabletop();ensure();resize();world.replaceChildren();
   for(const obj of [...scene.items].sort((a,b)=>a.z-b.z)){const e=renderItem(obj);if(e)world.append(e);}
   showInspector();renderTrash();
-  const f=activeFolder();readyBtn.hidden=!(f?.clipped&&f.nameId&&f.stack.some(t=>t.kind==='paper'));
+  const f=activeFolder();readyBtn.hidden=!!f?.trashed||!(f?.clipped&&f.nameId&&f.stack.some(t=>t.kind==='paper'));
   if(!readyBtn.hidden)readyBtn.onclick=()=>submitFolder(f);
   const caption=document.getElementById('desk-tray-status');
   if(caption)caption.textContent='';
