@@ -91,7 +91,7 @@ function make(api){
  function inspectorButton(label,fn){inspector.append(btn(label,()=>{fn();render();},'desk-action'));}
  function showInspector(){
   inspector.replaceChildren();
-  if(scene.virtualDivider?.uid===scene.selected){const f=folderById(scene.virtualDivider.folderId),tok=f?.stack.find(t=>t.uid===scene.selected);if(f&&tok){showDividerInspector(f,tok);return;}}
+  if(scene.virtualDivider && scene.virtualDivider.uid===scene.selected){const f=folderById(scene.virtualDivider.folderId),tok=f?.stack.find(t=>t.uid===scene.selected);if(f&&tok){showDividerInspector(f,tok);return;}}
   const selected=scene.selected&&itemById(scene.selected);
   if(!selected){inspector.append(elt('p',null,'Nhấp một tờ giấy hoặc bìa hồ sơ để thao tác. Giữ chuột và kéo để đặt tự do.'));return;}
   const paper=state.papers.find(p=>p.uid===selected.uid);
