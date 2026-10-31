@@ -5,6 +5,7 @@
 (function(root){
 'use strict';
 const W=1280,H=800;
+const intakeTray={x:1010,y:55,w:245,h:205};
 const bounds={paper:[225,300],folder:[308,386],clip:[78,60],nameplate:[178,62]};
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const elt=(tag,cl,txt)=>{const n=document.createElement(tag);if(cl)n.className=cl;if(txt!==undefined)n.textContent=txt;return n;};
@@ -141,7 +142,12 @@ function make(api){
    if(f&&!f.clipped)inspectorButton('RÚT NGĂN',()=>{f.stack=f.stack.filter(t=>t.uid!==selected.uid);scene.selected=f.uid;});
   }
  }
- function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'px';el.style.width=w+'px';el.style.height=h+'px';el.style.transform='rotate('+item.rot+'deg)';el.style.zIndex=String(item.z);}
+ function visualZ(item){
+ // Fixed physical layering, independent of click order within each object category.
+ const base=item.kind==='folder'?0:item.kind==='paper'?1000000:item.kind==='clip'?2000000:3000000;
+ return base+item.z;
+}
+function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'px';el.style.width=w+'px';el.style.height=h+'px';el.style.transform='rotate('+item.rot+'deg)';el.style.zIndex=String(visualZ(item));}
  function bindPointer(el,item,opts={}){
   el.addEventListener('pointerdown',ev=>{
    if(ev.button!==undefined&&ev.button!==0)return;
@@ -149,7 +155,7 @@ function make(api){
    ev.preventDefault();ev.stopPropagation();
    scene.selected=item.uid; if(item.kind==='folder')scene.active=item.uid; if(item.kind==='paper')scene.focusedPaper=item.uid;
    if(opts.attached){const containing=folderById(opts.attached);if(containing)raise(containing);}
-   raise(item);el.style.zIndex=String(item.z);
+   raise(item);el.style.zIndex=String(visualZ(item));
    const origin=space(ev),attachedFolder=opts.attached&&folderById(opts.attached);
    const base=attachedFolder?{x:attachedFolder.x+26,y:attachedFolder.y+65}:getPose(item),startX=ev.clientX,startY=ev.clientY;
    let moved=false;
@@ -163,24 +169,27 @@ function make(api){
     const x=clamp(base.x+dx,-size[0]*.55,W-size[0]*.45);
     const y=clamp(base.y+dy,-size[1]*.55,H-size[1]*.45);
     item.x=x;item.y=y;
+    if(item.kind==='folder')rootEl.dataset.trayOver=String(overlapsTray(item));
     if(opts.attached){el.style.translate=dx+'px '+dy+'px';}
     else{el.style.left=x+'px';el.style.top=y+'px';}
    };
    const end=e=>{
+    rootEl.dataset.trayOver='false';
     el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);
     el.classList.remove('desk-grabbing');
     if(moved){
      if(opts.attached){const paper=state.papers.find(p=>p.uid===item.uid),f=folderById(opts.attached);if(paper&&f&&!f.clipped)detach(paper,item,f,true);}
      if(item.kind==='clip')tryDropClip(item);
      if(item.kind==='nameplate')tryDropPlate(item);
-     if(item.kind==='paper'&&!opts.attached)tryDropTrash(item);
+     if(item.kind==='paper'&&!opts.attached){if(!tryDropTrash(item))tryDropPaper(item);}
+     if(item.kind==='folder'&&tryDropSubmissionTray(item))return;
      persist();render();
     }else{
      if(item.kind==='paper'){const p=state.papers.find(p=>p.uid===item.uid);if(p)openPaper(p.id);}
      render();
     }
    };
-   const cancel=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);item.x=base.x;item.y=base.y;render();};
+   const cancel=()=>{rootEl.dataset.trayOver='false';el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);item.x=base.x;item.y=base.y;render();};
    el.addEventListener('pointermove',move);el.addEventListener('pointerup',end);el.addEventListener('pointercancel',cancel);
   });
  }
@@ -204,18 +213,49 @@ function make(api){
   if(folder.stack[i-1]?.kind==='divider')return;
   folder.stack.splice(i,0,{kind:'divider',uid:newId('divider')});persist();
  }
- function tryDropClip(item){const f=hitFolder(item.x+38,item.y+25);if(f)fasten(item,f);}
- function fasten(item,folder){if(folder.clipped||!folder.stack.some(x=>x.kind==='paper')){msg('Bìa cần có giấy và chưa bị kẹp.');return;}
+ function intersection(a,b){
+ const x=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x));
+ const y=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
+ return x*y;
+}
+function itemRect(item){const [w,h]=bounds[item.kind]||bounds.paper;return{x:item.x,y:item.y,w,h};}
+function hitFolderByOverlap(item){
+ return scene.items.filter(x=>x.kind==='folder').map(f=>({f,area:intersection(itemRect(item),itemRect(f))}))
+  .filter(x=>x.area>=900).sort((a,b)=>b.area-a.area||b.f.z-a.f.z)[0]?.f||null;
+}
+function tryDropPaper(item){
+ const paper=state.papers.find(p=>p.uid===item.uid);
+ if(!paper||trash(paper)||paper.location?.folderId)return false;
+ const cx=item.x+bounds.paper[0]/2,cy=item.y+bounds.paper[1]/2;
+ const folder=scene.items.filter(f=>f.kind==='folder'&&!f.clipped)
+  .filter(f=>cx>=f.x+25&&cx<=f.x+bounds.folder[0]-25&&cy>=f.y+25&&cy<=f.y+bounds.folder[1]-25)
+  .sort((a,b)=>b.z-a.z)[0];
+ if(!folder)return false;
+ attach(paper,folder);msg('Giấy đã vào bìa. Đặt thêm giấy hoặc kẹp để chốt.');return true;
+}
+function tryDropClip(item){const f=hitFolderByOverlap(item);if(f)fasten(item,f);}
+ function fasten(item,folder){
+ if(folder.clipped){msg('Bìa này đã kẹp. Tháo kẹp trước khi thay giấy.');return;}
+ if(!folder.stack.some(x=>x.kind==='paper')){msg('Bìa còn rỗng. Kéo giấy vào giữa bìa trước khi đặt kẹp.');return;}
   folder.clipped=true;scene.items=scene.items.filter(x=>x.uid!==item.uid);scene.selected=folder.uid;scene.active=folder.uid;
   msg('Đã kẹp hồ sơ. Có thể tháo kẹp nếu cần sửa.');persist();
  }
- function tryDropPlate(item){const f=hitFolder(item.x+78,item.y+30);if(f)markName(item,f);}
+ function tryDropPlate(item){const f=hitFolderByOverlap(item);if(f)markName(item,f);}
  function markName(item,folder){if(!item.nameId){msg('Chọn một trong 30 cái tên trên bảng tên trước.');return;}
   folder.nameId=item.nameId;scene.items=scene.items.filter(x=>x.uid!==item.uid);scene.selected=folder.uid;scene.active=folder.uid;
   msg('Đã gắn bảng tên vào bìa.');persist();
  }
- function hitFolder(x,y){return scene.items.filter(o=>o.kind==='folder').sort((a,b)=>b.z-a.z).find(o=>x>=o.x+22&&x<=o.x+290&&y>=o.y+38&&y<=o.y+345);}
- function tryDropTrash(item){if(item.x+112>1085 && item.y+150>675){const paper=state.papers.find(p=>p.uid===item.uid);if(paper)discard(paper);}}
+ function overlapsTray(item){return item.kind==='folder'&&intersection(itemRect(item),intakeTray)>=22000;}
+function tryDropSubmissionTray(folder){
+ if(!overlapsTray(folder))return false;
+ scene.active=folder.uid;scene.selected=folder.uid;
+ if(!folder.stack.some(t=>t.kind==='paper')){msg('Khay chưa nhận: bìa chưa có giấy. Kéo giấy vào giữa bìa.');return false;}
+ if(!folder.clipped){msg('Khay chưa nhận: chưa đặt kẹp lên bìa.');return false;}
+ if(!folder.nameId){msg('Khay chưa nhận: chọn tên trong 30 người rồi gắn bảng tên lên bìa.');return false;}
+ msg('Khay đã nhận hồ sơ. Đang mở Tiếp nhận.');
+ submitFolder(folder);return true;
+}
+ function tryDropTrash(item){if(item.x+112>1085 && item.y+150>675){const paper=state.papers.find(p=>p.uid===item.uid);if(paper){discard(paper);return true;}}return false;}
  function discard(paper){const old=paper.location?.folderId&&folderById(paper.location.folderId);
   if(old){if(old.clipped){msg('Tháo kẹp trước khi bỏ giấy khỏi bìa.');return;}old.stack=old.stack.filter(t=>t.uid!==paper.uid);}
   paper.location={zone:'trash'};scene.selected=null;msg('Giấy vào thùng rác. Có thể phục hồi.');persist();
@@ -287,6 +327,8 @@ function make(api){
   showInspector();renderTrash();
   const f=activeFolder();readyBtn.hidden=!(f?.clipped&&f.nameId&&f.stack.some(t=>t.kind==='paper'));
   if(!readyBtn.hidden)readyBtn.onclick=()=>submitFolder(f);
+  const caption=document.getElementById('desk-tray-status');
+  if(caption)caption.textContent=readyBtn.hidden?'KÉO BÌA ĐÃ KẸP & GẮN TÊN VÀO ĐÂY':'SẴN SÀNG · KÉO HỒ SƠ VÀO KHAY';
  }
  // The object tray is unlimited supply, not a grid where objects must remain.
  for(const tool of tools.querySelectorAll('[data-new-prop]')){
