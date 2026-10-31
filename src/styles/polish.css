@@ -229,3 +229,29 @@ body>#room-return,body>#room-return:not([hidden]),body>#room-return:hover,body>#
  width:30px!important;height:30px!important;padding:0!important;font-size:22px!important;
 }
 body>#room-return:not([hidden]){display:flex!important}
+
+/* Paper panels are light parchment, not a dark HUD. All text and form controls
+   inside must use legible dark ink, independent of the global white UI theme. */
+.view:not(#archive):not(#desk) .paper{color:#26231f!important}
+.view:not(#archive):not(#desk) .paper label,
+.view:not(#archive):not(#desk) .paper .eyebrow,
+.view:not(#archive):not(#desk) .paper small,
+.view:not(#archive):not(#desk) .paper p,
+.view:not(#archive):not(#desk) .paper h1,
+.view:not(#archive):not(#desk) .paper h2,
+.view:not(#archive):not(#desk) .paper h3,
+.view:not(#archive):not(#desk) .paper strong,
+.view:not(#archive):not(#desk) .paper .muted{color:#29251f!important;text-shadow:none!important}
+.view:not(#archive):not(#desk) .paper input,
+.view:not(#archive):not(#desk) .paper select,
+.view:not(#archive):not(#desk) .paper textarea{
+ color:#221f1b!important;background:#f4f0e6!important;border-color:#625e54!important;
+}
+.view:not(#archive):not(#desk) .paper input::placeholder,
+.view:not(#archive):not(#desk) .paper textarea::placeholder{color:#716b60!important;opacity:1!important}
+.view:not(#archive):not(#desk) .paper button{color:#f2f3f5!important;background:#2b3035!important;border-color:#59616a!important}
+.view:not(#archive):not(#desk) .paper button:focus-visible,
+.view:not(#archive):not(#desk) .paper input:focus-visible,
+.view:not(#archive):not(#desk) .paper select:focus-visible{
+ outline:1px solid #303c48!important;outline-offset:1px!important;
+}
