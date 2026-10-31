@@ -126,3 +126,30 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert(p.nodes['desk-admission-preview'].children.some(x=>x.textContent?.includes('Rojas')),'admission preserves subject');
  console.log('PASS visual layer hierarchy, physical page/clip/nameplate overlap and submission tray.');
 }
+
+// Drag performance: compositor transforms, no left/top writes during pointermove,
+// and the desk bounds measured once for each pointer gesture.
+{
+ const game=start({serial:2,readIds:['A01','A02'],history:[],pins:[],papers:[
+  {uid:'paper-1',id:'A01',location:null},{uid:'paper-2',id:'A02',location:null}
+ ],transcripts:[],admitted:[]});
+ game.nav('desk');
+ const desk=game.nodes['desk-stage'];let reads=0;
+ const original=desk.getBoundingClientRect.bind(desk);
+ desk.getBoundingClientRect=()=>{reads++;return original();};
+ const sheet=game.objects().find(o=>o.dataset.uid==='paper-1');assert(sheet);
+ assert(sheet.style.transform.includes('translate3d('),'physical page must be composited');
+ const x=sheet.style.left,y=sheet.style.top,previous=game.scene().items.find(o=>o.uid==='paper-1');
+ sheet.pointer('pointerdown',{x:150,y:150});
+ const readsAfterStart=reads;
+ sheet.pointer('pointermove',{x:210,y:195});
+ sheet.pointer('pointermove',{x:290,y:215});
+ assert.equal(reads,readsAfterStart,'pointermove must not remeasure tabletop');
+ assert.equal(sheet.style.left,x,'no left change on pointermove');
+ assert.equal(sheet.style.top,y,'no top change on pointermove');
+ assert(sheet.style.transform.includes('translate3d('),'move uses compositor transform');
+ sheet.pointer('pointerup',{x:290,y:215});
+ const moved=game.scene().items.find(o=>o.uid==='paper-1');
+ assert(moved.x>previous.x-1&&moved.y>previous.y-1,'moved paper remains at drop location');
+ console.log('PASS cached tabletop rectangle, compositor transforms and no layout-changing left/top drag.');
+}
