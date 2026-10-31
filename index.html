@@ -2,8 +2,8 @@
 <html lang="vi"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>All Thirty Were Guilty · Case 01 V4.3</title>
-<link rel="stylesheet" href="styles.css?v=case01-v43-6">
-<link rel="stylesheet" href="desk-scene.css?v=case01-v43-6">
+<link rel="stylesheet" href="styles.css?v=case01-v43-7">
+<link rel="stylesheet" href="desk-scene.css?v=case01-v43-7">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <main>
@@ -82,7 +82,17 @@
   <rect x="18" y="19" width="1244" height="764" rx="8" fill="none" stroke="url(#brass)" stroke-opacity=".34" stroke-width="3"/>
   <rect width="1280" height="800" fill="url(#lamp)"/>
   <g opacity=".24" fill="#d8c398"><circle cx="32" cy="32" r="6"/><circle cx="1248" cy="32" r="6"/><circle cx="32" cy="768" r="6"/><circle cx="1248" cy="768" r="6"/></g>
-  <!-- a real physical bin in a desk corner; moving a paper onto it is intentional disposal -->
+  <!-- Physical intake tray. The folder itself is draggable into this area. -->
+  <g id="desk-submission-tray" transform="translate(1008 52)">
+   <path d="M8 20L28 3H224L245 20V190L224 207H28L8 190Z" fill="#3d3b30" stroke="#c4a873" stroke-width="5"/>
+   <rect x="21" y="30" width="211" height="153" rx="5" fill="#202920" stroke="#9e9673" stroke-width="3"/>
+   <path d="M31 43L49 66H210L221 43" fill="none" stroke="#cdbb92" stroke-width="3"/>
+   <path d="M41 138H210M41 147H210M41 156H210" stroke="#b2a388" stroke-width="2" opacity=".5"/>
+   <rect x="36" y="77" width="181" height="53" rx="3" fill="#d9c7a2" stroke="#6e5a39" stroke-width="2"/>
+   <text x="126" y="101" fill="#322718" text-anchor="middle" font-size="17" font-family="Georgia" font-weight="bold">KHAY TIẾP NHẬN</text>
+   <text x="126" y="119" fill="#4b3b2b" text-anchor="middle" font-size="10" font-family="Georgia">HỒ SƠ ĐÃ KẸP + TÊN</text>
+  </g>
+    <!-- a real physical bin in a desk corner; moving a paper onto it is intentional disposal -->
   <g transform="translate(1095 670)"><ellipse cx="92" cy="106" rx="82" ry="18" fill="#1b1510" opacity=".55"/>
    <path d="M12 11L25 108Q91 140 162 108L172 11Z" fill="#252927" stroke="#131a17" stroke-width="5"/>
    <path d="M12 11Q90 -6 172 11L164 27Q92 13 23 27Z" fill="#78817a" stroke="#1d231f" stroke-width="4"/>
@@ -91,6 +101,7 @@
   <g transform="translate(74 35) rotate(-8)" opacity=".38"><rect width="213" height="46" rx="2" fill="#171812"/><text x="17" y="30" font-family="Georgia" font-size="16" fill="#e4d6ad">ARCHIVO · 1965</text></g>
  </svg>
  <div id="desk-world"></div>
+ <div id="desk-tray-status" aria-live="polite">KÉO BÌA ĐÃ KẸP & GẮN TÊN VÀO ĐÂY</div>
  <div id="desk-toolbox">
   <button type="button" data-new-prop="folder">▤ LẤY BÌA</button>
   <button type="button" data-new-prop="clip">⌁ LẤY KẸP</button>
@@ -118,5 +129,5 @@
 <div id="ledger-grid" class="ledger-grid"></div></section>
 </main>
 <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-<script src="data.js?v=case01-v43-6"></script><script src="rules.js?v=case01-v43-6"></script><script src="portraits.js?v=case01-v43-6"></script><script src="desk-scene.js?v=case01-v43-6"></script><script src="app.js?v=case01-v43-6"></script>
+<script src="data.js?v=case01-v43-7"></script><script src="rules.js?v=case01-v43-7"></script><script src="portraits.js?v=case01-v43-7"></script><script src="desk-scene.js?v=case01-v43-7"></script><script src="app.js?v=case01-v43-7"></script>
 </body></html>
