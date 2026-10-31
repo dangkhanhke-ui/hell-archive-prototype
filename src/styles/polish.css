@@ -185,3 +185,10 @@ button:focus,select:focus,input:focus{border-color:#dce5efb3!important}
 #ledger.hidden{display:none!important}
 #ledger #ledger-grid{max-width:1400px;margin:0 auto}
 #wire .rulebox,#admit .rulebox{display:none!important}
+
+/* Same physical clip size loose and attached, no graphic shrink on fastening. */
+#desk .desk-folder-fastener{width:38px!important;height:96px!important;left:20px!important;top:10px!important;min-width:0!important;min-height:0!important;padding:0!important;border:0!important;box-shadow:none!important;filter:none!important}
+#desk .desk-folder-fastener .desk-custom-prop{width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important}
+#desk .desk-prop.desk-clip .desk-custom-prop{filter:none!important;box-shadow:none!important}
+#room-return:not([hidden]){display:flex!important;position:fixed!important;z-index:2147483000!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;top:12px!important;left:12px!important}
+#room-return[hidden]{display:none!important;visibility:hidden!important}
