@@ -7,7 +7,7 @@ function setup(navigate,sound){
  }));
  document.getElementById("room-return")?.addEventListener("click",()=>{sound?.("click");navigate("room");});
  document.addEventListener?.("keydown",event=>{
-  if(event.key!=="Escape"||document.getElementById("room")?.classList.contains("hidden")===false)return;
+  if(event.key!=="Escape")return;
   if(document.getElementById("paper-dialog")?.open)return;
   navigate("room");
  });
