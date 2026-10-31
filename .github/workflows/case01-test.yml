@@ -1,0 +1,17 @@
+name: Case 01 static game integrity
+on:
+  push:
+    branches: [main, refactor-asset-pipeline-game-structure-2026]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout game
+        uses: actions/checkout@v4
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify evidence, desk, room, audio and assets
+        run: npm test
