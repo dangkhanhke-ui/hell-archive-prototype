@@ -56,3 +56,12 @@ IBM requires a meaningful indexed word or phrase of at least three characters. A
 Gameplay Bible V8 §1.11: the desk has reference papers, dossier layers and **recoverable trash**. BỎ VÀO THÙNG or dropping onto the bin moves one specific physical printed copy (its stable `uid`) to `location:{zone:"trash"}`. LẤY RA BÀN restores that copy to loose reference papers. Trashed copies are excluded from soul exchanges and dossiers, but documents remain printable from source, and other physical copies are unchanged. All locations persist in the existing localStorage save.
 
 Printing a document, a posthumous transcript, or a Wirephoto triggers a short (~0.74 s) locally synthesized paper-feed/roller rasp rather than the old three-note print tone. It obeys the IBM's mute control.
+
+
+## Spatial Dossier Desk prototype v1
+
+The Dossier Desk is now a **free-placement 2D tabletop scene** with an SVG-rendered period wood surface. Each paper copy is a readable physical white sheet with a large headline, smaller excerpt and full click-to-inspect view. Mouse/touch dragging uses Pointer Events with capture (no browser drag ghost); positions, angle and z-order persist. Clicking a paper brings it forward visually **without changing its causal evidence depth**.
+
+The corner supply provides unlimited folder props, metal clips and nameplates, all freely movable. A selected folder accepts paper via the sheet's contextual **ĐƯA VÀO BÌA ĐANG CHỌN** action. Its ordered stack runs from outside/observed at the bottom to deeper explanation on top. Use **ĐƯA LÊN / XUỐNG 1 TỜ** and a physical **CHÈN NGĂN** divider to group same-function evidence into inferential layers; arbitrary paper order inside a layer is not a puzzle. Folder dragging moves the contained sheets; loose objects may overlap anywhere. Dragging a loose paper out of an unfastened folder removes exactly that copy.
+
+Select one of 30 identities on a movable nameplate and place it on a folder. A clip dropped on a folder seals it; a sealed, named folder exposes **→ TIẾP NHẬN** and lets the user choose a room. Failed submission never consumes or reorganizes papers. Reopen a clip to revise. Saved old Desk layers are migrated to spatial folders (without changing original paper UIDs) and the recoverable paper bin still functions. This is a 2D UI, not a 3D rigid-body simulation; no claim of native-engine motion tuning.
