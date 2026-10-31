@@ -269,6 +269,7 @@ function make(api){
    placeStyle(element,item,...bounds.paper);element.append(sheetText(paper));bindPointer(element,item);return element;
   }
   const element=elt('div','desk-object desk-prop desk-'+item.kind+(scene.selected===item.uid?' desk-active':''));
+  element.dataset.uid=item.uid;
   placeStyle(element,item,...(bounds[item.kind]||bounds.clip));element.innerHTML=icons[item.kind]||'';
   if(item.kind==='nameplate'&&item.nameId){element.append(elt('span','desk-prop-label','#'+item.nameId));}
   bindPointer(element,item);return element;
