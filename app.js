@@ -13,9 +13,9 @@ const state={
  papers:Array.isArray(stored.papers)?stored.papers:[newPaper("A01"),newPaper("A02")],
  transcripts:Array.isArray(stored.transcripts)?stored.transcripts:[],
  admitted:Array.isArray(stored.admitted)?stored.admitted:[],
- suspect:"27",lastPhotoId:null,selected:null,browse:"events"
+ suspect:"27",lastPhotoId:null,selected:null,browse:"events",scene:stored.scene||null
 };
-function save(){try{localStorage.setItem(key,JSON.stringify({serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted}));}catch(_){}}
+function save(){try{localStorage.setItem(key,JSON.stringify({serial,readIds:state.readIds,history:state.history,pins:state.pins,papers:state.papers,transcripts:state.transcripts,admitted:state.admitted,scene:state.scene}));}catch(_){}}
 const isTrashed=p=>Boolean(p.location&&p.location.zone==="trash");
 const activePaperCount=()=>state.papers.filter(p=>!isTrashed(p)).length;
 function updatePaperCount(){$("paper-count").textContent="("+activePaperCount()+")";}
@@ -253,78 +253,33 @@ $("soul-ask").addEventListener("click",()=>{
 });
 function openPaper(id){const item=getItem(id);if(!item)return;const body=$("dialog-body");body.replaceChildren();$("dialog-title").textContent=item.title;metadata(item,body);if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);$("paper-dialog").showModal();}
 $("close-dialog").addEventListener("click",()=>$("paper-dialog").close());
-function movePaper(uid,layer){const p=state.papers.find(x=>x.uid===uid);if(!p||isTrashed(p))return;p.location=layer===null?null:{suspect:state.suspect,layer};save();renderDesk();}
-function paperCard(p,assigned){
- const item=getItem(p.id),card=el("div","paper-card");card.draggable=true;
- card.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",p.uid);ev.dataTransfer.effectAllowed="move";});
- card.append(el("strong",null,item.title),el("small",null,item.origin));
- const actions=el("div","card-actions");actions.append(button("ĐỌC",()=>openPaper(p.id)));
- if(assigned)actions.append(button("THÁO RA",()=>movePaper(p.uid,null)));
- else{const sel=el("select");sel.setAttribute("aria-label","Chọn lớp cho "+item.title);
- for(let i=0;i<D.suspects[state.suspect].layers;i++){const o=el("option",null,"LỚP "+(i+1));o.value=String(i);sel.append(o);}
- actions.append(sel,button("ĐẶT VÀO LỚP",()=>movePaper(p.uid,Number(sel.value))));}
- actions.append(button("BỎ VÀO THÙNG",()=>trashPaper(p.uid),"trash-action"));
- card.append(actions);return card;
-}
-function trashCard(p){
- const item=getItem(p.id),card=el("div","paper-card trashed-paper");
- card.append(el("strong",null,item.title),el("small",null,item.origin));
- const actions=el("div","card-actions");
- actions.append(button("ĐỌC",()=>openPaper(p.id)),button("LẤY RA BÀN",()=>restorePaper(p.uid),"restore-action"));
- card.append(actions);return card;
-}
-function renderTrashBin(){
- const list=$("trash-papers"),papers=state.papers.filter(p=>isTrashed(p)&&getItem(p.id));
- $("trash-count").textContent=String(papers.length);list.replaceChildren();
- if(!papers.length)list.append(el("p","empty","Thùng đang trống."));
- papers.forEach(p=>list.append(trashCard(p)));
-}
-const deskTrashDropZone=$("trash-bin");
-deskTrashDropZone.addEventListener("dragover",ev=>{ev.preventDefault();deskTrashDropZone.dataset.over="true";});
-deskTrashDropZone.addEventListener("dragleave",()=>{deskTrashDropZone.dataset.over="false";});
-deskTrashDropZone.addEventListener("drop",ev=>{
- ev.preventDefault();deskTrashDropZone.dataset.over="false";
- trashPaper(ev.dataTransfer.getData("text/plain"));
-});
-function renderDesk(){
- const box=$("suspect-buttons");box.replaceChildren();Object.entries(D.suspects).forEach(([id,s])=>{
- const b=button("#"+id+" · "+s.name.split(" ").slice(-2,-1).join(""),()=>{state.suspect=id;renderDesk();},"suspect");
- b.setAttribute("aria-pressed",id===state.suspect?"true":"false");box.append(b);
- });
- const s=D.suspects[state.suspect];$("stack-title").textContent="#"+state.suspect+" · "+s.name+(s.open?" · HỒ SƠ CÒN MỞ":"");
- const inventory=$("inventory"),layers=$("layers");inventory.replaceChildren();layers.replaceChildren();
- const loose=state.papers.filter(p=>!p.location&&getItem(p.id));$("inventory-count").textContent=loose.length;
- if(!loose.length)inventory.append(el("p","empty","Chưa có giấy để xếp. Tìm và in qua IBM, FAX hoặc đối chất."));
- loose.forEach(p=>inventory.append(paperCard(p,false)));
- for(let i=0;i<s.layers;i++){
-  const slot=el("div","layer");slot.dataset.layer=String(i);
-  slot.append(el("h3",null,"LỚP "+(i+1)+" · "+(i===0?"BỀ MẶT":i===s.layers-1?"BẢN CHẤT SÂU NHẤT":"ĐƯỜNG HÀNH VI")));
-  const placed=state.papers.filter(p=>p.location&&p.location.suspect===state.suspect&&p.location.layer===i&&getItem(p.id));
-  if(!placed.length)slot.append(el("small","empty","Kéo hoặc đặt giấy vào đây."));
-  placed.forEach(p=>slot.append(paperCard(p,true)));
-  slot.addEventListener("dragover",ev=>{ev.preventDefault();slot.dataset.over="true";});
-  slot.addEventListener("dragleave",()=>{slot.dataset.over="false";});
-  slot.addEventListener("drop",ev=>{ev.preventDefault();slot.dataset.over="false";movePaper(ev.dataTransfer.getData("text/plain"),i);});
-  layers.append(slot);
- }
- renderTrashBin();updatePaperCount();
-}
+// The physical tabletop is an independent 2D world with its own saved spatial state.
+const desk=window.ATWG_DESK.create({state,save,getItem,openPaper,navigate,data:D});
+function renderDesk(){desk.render();}
 $("reset").addEventListener("click",()=>{if(!confirm("Xóa tiến độ Case 01 V4.3 trên trình duyệt này?"))return;localStorage.removeItem(key);location.reload();});
 function renderAdmit(){
- const select=$("submit-suspect"),old=select.value;select.replaceChildren();
- Object.entries(D.suspects).forEach(([id,s])=>{const opt=el("option",null,"#"+id+" · "+s.name);opt.value=id;select.append(opt);});
- if(old&&D.suspects[old])select.value=old;
+ const pack=desk.getSubmission(),preview=$("desk-admission-preview"),send=$("submit-dossier");
+ preview.replaceChildren();
+ if(!pack){preview.append(el("strong",null,"CHƯA CÓ HỒ SƠ ĐÃ KẸP"),el("p",null,"Trở về Bàn: lấy bìa, xếp giấy, gắn bảng tên và đặt kẹp lên hồ sơ trước khi nộp."));send.disabled=true;return;}
+ send.disabled=false;
+ const person=D.people.find(p=>p.id===pack.subject);
+ preview.append(el("strong",null,"#"+pack.subject+" · "+(person?.name||"HỒ SƠ KHÔNG RÕ TÊN")));
+ preview.append(el("small",null,pack.papers.length+" tờ giấy · "+pack.layers+" lớp suy luận · ĐÃ KẸP"));
+ preview.append(el("p",null,"Chọn phòng tiếp nhận. Hồ sơ chỉ được kiểm tra khi nộp; không báo đúng/sai trong lúc xếp."));
 }
 $("submit-dossier").addEventListener("click",()=>{
- const who=$("submit-suspect").value,room=$("room").value,feedback=$("feedback");feedback.replaceChildren();feedback.classList.remove("hidden");
+ const pack=desk.getSubmission(),room=$("room").value,feedback=$("feedback");
+ feedback.replaceChildren();feedback.classList.remove("hidden");
+ if(!pack){feedback.append(el("strong",null,"CHƯA ĐÓNG HỒ SƠ"),el("p",null,"Kẹp và gắn tên lên bìa tại Bàn trước."));return;}
  if(!room){feedback.append(el("strong",null,"CHƯA CHỌN PHÒNG"));return;}
- const result=R.evaluate(who,room,state.papers),s=D.suspects[who];
- const msg={jurisdiction:["OUTSIDE OUR JURISDICTION","Phòng này không nhận bản chất tội trong hồ sơ. Giấy trả lại nguyên vẹn."],
- incomplete:["HỒ SƠ CHƯA ĐỦ","Bằng chứng, quan hệ giải thích hoặc chiều sâu tội chưa chứng minh đủ để tiếp nhận. Giấy được trả lại."],
- admitted:["ĐƯỢC TIẾP NHẬN","Các nguồn độc lập hội tụ thành một lập luận đáp ứng phòng tiếp nhận."]};
- const lines=msg[result]||["HỒ SƠ KHÔNG HỢP LỆ","Không thể kiểm hồ sơ này."];
+ const raw=R.evaluate(pack.subject,room,pack.papers);
+ const result=raw==="invalid"?"jurisdiction":raw;
+ const msg={jurisdiction:["OUTSIDE OUR JURISDICTION","Phòng này không nhận bản chất tội trong hồ sơ. Giấy và kẹp trả lại nguyên vẹn."],
+ incomplete:["HỒ SƠ CHƯA ĐỦ","Các lớp chứng cứ hoặc bản chất tội chưa được chứng minh. Hồ sơ vẫn giữ nguyên để chỉnh sửa."],
+ admitted:["ĐƯỢC TIẾP NHẬN","Chứng cứ và chiều sâu trách nhiệm đáp ứng phòng tiếp nhận."]};
+ const lines=msg[result]||["HỒ SƠ KHÔNG HỢP LỆ","Cần tiếp tục điều tra."];
  feedback.append(el("strong",null,lines[0]),el("p",null,lines[1]));
- if(result==="admitted"&&!state.admitted.includes(who)){state.admitted.push(who);save();}
+ if(result==="admitted"&&!state.admitted.includes(pack.subject)){state.admitted.push(pack.subject);save();}
 });
 renderOpening();renderLedger();save();navigate("brief");
 })();
