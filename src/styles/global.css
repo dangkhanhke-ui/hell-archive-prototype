@@ -21,7 +21,7 @@ main{min-height:100vh;padding-top:18px}
 .tabs button:hover,.tabs button:focus-visible{background:#25332a;border-color:#a9c594}
 .tabs button[aria-current=page]{background:transparent;color:#e3e8d3;border-color:#b2c88e}
 #archive{--phosphor:#b8e39a;--dim:#80a87b;--line:#527252;max-width:1390px;margin:0 auto}
-#archive .terminal{position:relative;width:100%;aspect-ratio:1440/940;background:url("terminal-bezel.svg?v=04") center/100% 100% no-repeat;filter:drop-shadow(0 24px 28px #0009)}
+#archive .terminal{position:relative;width:100%;aspect-ratio:1440/940;background:url("../../assets/ui/terminal-bezel.svg") center/100% 100% no-repeat;filter:drop-shadow(0 24px 28px #0009)}
 #archive .terminal-screen{position:absolute;left:9%;top:11%;width:82%;height:65%;border-radius:5% / 9%;background:radial-gradient(ellipse at 50% 35%,#11291a 0%,#091a10 56%,#030a07 100%);box-shadow:inset 0 0 28px 15px #020803,inset 0 0 85px 25px #000,0 0 12px #36543c88;overflow:hidden;color:var(--phosphor);text-shadow:0 0 3px #76c78266}
 #archive .terminal-screen::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 3px,#0002 4px 5px);opacity:.25}
 #archive .terminal-screen::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 34px 10px #0009,inset 0 0 70px 20px #0005}
@@ -165,3 +165,7 @@ main{min-height:100vh;padding-top:18px}
 .paper-card .trash-action:hover,.paper-card .trash-action:focus-visible{background:#6b4937}
 .trashed-paper .restore-action{background:#344d3c;border-color:#8eae91}
 @media(max-width:760px){.desk-side .inventory{max-height:480px}}
+
+.ledger-face.ledger-portrait{width:100%;max-width:132px;height:auto;aspect-ratio:3/4;object-fit:cover;display:block;border-radius:3px;background:#333e37;border:1px solid #a7aa98;box-shadow:0 3px 10px #0008}
+.ledger-face.ledger-portrait.portrait-missing{background:#273027}
+.wirephoto-asset{width:100%;height:auto;max-height:650px;object-fit:contain;display:block;background:#b2aea0}
