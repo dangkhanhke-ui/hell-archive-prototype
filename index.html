@@ -2,9 +2,9 @@
 <html lang="vi"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>All Thirty Were Guilty · Case 01 V4.3</title>
-<link rel="stylesheet" href="styles.css?v=case01-v43-9">
-<link rel="stylesheet" href="desk-scene.css?v=case01-v43-9">
-<link rel="stylesheet" href="room.css?v=case01-v43-9">
+<link rel="stylesheet" href="src/styles/global.css?v=assetstruct1">
+<link rel="stylesheet" href="src/styles/desk.css?v=assetstruct1">
+<link rel="stylesheet" href="src/styles/room.css?v=assetstruct1">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <main>
@@ -20,7 +20,7 @@
 <button id="room-return" type="button" hidden>← QUAY LẠI PHÒNG</button>
 <section id="room" class="view room-view" aria-label="Phòng điều tra Montelara">
  <div class="room-canvas">
-  <img class="room-image" src="room-main.webp" width="1672" height="941" alt="Phòng điều tra công nghiệp năm 1965: máy IBM ở bên trái, máy truyền ảnh cạnh đó, bàn hồ sơ ở bên phải và khu đối chất phía xa." decoding="async" fetchpriority="high" draggable="false">
+  <img class="room-image" src="assets/room/main.webp" data-asset="room.main" width="1672" height="941" alt="Phòng điều tra công nghiệp năm 1965: máy IBM ở bên trái, máy truyền ảnh cạnh đó, bàn hồ sơ ở bên phải và khu đối chất phía xa." decoding="async" fetchpriority="high" draggable="false">
   <div class="room-identity" aria-hidden="true"><small>MONTELARA / 1965</small><strong>PHÒNG ĐIỀU TRA</strong></div>
   <button class="room-hotspot" data-room-target="archive" type="button" aria-label="Dùng máy IBM Archive" style="--hx:12.2%;--hy:67.5%">
    <span class="room-halo"></span><span class="room-dot"></span><span class="room-tag">IBM ARCHIVE</span>
@@ -156,5 +156,13 @@
 <div id="ledger-grid" class="ledger-grid"></div></section>
 </main>
 <dialog id="paper-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" type="button">ĐÓNG ×</button></div><div id="dialog-body"></div></dialog>
-<script src="data.js?v=case01-v43-9"></script><script src="rules.js?v=case01-v43-9"></script><script src="portraits.js?v=case01-v43-9"></script><script src="desk-scene.js?v=case01-v43-9"></script><script src="app.js?v=case01-v43-9"></script>
+<script defer src="src/core/manifest.js?v=assetstruct1"></script>
+<script defer src="src/core/assets.js?v=assetstruct1"></script>
+<script defer src="src/core/save.js?v=assetstruct1"></script>
+<script defer src="src/core/audio.js?v=assetstruct1"></script>
+<script defer src="src/core/data.js?v=assetstruct1"></script>
+<script defer src="src/core/rules.js?v=assetstruct1"></script>
+<script defer src="src/game/room.js?v=assetstruct1"></script>
+<script defer src="src/game/desk.js?v=assetstruct1"></script>
+<script defer src="src/game/app.js?v=assetstruct1"></script>
 </body></html>
