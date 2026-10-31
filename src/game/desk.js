@@ -8,7 +8,7 @@ const W=1280,H=800;
 const intakeTray={x:1010,y:55,w:245,h:205};
 // Same 2D table coordinates as the visible bottom-right photo-bin hotspot.
 const wasteBin={x:1118,y:628,w:162,h:172};
-const bounds={paper:[225,300],folder:[308,386],clip:[57,145],nameplate:[192,71]};
+const bounds={paper:[225,300],folder:[308,386],clip:[38,96],nameplate:[192,71]};
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const elt=(tag,cl,txt)=>{const n=document.createElement(tag);if(cl)n.className=cl;if(txt!==undefined)n.textContent=txt;return n;};
 const btn=(label,fn,cl)=>{const b=elt('button',cl,label);b.type='button';b.addEventListener('click',fn);return b;};
@@ -161,10 +161,12 @@ function make(api){
    if(!selected.clipped)inspectorButton('CHÈN NGĂN Ở ĐỈNH',()=>selected.stack.push({kind:'divider',uid:newId('divider')}));
   }else if(selected.kind==='clip'){
    inspector.append(elt('strong',null,'KẸP KIM LOẠI'));
+   inspectorButton('BỎ VÀO THÙNG',()=>{selected.trashed=true;scene.selected=null;persist();render();});
    
    if(activeFolder())inspectorButton('KẸP BÌA ĐANG CHỌN',()=>fasten(selected,activeFolder()));
   }else if(selected.kind==='nameplate'){
    inspector.append(elt('strong',null,'BẢNG TÊN HỒ SƠ'));
+   inspectorButton('BỎ VÀO THÙNG',()=>{selected.trashed=true;scene.selected=null;persist();render();});
    const select=elt('select','desk-name-select');select.setAttribute('aria-label','Chọn một trong 30 linh hồn');
    const first=elt('option',null,'CHỌN LINH HỒN');first.value='';select.append(first);
    for(const person of api.data.people){const opt=elt('option',null,'#'+person.id+' · '+person.name);opt.value=person.id;select.append(opt);}
@@ -223,6 +225,9 @@ function placeStyle(el,item,w,h){
     el.classList.remove('desk-grabbing');
     if(moved){
      if(opts.attached){const paper=state.papers.find(p=>p.uid===item.uid),f=folderById(opts.attached);if(paper&&f&&!f.clipped)detach(paper,item,f,true);}
+     if(item.kind==='clip'||item.kind==='nameplate'){
+      if(tryDropLoosePropTrash(item,space(e,dragRect))){persist();render();return;}
+     }
      if(item.kind==='clip')tryDropClip(item);
      if(item.kind==='nameplate')tryDropPlate(item);
      if(item.kind==='paper'&&!opts.attached){if(!tryDropTrash(item,space(e,dragRect)))tryDropPaper(item);}
@@ -313,7 +318,13 @@ function tryDropSubmissionTray(folder){
  submitFolder(folder);return true;
 }
  function inBin(point){return point&&point.x>=wasteBin.x&&point.y>=wasteBin.y&&point.x<=wasteBin.x+wasteBin.w&&point.y<=wasteBin.y+wasteBin.h;}
- function tryDropFolderTrash(folder,pointer){
+ function tryDropLoosePropTrash(item,pointer){
+ if(!['clip','nameplate'].includes(item.kind)||item.trashed)return false;
+ const overlap=intersection(itemRect(item),wasteBin);
+ if(!inBin(pointer)&&overlap<Math.min(1200,itemRect(item).w*itemRect(item).h*.12))return false;
+ item.trashed=true;scene.selected=null;msg('');return true;
+}
+function tryDropFolderTrash(folder,pointer){
  if(folder.kind!=='folder'||folder.trashed)return false;
  const overlap=intersection(itemRect(folder),wasteBin);
  if(!inBin(pointer)&&overlap<Math.min(5500,bounds.folder[0]*bounds.folder[1]*.065))return false;
@@ -389,7 +400,7 @@ function tryDropTrash(item,pointer){
   
   if(!folder.clipped)inspectorButton('RÚT NGĂN',()=>{folder.stack=folder.stack.filter(x=>x.uid!==token.uid);scene.selected=folder.uid;});
  }
- function renderItem(item){if(item.kind==='folder')return item.trashed?null:renderFolder(item);
+ function renderItem(item){if(item.trashed)return null;if(item.kind==='folder')return item.trashed?null:renderFolder(item);
   if(item.kind==='paper'){
    const paper=state.papers.find(p=>p.uid===item.uid);if(!paper||trash(paper)||paper.location?.folderId)return null;
    const element=elt('div','desk-object desk-page');element.dataset.uid=item.uid;
@@ -402,11 +413,19 @@ function tryDropTrash(item,pointer){
   bindPointer(element,item);return element;
  }
  function renderTrash(){trashList.replaceChildren();const papers=state.papers.filter(trash);
-  const folders=scene.items.filter(x=>x.kind==='folder'&&x.trashed);document.getElementById('desk-trash-count').textContent=String(papers.length+folders.length);
+  const folders=scene.items.filter(x=>x.kind==='folder'&&x.trashed);
+  const props=scene.items.filter(x=>['clip','nameplate'].includes(x.kind)&&x.trashed);
+  document.getElementById('desk-trash-count').textContent=String(papers.length+folders.length+props.length);
   if(!scene.trashOpen){trashDrawer.hidden=true;return;}
   trashDrawer.hidden=false;
-  if(!papers.length&&!folders.length){trashList.append(elt('p',null,'Thùng đang trống.'));return;}
+  if(!papers.length&&!folders.length&&!props.length){trashList.append(elt('p',null,'Thùng đang trống.'));return;}
   for(const p of papers){const doc=getItem(p.id);const row=elt('div','desk-trash-row');row.append(elt('span',null,doc?.title||p.id));row.append(btn('LẤY RA',()=>{restore(p);render();}));trashList.append(row);}
+  for(const prop of props){
+   const row=elt('div','desk-trash-row');
+   row.append(elt('span',null,prop.kind==='clip'?'Kẹp':'Bảng tên'));
+   row.append(btn('LẤY RA',()=>{prop.trashed=false;prop.x=530;prop.y=145;prop.z=++scene.z;scene.selected=prop.uid;persist();render();}));
+   trashList.append(row);
+  }
   for(const folder of folders){const row=elt('div','desk-trash-row');row.append(elt('span',null,'Hồ sơ '+(folder.nameId?'#'+folder.nameId:folder.uid)));row.append(btn('LẤY RA',()=>{folder.trashed=false;folder.x=330;folder.y=120;folder.z=++scene.z;scene.active=folder.uid;scene.selected=folder.uid;persist();render();}));trashList.append(row);}
  }
  function render(){prepareTabletop();ensure();resize();world.replaceChildren();
