@@ -19,7 +19,7 @@ const icons={
  nameplate:'<svg viewBox="0 0 178 62" aria-hidden="true"><rect x="4" y="5" width="170" height="53" rx="5" fill="#473b2a" stroke="#a28e60" stroke-width="4"/><rect x="14" y="14" width="150" height="34" fill="#c7b88d" stroke="#564d39" stroke-width="2"/><path d="M20 20h136M20 43h136" stroke="#766849" opacity=".5"/></svg>'
 };
 function make(api){
- const {state,save,getItem,openPaper,navigate}=api;
+ const {state,save,getItem,openPaper,navigate,newPaper,data}=api;
  const rootEl=document.getElementById('desk-stage'),world=document.getElementById('desk-world');
  const inspector=document.getElementById('desk-inspector'),tools=document.getElementById('desk-toolbox');
  const trashDrawer=document.getElementById('desk-trash-drawer'),trashList=document.getElementById('desk-trash-list');
@@ -67,11 +67,32 @@ function make(api){
   const item={uid:newId(kind),kind,x,y,rot:(kind==='folder'?-1.7:kind==='clip'?8:0),z:++scene.z,...meta};
   scene.items.push(item);persist();return item;
  }
+ // One-time repair for existing browser saves: the two opening newspapers must
+ // always be physically discoverable. Preserve originals in files/trash and
+ // print a new copy only when there is no loose sheet on the tabletop.
+ function repairOpeningNewspapers(){
+  if(scene.openingNewsprintV1)return;
+  const startX=[172,622],startY=[135,153];
+  for(let i=0;i<2;i++){
+   const id=data.opening[i];
+   let paper=state.papers.find(p=>p.id===id&&!p.location);
+   if(!paper){paper=newPaper(id);state.papers.push(paper);}
+   let item=take(scene.items,paper.uid);
+   if(!item){
+    item={kind:'paper',uid:paper.uid,x:startX[i],y:startY[i],rot:i===0?-2:2,z:++scene.z};
+    scene.items.push(item);
+   }
+   item.x=startX[i];item.y=startY[i];item.rot=i===0?-2:2;item.z=++scene.z;
+  }
+  scene.openingNewsprintV1=true;
+  persist();
+ }
  function ensure(){
   if(scene.initialized){
    let added=false;
    for(const p of state.papers){if(!take(scene.items,p.uid)){const i=scene.items.length;scene.items.push({kind:'paper',uid:p.uid,x:140+(i%6)*31,y:112+(i%7)*24,rot:(i%5-2)*2,z:++scene.z});added=true;}}
    if(added)persist();
+   repairOpeningNewspapers();
    return;
   }
   scene.initialized=true;
@@ -102,6 +123,7 @@ function make(api){
    }
   }
   scene.active=scene.active||legacy.values().next().value?.uid||null;
+  repairOpeningNewspapers();
   persist();
  }
  ensure();
@@ -115,6 +137,16 @@ function make(api){
  function sheetText(item,compact){
   const doc=getItem(item.id);if(!doc)return elt('div','desk-document-missing','Không tìm thấy bản giấy.');
   const sheet=elt('div','desk-page-paper');
+  if(data.opening.includes(doc.id)){
+   sheet.classList.add('desk-newspaper');
+   sheet.append(elt('div','desk-news-masthead',doc.origin.split(' · ')[0]));
+   sheet.append(elt('div','desk-news-edition',(doc.origin.includes(' · ')?doc.origin.split(' · ').slice(1).join(' · ')+'  ·  ':'')+doc.date));
+   sheet.append(elt('h3','desk-page-headline desk-news-headline',doc.title));
+   const newsBody=elt('div','desk-page-excerpt desk-news-body');
+   for(const para of (doc.body||[]).slice(0,compact?2:3))newsBody.append(elt('p',null,para));
+   sheet.append(newsBody,elt('div','desk-page-foot desk-news-foot',doc.publicId||doc.id));
+   return sheet;
+  }
   sheet.append(elt('div','desk-page-overline',doc.scope==='press'?'MONTELARA · NHẬT BÁO':doc.scope==='government'?'VĂN KHỐ CÔNG VỤ':doc.kind?'ẢNH TƯ LIỆU':'BIÊN BẢN ĐỐI CHẤT'));
   sheet.append(elt('h3','desk-page-headline',doc.title));
   sheet.append(elt('div','desk-page-dateline',(doc.date||'')+' · '+(doc.origin||'')));
