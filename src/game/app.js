@@ -69,7 +69,7 @@ function navigate(tab){
   document.body.classList.toggle("room-hub-active",tab==="room");
   document.body.classList.toggle("ibm-fullscreen-active",tab==="archive");
  }
- document.documentElement.classList.toggle("ibm-fullscreen-active",tab==="archive");
+ document.documentElement?.classList?.toggle("ibm-fullscreen-active",tab==="archive");
  if(tab==="archive")window.scrollTo?.(0,0);
  const back=$("room-return");
  if(back){
