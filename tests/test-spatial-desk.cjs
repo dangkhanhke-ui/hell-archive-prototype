@@ -178,3 +178,63 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert.equal(game.papers().filter(p=>p.location?.zone==='trash').length,1);
  console.log('PASS trash bin pointer-area drop, other paper preserved and no false disposal.');
 }
+
+// Sealed dossiers: the visible paperclip must actually unfasten, sheets can
+// be removed or discarded, and a complete sealed folder is recoverable.
+{
+ const seed={serial:3,readIds:['A01','A02'],history:[],pins:[],
+  papers:[{uid:'paper-1',id:'A01',location:null},{uid:'paper-2',id:'A02',location:null}],
+  transcripts:[],admitted:[]};
+ const game=start(seed);game.nav('desk');game.tools[0].click();
+ const folder=game.scene().items.find(x=>x.kind==='folder');
+ const element=id=>game.objects().find(x=>x.dataset.uid===id);
+ function drag(id,x,y){
+  const item=game.scene().items.find(x=>x.uid===id);assert(item);
+  const dom=element(id);assert(dom);
+  const dx=x-item.x,dy=y-item.y;
+  dom.pointer('pointerdown',{x:180,y:190});
+  dom.pointer('pointermove',{x:180+dx,y:190+dy});
+  dom.pointer('pointerup',{x:180+dx,y:190+dy});
+ }
+ drag('paper-1',folder.x+42,folder.y+72);
+ assert.equal(game.papers().find(x=>x.uid==='paper-1').location.folderId,folder.uid,'paper is filed');
+ game.tools[1].click();
+ const firstClip=game.scene().items.find(x=>x.kind==='clip');
+ drag(firstClip.uid,folder.x+29,folder.y+40);
+ assert(folder.clipped,'clip must seal dossier');
+ const folderDom=element(folder.uid),fastener=folderDom.children.find(x=>x.className==='desk-folder-fastener');
+ assert(fastener,'visible clip should have independent interactive target');
+ fastener.click();
+ assert(!folder.clipped,'clicking the actual clip should unfasten dossier');
+ assert(game.scene().items.some(x=>x.kind==='clip'),'unfastening returns clip prop to tabletop');
+ // Take one paper out using the inspector, then put it back and discard it.
+ const nested=element(folder.uid).children.find(x=>x.dataset?.uid==='paper-1');
+ assert(nested,'filed page visible as child of folder');
+ nested.pointer('pointerdown');nested.pointer('pointerup');
+ const trashButton=game.nodes['desk-inspector'].children.find(x=>x.textContent==='BỎ VÀO THÙNG');
+ assert(trashButton,'unclipped filed page should be disposable without extra drag');
+ trashButton.click();
+ assert.equal(game.papers().find(x=>x.uid==='paper-1').location.zone,'trash','filed sheet goes to bin');
+ assert.equal(folder.stack.filter(x=>x.kind==='paper').length,0,'discard removes paper from stack');
+ game.nodes['desk-bin-button'].click();
+ let recovery=game.nodes['desk-trash-list'].children.find(x=>x.children.some(z=>z.textContent==='LẤY RA'));
+ assert(recovery,'individual paper is recoverable');
+ recovery.children.find(x=>x.textContent==='LẤY RA').click();
+ assert.equal(game.papers().find(x=>x.uid==='paper-1').location,null,'restore places paper back on tabletop');
+ // Put a paper back into the folder and test full-folder disposal even sealed.
+ drag('paper-1',folder.x+42,folder.y+72);
+ const looseClip=game.scene().items.find(x=>x.kind==='clip');
+ drag(looseClip.uid,folder.x+25,folder.y+48);
+ assert(folder.clipped,'re-sealed folder');
+ drag(folder.uid,1115,630);
+ assert(folder.trashed,'whole folder enters physical bin');
+ assert(!element(folder.uid),'trashed folder hidden');
+ assert.equal(game.papers().find(x=>x.uid==='paper-1').location.folderId,folder.uid,'paper ownership remains in discarded folder');
+ const dossierRow=game.nodes['desk-trash-list'].children.find(x=>x.children.some(z=>z.textContent?.startsWith('Hồ sơ ')));
+ assert(dossierRow,'folder appears in recoverable bin');
+ dossierRow.children.find(x=>x.textContent==='LẤY RA').click();
+ assert(!folder.trashed,'restoring recovers dossier');
+ assert(folder.clipped,'recovering dossier preserves clip');
+ assert.equal(folder.stack.filter(x=>x.kind==='paper').length,1,'recovering dossier preserves paper');
+ console.log('PASS real clip undo, filed-paper trash and recovery, whole sealed folder trash/recovery.');
+}
