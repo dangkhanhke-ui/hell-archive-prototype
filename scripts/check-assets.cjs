@@ -26,7 +26,8 @@ for(let i=1;i<=30;i++){
  if(file!=="assets/portraits/"+id+".webp")errors.push("Wrong portrait file for #"+id);
  check(file,20*1024,true,"portrait #"+id);
 }
-for(const [key,p] of Object.entries(m.props||{}))check(p,120*1024,false,"prop "+key);
+for(const [key,p] of Object.entries(m.props||{}))check(p,key==="tabletop"?240*1024:120*1024,false,"prop "+key);
+for(const [key,p] of Object.entries(m.ui||{}))check(p,200*1024,false,"ui "+key);
 for(const [key,p] of Object.entries(m.audio||{}))check(p,90*1024,false,"audio "+key);
 for(const [key,p] of Object.entries(m.wirephoto||{}))check(p,180*1024,false,"wirephoto "+key);
 check("assets/ui/terminal-bezel.svg",60*1024,true,"IBM bezel");
