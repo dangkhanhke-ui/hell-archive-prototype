@@ -186,6 +186,8 @@ function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'
      persist();render();
     }else{
      if(item.kind==='paper'){const p=state.papers.find(p=>p.uid===item.uid);if(p)openPaper(p.id);}
+     // A clip already resting above a folder is still usable by clicking it.
+     if(item.kind==='clip')tryDropClip(item);
      render();
     }
    };
