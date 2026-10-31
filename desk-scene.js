@@ -76,8 +76,9 @@ function make(api){
  function resize(){const r=rootEl.getBoundingClientRect();if(!r.width)return;world.style.transform='scale('+(r.width/W)+')';}
  if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(rootEl);
  window.addEventListener('resize',resize);
- function space(ev){const r=rootEl.getBoundingClientRect();return{x:(ev.clientX-r.left)*W/(r.width||W),y:(ev.clientY-r.top)*W/(r.width||W)};}
- function raise(item){item.z=++scene.z;persist();}
+ function space(ev,rect){const r=rect||rootEl.getBoundingClientRect();return{x:(ev.clientX-r.left)*W/(r.width||W),y:(ev.clientY-r.top)*W/(r.width||W)};}
+ // z-order changes are saved on pointerup, avoiding blocking localStorage writes on pointerdown.
+ function raise(item){item.z=++scene.z;}
  function getPose(item){return {x:item.x,y:item.y};}
  function sheetText(item,compact){
   const doc=getItem(item.id);if(!doc)return elt('div','desk-document-missing','Không tìm thấy bản giấy.');
@@ -147,7 +148,13 @@ function make(api){
  const base=item.kind==='folder'?0:item.kind==='paper'?1000000:item.kind==='clip'?2000000:3000000;
  return base+item.z;
 }
-function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'px';el.style.width=w+'px';el.style.height=h+'px';el.style.transform='rotate('+item.rot+'deg)';el.style.zIndex=String(visualZ(item));}
+function placeStyle(el,item,w,h){
+ // Keep all loose props at the world origin; GPU-friendly transform does the positioning.
+ // Never mutate left/top on pointermove, since that can invalidate layout.
+ el.style.left='0px';el.style.top='0px';el.style.width=w+'px';el.style.height=h+'px';
+ el.style.transform='translate3d('+item.x+'px,'+item.y+'px,0) rotate('+item.rot+'deg)';
+ el.style.zIndex=String(visualZ(item));
+}
  function bindPointer(el,item,opts={}){
   el.addEventListener('pointerdown',ev=>{
    if(ev.button!==undefined&&ev.button!==0)return;
@@ -156,12 +163,12 @@ function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'
    scene.selected=item.uid; if(item.kind==='folder')scene.active=item.uid; if(item.kind==='paper')scene.focusedPaper=item.uid;
    if(opts.attached){const containing=folderById(opts.attached);if(containing)raise(containing);}
    raise(item);el.style.zIndex=String(visualZ(item));
-   const origin=space(ev),attachedFolder=opts.attached&&folderById(opts.attached);
+   const dragRect=rootEl.getBoundingClientRect(),origin=space(ev,dragRect),attachedFolder=opts.attached&&folderById(opts.attached);
    const base=attachedFolder?{x:attachedFolder.x+26,y:attachedFolder.y+65}:getPose(item),startX=ev.clientX,startY=ev.clientY;
    let moved=false;
    el.setPointerCapture?.(ev.pointerId);
    const move=e=>{
-    const coord=space(e),dx=coord.x-origin.x,dy=coord.y-origin.y;
+    const coord=space(e,dragRect),dx=coord.x-origin.x,dy=coord.y-origin.y;
     if(!moved&&Math.hypot(e.clientX-startX,e.clientY-startY)<5)return;
     if(attachedFolder?.clipped)return; // a sealed folder cannot lose sheets on drag
     moved=true;el.classList.add('desk-grabbing');
@@ -169,9 +176,12 @@ function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'
     const x=clamp(base.x+dx,-size[0]*.55,W-size[0]*.45);
     const y=clamp(base.y+dy,-size[1]*.55,H-size[1]*.45);
     item.x=x;item.y=y;
-    if(item.kind==='folder')rootEl.dataset.trayOver=String(overlapsTray(item));
+    if(item.kind==='folder'){
+     const over=String(overlapsTray(item));
+     if(rootEl.dataset.trayOver!==over)rootEl.dataset.trayOver=over;
+    }
     if(opts.attached){el.style.translate=dx+'px '+dy+'px';}
-    else{el.style.left=x+'px';el.style.top=y+'px';}
+    else{el.style.transform='translate3d('+x+'px,'+y+'px,0) rotate('+item.rot+'deg)';}
    };
    const end=e=>{
     rootEl.dataset.trayOver='false';
@@ -188,7 +198,7 @@ function placeStyle(el,item,w,h){el.style.left=item.x+'px';el.style.top=item.y+'
      if(item.kind==='paper'){const p=state.papers.find(p=>p.uid===item.uid);if(p)openPaper(p.id);}
      // A clip already resting above a folder is still usable by clicking it.
      if(item.kind==='clip')tryDropClip(item);
-     render();
+     persist();render();
     }
    };
    const cancel=()=>{rootEl.dataset.trayOver='false';el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);item.x=base.x;item.y=base.y;render();};
