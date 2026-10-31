@@ -373,7 +373,12 @@ function tryDropTrash(item,pointer){
    bindPointer(paperEl,obj,{attached:item.uid});el.append(paperEl);visualIndex++;
   }
   if(item.clipped){const clip=elt('button','desk-folder-fastener');clip.type='button';clip.setAttribute('aria-label','Tháo kẹp');clip.title='Tháo kẹp';paintProp(clip,'clip');clip.addEventListener('pointerdown',ev=>ev.stopPropagation());clip.addEventListener('click',ev=>{ev.stopPropagation();unfasten(item);render();});el.append(clip);}
-  if(item.nameId){el.append(elt('div','desk-folder-name',('#'+item.nameId+' · '+(api.data.people.find(x=>x.id===item.nameId)?.name||''))));}
+  if(item.nameId){
+   const plate=elt('div','desk-folder-name');
+   paintProp(plate,'nameplate');
+   const tag=elt('span','desk-folder-name-text','#'+item.nameId+' · '+(api.data.people.find(x=>x.id===item.nameId)?.name||''));
+   plate.append(tag);el.append(plate);
+  }
   if(item.clipped&&item.nameId&&item.stack.some(t=>t.kind==='paper')){
    const ready=btn('→ TIẾP NHẬN',()=>submitFolder(item),'desk-folder-ready');el.append(ready);
   }
