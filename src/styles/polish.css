@@ -1,6 +1,6 @@
 /* Cold monochrome point-and-click UI. Printed documents retain their own ink colors. */
 :root{--ui-ink:#edf0f3;--ui-muted:#a9b1b9;--ui-border:#aeb6bf66;--ui-bg:#11151ac9;--ui-focus:#f1f5f9}
-html,body,button,input,select,textarea,option,dialog{font-family:Inter,"Segoe UI",Arial,sans-serif!important;font-weight:400!important;letter-spacing:.005em!important}
+html,body,button,input,select,textarea,option,dialog{font-family:"Courier New",Consolas,monospace!important;font-weight:400!important;letter-spacing:.005em!important}
 body{background:#090b0e!important;color:#e6ebf1!important;font-size:13px!important}
 button,input,select,textarea{font-size:12px!important;line-height:1.3!important;color:#eef2f6!important}
 button,select,input,textarea,.card,.rulebox,.feedback,.reader,.paper-card,.archive-list,.archive-browse,.paper-dialog,.soul-response{border-radius:22px!important}
@@ -9,19 +9,19 @@ button:hover,button:focus-visible{background:#333d46f2!important;border-color:#e
 input,select,textarea{background:#151a1fdd!important;border:1px solid #d1d8e060!important;color:#eef2f6!important;box-shadow:none!important;padding:9px 12px!important}
 input::placeholder,textarea::placeholder{color:#adb5be!important;opacity:.9}
 label,small,.muted,.caption,.eyebrow,.archive-syntax,.archive-help,.scope-label{color:#bac2cb!important}
-h1,h2,h3,strong{font-family:Inter,"Segoe UI",Arial,sans-serif!important;font-weight:500!important;letter-spacing:0!important}
+h1,h2,h3,strong{font-family:"Courier New",Consolas,monospace!important;font-weight:500!important;letter-spacing:0!important}
 #room-return{position:fixed;top:14px;left:14px;border-radius:999px!important;background:#14191ecf!important;color:#ebf0f5!important;font-size:11px!important;padding:9px 14px!important;z-index:4000}
 #room .room-identity,#room .room-instruction{display:none!important}
 .room-hotspot .room-dot{background:#ebf3ff!important;border-color:#fff!important;box-shadow:0 0 12px #f3f7ff,0 0 25px #9ed0ffb0!important}
 .room-hotspot .room-halo{border-color:#d9ebffb0!important;box-shadow:0 0 18px #b3ddff70!important}
-.room-hotspot .room-tag{font-family:Inter,"Segoe UI",Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;background:#111820eb!important;color:#f0f5fa!important;border-color:#c9d7e66e!important;border-radius:999px!important}
+.room-hotspot .room-tag{font-family:"Courier New",Consolas,monospace!important;font-size:11px!important;font-weight:400!important;background:#111820eb!important;color:#f0f5fa!important;border-color:#c9d7e66e!important;border-radius:999px!important}
 #desk{position:relative!important;min-height:100svh!important;display:grid;place-items:center;background:#050608!important}
 #desk #desk-stage{width:min(100vw,177.6833svh)!important;aspect-ratio:1672/941!important;height:auto!important;min-height:0!important;margin:0 auto!important;border:0!important;overflow:hidden}
 #desk-stage.desk-photo-ready #desk-backdrop{display:none!important}
 #desk #desk-stage.desk-photo-ready{background-color:#090b0e!important}
 #desk .desk-briefing,#desk .desk-hint,#desk .desk-stage-tooltip,#desk .eyebrow{display:none!important}
 #desk #desk-toolbox{position:absolute!important;z-index:3500005!important;left:2.2%!important;bottom:3%!important;right:auto!important;top:auto!important;display:flex!important;align-items:center;gap:6px!important;width:auto!important;max-width:none!important;padding:7px 9px!important;min-height:0!important;background:#10151bbf!important;border:1px solid #c8d0d852!important;border-radius:999px!important;box-shadow:0 4px 20px #0008!important;backdrop-filter:blur(6px)}
-#desk-toolbox button[data-new-prop]{border-radius:999px!important;padding:8px 12px!important;min-width:46px!important;background:#20272de0!important;font:400 11px Inter,"Segoe UI",Arial,sans-serif!important;color:#eef2f6!important}
+#desk-toolbox button[data-new-prop]{border-radius:999px!important;padding:8px 12px!important;min-width:46px!important;background:#20272de0!important;font:400 11px "Courier New",Consolas,monospace!important;color:#eef2f6!important}
 #desk #desk-toolbox>h1,#desk #desk-toolbox>h2,#desk #desk-toolbox>p:not(#desk-stage-status),#desk #desk-bin-button{display:none!important}
 #desk #desk-stage-status{margin:0!important;max-width:240px!important;color:#dbe2e9!important;font-size:10px!important;line-height:1.2!important;max-height:38px!important;overflow:hidden!important}
 #desk #desk-stage-status:empty{display:none!important}
@@ -71,3 +71,47 @@ h1,h2,h3,strong{font-family:Inter,"Segoe UI",Arial,sans-serif!important;font-wei
 #archive .terminal-content input::placeholder{color:#668d70!important}
 #archive .archive-syntax,#archive .archive-help{display:none!important}
 #desk.hidden{display:none!important}
+
+/* Restore the pre-polish IBM control grammar. The main room/Desk HUD may
+   stay rounded, but the IBM archive is an orthogonal, square 1965 terminal. */
+html,body,button,input,select,textarea,option,dialog,
+h1,h2,h3,h4,h5,h6,strong,small,label,.room-tag,.desk-object,
+#desk-toolbox button,#desk-inspector *,.paper-card,.reader{
+ font-family:"Courier New",Consolas,monospace!important;
+}
+#archive .terminal-content *{font-family:"Courier New",Consolas,monospace!important}
+#archive .terminal-content button,
+#archive .terminal-content input,
+#archive .terminal-content select,
+#archive .terminal-content textarea{
+ border-radius:0!important;
+ padding:3px 6px!important;
+ font-size:clamp(8px,.76vw,12px)!important;
+ line-height:1.22!important;
+ border:1px solid #537e5b!important;
+ background:#07150d!important;
+ color:#93c89c!important;
+ box-shadow:none!important;
+ outline-offset:0!important;
+}
+#archive .terminal-content button:hover,
+#archive .terminal-content button:focus-visible{
+ background:#10251a!important;
+ border-color:#a5d4a8!important;
+ box-shadow:none!important;
+}
+#archive .terminal-content button[aria-pressed="true"]{
+ background:#1c3924!important;
+ color:#c0e8c2!important;
+}
+#archive .terminal-content input::placeholder{color:#668b6e!important}
+#archive .terminal-content select{appearance:auto!important}
+#archive .terminal-content .search-row{gap:5px!important}
+#archive .terminal-content .search-row button{min-width:58px!important}
+#archive .terminal-content .archive-browse,
+#archive .terminal-content .archive-utilities{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#archive .terminal-content .archive-browse button,
+#archive .terminal-content .archive-utilities button{padding:2px 5px!important}
+#archive .terminal-content .archive-controls,
+#archive .terminal-content .archive-results{border-radius:0!important}
+#archive .terminal-content label,#archive .terminal-content small{color:#86b98d!important}
