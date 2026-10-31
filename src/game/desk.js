@@ -6,6 +6,8 @@
 'use strict';
 const W=1280,H=800;
 const intakeTray={x:1010,y:55,w:245,h:205};
+// Same 2D table coordinates as the visible bottom-right photo-bin hotspot.
+const wasteBin={x:1118,y:628,w:162,h:172};
 const bounds={paper:[225,300],folder:[308,386],clip:[57,145],nameplate:[192,71]};
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const elt=(tag,cl,txt)=>{const n=document.createElement(tag);if(cl)n.className=cl;if(txt!==undefined)n.textContent=txt;return n;};
@@ -221,7 +223,7 @@ function placeStyle(el,item,w,h){
      if(opts.attached){const paper=state.papers.find(p=>p.uid===item.uid),f=folderById(opts.attached);if(paper&&f&&!f.clipped)detach(paper,item,f,true);}
      if(item.kind==='clip')tryDropClip(item);
      if(item.kind==='nameplate')tryDropPlate(item);
-     if(item.kind==='paper'&&!opts.attached){if(!tryDropTrash(item))tryDropPaper(item);}
+     if(item.kind==='paper'&&!opts.attached){if(!tryDropTrash(item,space(e,dragRect)))tryDropPaper(item);}
      if(item.kind==='folder'&&tryDropSubmissionTray(item))return;
      persist();render();
     }else{
@@ -297,7 +299,20 @@ function tryDropSubmissionTray(folder){
  msg('Khay đã nhận hồ sơ. Đang mở Tiếp nhận.');
  submitFolder(folder);return true;
 }
- function tryDropTrash(item){if(item.x+112>1085 && item.y+150>675){const paper=state.papers.find(p=>p.uid===item.uid);if(paper){discard(paper);return true;}}return false;}
+ function inBin(point){return point&&point.x>=wasteBin.x&&point.y>=wasteBin.y&&point.x<=wasteBin.x+wasteBin.w&&point.y<=wasteBin.y+wasteBin.h;}
+ function tryDropTrash(item,pointer){
+  const paper=state.papers.find(p=>p.uid===item.uid);
+  if(!paper||trash(paper))return false;
+  const paperBox=itemRect(item);
+  const visibleOverlap=intersection(paperBox,wasteBin);
+  // Pointer over the pictured bin wins regardless of where the user grabbed
+  // the page. Otherwise accept a meaningful overlap (rather than a magic
+  // top-left threshold); prevent false positives from mere edge contact.
+  if(!inBin(pointer)&&visibleOverlap<Math.min(2600,paperBox.w*paperBox.h*.07))return false;
+  const wasFiled=paper.location?.folderId&&folderById(paper.location.folderId);
+  if(wasFiled?.clipped){msg('Tháo kẹp trước khi bỏ giấy khỏi bìa.');return true;}
+  discard(paper);return true;
+ }
  function discard(paper){const old=paper.location?.folderId&&folderById(paper.location.folderId);
   if(old){if(old.clipped){msg('Tháo kẹp trước khi bỏ giấy khỏi bìa.');return;}old.stack=old.stack.filter(t=>t.uid!==paper.uid);}
   paper.location={zone:'trash'};scene.selected=null;msg('Giấy vào thùng rác. Có thể phục hồi.');persist();
