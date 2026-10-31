@@ -163,3 +163,25 @@ button:focus,select:focus,input:focus{border-color:#dce5efb3!important}
 #room-return span{display:block!important;font:inherit!important;line-height:1!important;color:inherit!important}
 #room-return[hidden]{display:none!important}
 #room-return:hover,#room-return:focus-visible{border-color:#f4faff!important;box-shadow:0 0 7px #d9eaff33!important;background:#151b20e8!important}
+
+/* Minimal room: a cool-white dot only, never a label/tooltip box. */
+.room-hotspot .room-tag{display:none!important}
+.room-hotspot:focus-visible{outline:0!important;box-shadow:none!important}
+.room-hotspot:is(:hover,:focus-visible) .room-dot{box-shadow:0 0 10px 2px #fff,0 0 22px 7px #d9ecff88!important;transform:scale(1.12)}
+.room-hotspot:is(:hover,:focus-visible) .room-halo{box-shadow:0 0 13px #fff9!important;border-color:#f2f7ff88!important}
+#room .room-hotspot{border:0!important;box-shadow:none!important;background:transparent!important}
+/* No more accidental room-scene styles on admission selection. */
+#admit{display:block;min-height:100svh;padding:clamp(55px,8vh,95px) clamp(18px,5vw,95px)!important;background:#090b0e!important;color:#e5eaf1!important}
+#admit.hidden{display:none!important}
+#admit .columns{display:block!important;max-width:600px;margin:0 auto}
+#admit .paper{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:inherit!important;padding:0!important}
+#admit #desk-admission-preview{background:transparent!important;border:0!important;padding:0!important;margin:0 0 26px!important;min-height:0!important;box-shadow:none!important;color:#edf1f5!important}
+#admit #desk-admission-preview:empty{display:none!important}
+#admit #desk-admission-preview strong{font:400 clamp(15px,2vw,24px)/1.5 "Courier New",monospace!important;color:#edf1f5!important}
+#admit #admission-room{display:block!important;width:100%!important;height:43px!important;min-height:43px!important;max-height:43px!important;aspect-ratio:auto!important;padding:7px 13px!important;margin:0 0 20px!important;background:#12161ad9!important;color:#edf1f5!important;border:1px solid #dce5ef77!important;border-radius:1px!important;font:400 13px "Courier New",monospace!important;box-shadow:none!important}
+#admit #submit-dossier{display:block!important;margin:0 auto!important;border-radius:2px!important;background:#15191ed9!important;color:#f0f3f7!important;border:1px solid #dce5ef70!important;min-height:38px!important}
+#admit #feedback{max-width:600px;margin:22px auto!important;padding:8px!important;background:transparent!important;border:0!important;box-shadow:none!important;text-align:center;color:#e7edf3!important}
+#ledger{min-height:100svh;padding:60px 28px!important;background:#0b0e11!important}
+#ledger.hidden{display:none!important}
+#ledger #ledger-grid{max-width:1400px;margin:0 auto}
+#wire .rulebox,#admit .rulebox{display:none!important}
