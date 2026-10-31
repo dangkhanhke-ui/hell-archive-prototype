@@ -1,12 +1,12 @@
 const assert=require("node:assert/strict");
 const fs=require("node:fs"),vm=require("node:vm"),path=require("node:path");
-const html=fs.readFileSync(path.join(__dirname,"index.html"),"utf8");
-const css=fs.readFileSync(path.join(__dirname,"room.css"),"utf8");
+const root=path.resolve(__dirname,".."),read=file=>fs.readFileSync(path.join(root,file),"utf8");
+const html=read("index.html"),css=read("src/styles/room.css");
 const spots=[
  ["archive","12.2%","67.5%"],["wire","30.6%","66.6%"],["souls","49.1%","49.0%"],
  ["desk","66.2%","77.3%"],["brief","83.0%","64.2%"],["ledger","94.4%","69.0%"]
 ];
-assert(html.includes('src="room-main.webp"'),"Room must load the user's picture locally");
+assert(html.includes('src="assets/room/main.webp"'),"Room must load the user's picture locally");
 assert(html.includes('width="1672" height="941"'),"Room image aspect ratio must stay fixed");
 assert(css.includes("aspect-ratio:1672 / 941"),"Hotspots must scale with the picture, not the viewport");
 for(const [name,x,y] of spots)assert(html.includes('data-room-target="'+name+'"')&&html.includes('--hx:'+x+'%;'.replace('%%','%'))===false?true:true);
@@ -55,8 +55,8 @@ const doc={
 const storage={values:{},getItem(k){return this.values[k]||null},setItem(k,v){this.values[k]=v},removeItem(k){delete this.values[k]}};
 const ctx={window:{addEventListener(){}},document:doc,localStorage:storage,confirm:()=>true,location:{reload(){}},console};
 vm.createContext(ctx);
-for(const file of ["data.js","rules.js","portraits.js","desk-scene.js","app.js"]){
- vm.runInContext(fs.readFileSync(path.join(__dirname,file),"utf8"),ctx,{filename:file});
+for(const file of ["src/core/manifest.js","src/core/assets.js","src/core/save.js","src/core/audio.js","src/core/data.js","src/core/rules.js","src/game/room.js","src/game/desk.js","src/game/app.js"]){
+ vm.runInContext(read(file),ctx,{filename:file});
 }
 const scene=id=>views.find(v=>v.id===id);
 assert.equal(scene("room").hidden,false,"Room must be the initial gameplay screen");
