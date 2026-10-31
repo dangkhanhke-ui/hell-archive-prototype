@@ -5,7 +5,8 @@
 <link rel="stylesheet" href="src/styles/global.css?v=assetstruct11">
 <link rel="stylesheet" href="src/styles/desk.css?v=assetstruct11">
 <link rel="stylesheet" href="src/styles/room.css?v=assetstruct11">
-<link rel="stylesheet" href="src/styles/polish.css?v=assetstruct16">
+<link rel="stylesheet" href="src/styles/polish.css?v=fax01">
+<link rel="stylesheet" href="src/styles/fax.css?v=fax01">
 </head><body>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
 <button id="room-return" type="button" hidden aria-label="Quay về phòng"><span aria-hidden="true">&lt;</span></button>
@@ -68,12 +69,33 @@
 <div id="archive-list" class="archive-list hidden"><div class="list-head"><h2 id="results-title"></h2><span id="result-count"></span></div><div id="results"></div></div>
 <article id="reader" class="reader hidden" aria-label="Bản ghi lưu trữ"></article>
 </div></div></div></div></section>
-<section id="wire" class="view hidden">
-<p class="eyebrow">TỔNG ĐÀI TRUYỀN ẢNH · 000</p><h1>Wirephoto</h1>
-<div class="columns"><div class="paper">
-<form id="wire-form"><label for="wire-code">MÃ ẢNH</label><div class="search-row"><input id="wire-code" placeholder="IMG-…" autocomplete="off"><button type="submit">GỌI 000</button></div></form>
-<p id="wire-message" role="status" aria-live="polite"></p><div id="wire-result"></div></div>
-</div>
+<section id="wire" class="view hidden" aria-label="Tổng đài truyền ảnh">
+ <div id="fax-stage" class="fax-stage">
+  <img src="assets/wire/fax-machine.webp" class="fax-photo" alt="Máy truyền ảnh MAX FAX, tổng đài 0000" width="1672" height="941" draggable="false">
+  <div id="fax-display" aria-live="polite" aria-label="Màn hình máy fax">----</div>
+  <div id="fax-keypad" role="group" aria-label="Bàn phím quay số">
+   <button type="button" data-fax-key="1" style="--fx:29.25%;--fy:49.7%">1</button>
+   <button type="button" data-fax-key="2" style="--fx:32.75%;--fy:49.7%">2</button>
+   <button type="button" data-fax-key="3" style="--fx:36.25%;--fy:49.7%">3</button>
+   <button type="button" data-fax-key="4" style="--fx:29.25%;--fy:56.2%">4</button>
+   <button type="button" data-fax-key="5" style="--fx:32.75%;--fy:56.2%">5</button>
+   <button type="button" data-fax-key="6" style="--fx:36.25%;--fy:56.2%">6</button>
+   <button type="button" data-fax-key="7" style="--fx:29.25%;--fy:62.6%">7</button>
+   <button type="button" data-fax-key="8" style="--fx:32.75%;--fy:62.6%">8</button>
+   <button type="button" data-fax-key="9" style="--fx:36.25%;--fy:62.6%">9</button>
+   <button type="button" data-fax-key="*" style="--fx:29.25%;--fy:69.1%">*</button>
+   <button type="button" data-fax-key="0" style="--fx:32.75%;--fy:69.1%">0</button>
+   <button type="button" data-fax-key="#" style="--fx:36.25%;--fy:69.1%">#</button>
+  </div>
+  <button class="fax-machine-control" data-fax-action="send" style="--fx:48.5%;--fy:46.6%" type="button" aria-label="Gọi tổng đài" title="SEND"></button>
+  <button class="fax-machine-control" data-fax-action="stop" style="--fx:48.5%;--fy:70.3%" type="button" aria-label="Ngắt cuộc gọi" title="STOP"></button>
+  <div id="fax-dialogue" hidden>
+   <p id="fax-voice">Alo, bộ phận tổng đài truyền ảnh xin nghe. Mã ảnh bạn yêu cầu là</p>
+   <form id="wire-form"><input id="wire-code" type="text" placeholder="__________" aria-label="Mã ảnh" autocomplete="off" spellcheck="false" maxlength="36"><button type="submit" aria-label="Gửi mã ảnh">→</button></form>
+   <p id="wire-message" role="status" aria-live="polite"></p>
+  </div>
+ </div>
+ <div id="wire-result" aria-live="polite"></div>
 </section>
 <section id="souls" class="view hidden">
 <p class="eyebrow">POSTHUMOUS TESTIMONY</p><h1>Đối chất với linh hồn</h1>
@@ -124,5 +146,6 @@
 <script defer src="src/core/rules.js?v=assetstruct11"></script>
 <script defer src="src/game/room.js?v=assetstruct11"></script>
 <script defer src="src/game/desk.js?v=assetstruct15"></script>
-<script defer src="src/game/app.js?v=assetstruct15"></script>
+<script defer src="src/game/app.js?v=fax01"></script>
+<script defer src="src/game/fax.js?v=fax01"></script>
 </body></html>
