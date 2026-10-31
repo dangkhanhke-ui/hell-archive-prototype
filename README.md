@@ -34,15 +34,22 @@ Case 01 has **24 primary evidence groups A01–A24**, **8 discovery bridges B**,
 - The old v0.2 Serrano reconstruction-footage plot, four-layer #09 dossier, Tomás death, and N-17 papers were removed from live data because they contradict Character V4 / Case Bible V5 / Gameplay V8 / Case 01 V4.3.
 - The old UI had a **brute-force room guessing** risk because jurisdiction feedback is informative. This behavior still exists and needs blind testing, not a false claim of a solved onboarding problem.
 
-## Implementation
+## Source, assets and testing
 
-- `data.js`: searchable in-world evidence records, archival provenance, indexes, authorship, refs, photos, complete 30-name roster, selected document exchange topics.
-- `rules.js`: input parsing, metadata-only search, strict image code check (a referenced paper must have been read), multi-layer dossier admission, available reactions.
-- `app.js`: IBM archive, print copies, Wirephoto, soul exchange, dossier stacking, admission, ledger and isolated saved progress. IBM uses local Web Audio synthesizer ticks for typing, search, errors, opening and printing, with a persisted **ÂM THANH: BẬT/TẮT** toggle; it is silent if disabled or unsupported.
-- `portraits.js`: three WebP sprite rows cropped from the supplied 10×3 ID photo sheet, embedded locally without remote URLs.\n- `index.html` / `styles.css`: CRT and physical paper styling, additional entry/exchange/ledger screens.
-- `test-rules.cjs`: tests for discovery paths, indexing fairness, provenance, photo availability and proof validation.
+The repository was refactored for author-supplied media. **Start with [docs/ASSETS.md](docs/ASSETS.md)** for exact upload paths, naming, image sizes, audio formats, budgets and the current fallback behavior. **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** maps modules and explains the preserved save contract.
 
-Run: `node test-rules.cjs`.
+- `src/core/data.js` / `src/core/rules.js`: evidence records and indexed search, jurisdiction, dossier validator.
+- `src/core/manifest.js` / `src/core/assets.js`: local author-editable asset registry and safe path resolver.
+- `src/core/save.js`: saved Case 01 state, retaining legacy key `atwg-case01-v43`.
+- `src/core/audio.js`: lazy sound assets and synthesized fallback.
+- `src/game/app.js`: IBM, Wirephoto, dialogue, admission, Ledger and the UI entrypoint.
+- `src/game/desk.js`: free-positioned physical desk, papers, folders, clip and intake tray.
+- `src/game/room.js`: original room photo's interactive hotspots and return navigation.
+- `src/styles/`: base, physical desk and room CSS.
+- `assets/room/`, `assets/portraits/`, `assets/ui/`, `assets/props/`, `assets/wirephoto/`, `assets/audio/`: media lives outside JavaScript.
+- `tests/`: no-dependency regression suites; `scripts/check-assets.cjs`: media file audit.
+
+From the repo root: `npm test` and `npm run assets:check`. No `npm install` or bundler is required. Use a recent browser to open `index.html` or serve the same static folder. **The old embedded `portraits.js` sprite script is removed**: 30 compressed WebPs load individually only on first entering Ledger.
 
 **Source precedence:** direct author decisions > Case Bible V5 > Character V4 > Gameplay V8 > Puzzle Design > Relationship Bible V3 > Case 01 Puzzle V4.3 > prototype-specific production details.
 
@@ -79,4 +86,4 @@ Paper and prop drag updates now use a single GPU-friendly `translate3d(x,y,0) ro
 
 ## Point-and-click room hub (October 31, 2026)
 
-The game's start screen uses the **author-supplied interrogation-room artwork**, locally optimized to `room-main.webp` (1672×941, no external image host). Small, warm glowing hotspot markers use percentage positions tied to the pictured physical machines and props: **IBM Archive** at the front-left monitor, **Wirephoto 000** at its adjacent printer, **Đối chất** in the central testimony chamber, **Bàn giấy** over the right-hand desk surface, **Bản tin** over the right-hand newspaper stack, and **Grand Ledger** over the right-hand standing files. Click or keyboard-focus a dot to open an existing playable station; return to the same room with the floating **QUAY LẠI PHÒNG** control or Escape. The old web tab strip is visually suppressed, but existing station controls, paper saves, evidence rules, desk layering, Wirephoto and archive search remain intact. Hotspot positions remain anchored while the image scales, with no fake hotspot directory or separate asset generation.
+The game's start screen uses the **author-supplied interrogation-room artwork**, locally optimized to `assets/room/main.webp` (1672×941, no external image host). Small, warm glowing hotspot markers use percentage positions tied to the pictured physical machines and props: **IBM Archive** at the front-left monitor, **Wirephoto 000** at its adjacent printer, **Đối chất** in the central testimony chamber, **Bàn giấy** over the right-hand desk surface, **Bản tin** over the right-hand newspaper stack, and **Grand Ledger** over the right-hand standing files. Click or keyboard-focus a dot to open an existing playable station; return to the same room with the floating **QUAY LẠI PHÒNG** control or Escape. The old web tab strip is visually suppressed, but existing station controls, paper saves, evidence rules, desk layering, Wirephoto and archive search remain intact. Hotspot positions remain anchored while the image scales, with no fake hotspot directory or separate asset generation.
