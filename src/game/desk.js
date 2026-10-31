@@ -8,7 +8,7 @@ const W=1280,H=800;
 const intakeTray={x:1010,y:55,w:245,h:205};
 // Same 2D table coordinates as the visible bottom-right photo-bin hotspot.
 const wasteBin={x:1118,y:628,w:162,h:172};
-const bounds={paper:[225,300],folder:[308,386],clip:[38,96],nameplate:[192,71]};
+const bounds={paper:[225,300],folder:[308,386],clip:[19,48],nameplate:[192,71]};
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const elt=(tag,cl,txt)=>{const n=document.createElement(tag);if(cl)n.className=cl;if(txt!==undefined)n.textContent=txt;return n;};
 const btn=(label,fn,cl)=>{const b=elt('button',cl,label);b.type='button';b.addEventListener('click',fn);return b;};
@@ -233,7 +233,7 @@ function placeStyle(el,item,w,h){
      if(item.kind==='paper'&&!opts.attached){if(!tryDropTrash(item,space(e,dragRect)))tryDropPaper(item);}
      if(item.kind==='folder'){
       if(tryDropFolderTrash(item,space(e,dragRect))){persist();render();return;}
-      if(tryDropSubmissionTray(item))return;
+      if(tryDropSubmissionTray(item,space(e,dragRect)))return;
      }
      persist();render();
     }else{
@@ -307,9 +307,10 @@ function fasten(item,folder){
   folder.nameId=item.nameId;scene.items=scene.items.filter(x=>x.uid!==item.uid);scene.selected=folder.uid;scene.active=folder.uid;
   msg('');persist();
  }
- function overlapsTray(item){return item.kind==='folder'&&intersection(itemRect(item),intakeTray)>=22000;}
-function tryDropSubmissionTray(folder){
- if(!overlapsTray(folder))return false;
+ function inTray(point){return !!point&&point.x>=intakeTray.x&&point.y>=intakeTray.y&&point.x<=intakeTray.x+intakeTray.w&&point.y<=intakeTray.y+intakeTray.h;}
+ function overlapsTray(item){return item.kind==='folder'&&intersection(itemRect(item),intakeTray)>=4500;}
+function tryDropSubmissionTray(folder,pointer){
+ if(!inTray(pointer)&&!overlapsTray(folder))return false;
  scene.active=folder.uid;scene.selected=folder.uid;
  if(!folder.stack.some(t=>t.kind==='paper')){msg('Thiếu giấy');return false;}
  if(!folder.clipped){msg('Thiếu kẹp');return false;}
@@ -431,8 +432,7 @@ function tryDropTrash(item,pointer){
  function render(){prepareTabletop();ensure();resize();world.replaceChildren();
   for(const obj of [...scene.items].sort((a,b)=>a.z-b.z)){const e=renderItem(obj);if(e)world.append(e);}
   showInspector();renderTrash();
-  const f=activeFolder();readyBtn.hidden=!!f?.trashed||!(f?.clipped&&f.nameId&&f.stack.some(t=>t.kind==='paper'));
-  if(!readyBtn.hidden)readyBtn.onclick=()=>submitFolder(f);
+  readyBtn.hidden=true; // Submission is an in-world action: physically drop a complete folder in the intake tray.
   const caption=document.getElementById('desk-tray-status');
   if(caption)caption.textContent='';
  }
