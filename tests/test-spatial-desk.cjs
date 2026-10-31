@@ -64,7 +64,7 @@ assert.equal(a.nodes['desk-ready-button'].hidden,false,'admission arrow appears 
 a.nodes['desk-ready-button'].click();assert(a.scene().pending===f[0].uid);
 assert(a.nodes['desk-admission-preview'].children.some(x=>x.textContent?.includes('Rojas')),'submission bound to nameplate');
 assert.equal(a.nodes['submit-dossier'].disabled,false);
-a.nodes['room'].value='VII';a.nodes['submit-dossier'].click();assert(a.nodes['feedback'].children.some(x=>x.textContent?.includes('OUTSIDE')),'room check not bypassed');
+a.nodes['admission-room'].value='VII';a.nodes['submit-dossier'].click();assert(a.nodes['feedback'].children.some(x=>x.textContent?.includes('KHÔNG TIẾP NHẬN')),'room check not bypassed');
 // Save and restore paper poses + props + sealed folder.
 a=start();a.nav('desk');assert.equal(a.scene().items.filter(x=>x.kind==='folder').length,2);
 assert.equal(a.scene().items.find(x=>x.uid===f[0].uid).nameId,'27');
