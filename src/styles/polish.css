@@ -212,3 +212,20 @@ body.ibm-fullscreen-active #archive{position:fixed!important;inset:0!important;w
 body.ibm-fullscreen-active #archive>.terminal{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;overflow:hidden!important}
 body>#room-return:not([hidden]){display:flex!important;position:fixed!important;z-index:2147483647!important;left:12px!important;top:12px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
 body>#room-return[hidden]{display:none!important}
+
+/* The supplied paperclip is half-sized, loose and attached: same footprint. */
+#desk .desk-folder-fastener{width:19px!important;height:48px!important;left:20px!important;top:10px!important;padding:0!important;filter:none!important;box-shadow:none!important}
+#desk .desk-folder-fastener .desk-custom-prop,#desk .desk-clip .desk-custom-prop{width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important;box-shadow:none!important}
+#desk #desk-ready-button,#desk #desk-ready-button:not([hidden]){display:none!important}
+/* Minimal cold white hotspots: no green/gold ring at rest or on hover. */
+#room .room-hotspot{outline:none!important;border:0!important;box-shadow:none!important;background:transparent!important}
+#room .room-halo{display:none!important}
+#room .room-dot{border:0!important;width:9px!important;height:9px!important;background:#f7faff!important;box-shadow:0 0 5px #fff,0 0 14px #e1edff7a!important;transform:none!important}
+#room .room-hotspot:hover .room-dot,#room .room-hotspot:focus-visible .room-dot{transform:none!important;box-shadow:0 0 9px #fff,0 0 19px #d3e5ffb0!important}
+#room .room-hotspot:focus-visible{outline:0!important;box-shadow:none!important}
+body>#room-return,body>#room-return:not([hidden]),body>#room-return:hover,body>#room-return:focus,body>#room-return:focus-visible{
+ border:0!important;outline:0!important;outline-offset:0!important;border-radius:0!important;
+ box-shadow:none!important;background:transparent!important;color:#f1f5f9!important;
+ width:30px!important;height:30px!important;padding:0!important;font-size:22px!important;
+}
+body>#room-return:not([hidden]){display:flex!important}
