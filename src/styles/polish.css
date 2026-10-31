@@ -32,7 +32,7 @@ h1,h2,h3,strong{font-family:"Courier New",Consolas,monospace!important;font-weig
 #desk-inspector small{font-size:10px!important}
 #desk-inspector button{font-size:11px!important;padding:6px 10px!important}
 #desk #desk-ready-button:not([hidden]){position:fixed;z-index:4700000;right:18px;top:17px;font-size:11px!important;border-radius:999px!important;background:#1c242dd9!important}
-#desk #desk-bin-hotspot{position:absolute!important;right:1.2%!important;bottom:1.6%!important;left:auto!important;top:auto!important;z-index:3500004!important;width:11.3%!important;height:18.5%!important;padding:0!important;border:1px solid transparent!important;border-radius:50%!important;background:transparent!important;color:transparent!important;cursor:pointer;box-shadow:none!important}
+#desk #desk-bin-hotspot{position:absolute!important;right:0!important;bottom:0!important;left:auto!important;top:auto!important;z-index:3500004!important;width:12.65625%!important;height:21.5%!important;padding:0!important;border:1px solid transparent!important;border-radius:50%!important;background:transparent!important;color:transparent!important;cursor:pointer;box-shadow:none!important}
 #desk #desk-bin-hotspot:is(:hover,:focus-visible){border-color:#e9f3ffa3!important;box-shadow:0 0 25px #cbebffbd,inset 0 0 24px #d3eaff90!important;background:#c9e6ff18!important}
 #desk #desk-bin-hotspot::after{content:"THÙNG RÁC";position:absolute;left:50%;top:-22px;transform:translateX(-50%);color:#f1f6fb;background:#151b21e0;border:1px solid #c9d4df78;border-radius:999px;padding:4px 8px;white-space:nowrap;font-size:10px;opacity:0;pointer-events:none}
 #desk #desk-bin-hotspot:is(:hover,:focus-visible)::after{opacity:1}
