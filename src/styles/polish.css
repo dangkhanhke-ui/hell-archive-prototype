@@ -267,3 +267,42 @@ body>#room-return:not([hidden]){display:flex!important}
  #archive .terminal-content{font-size:clamp(7px,1.2vw,11px)!important}
  #archive .terminal-content button,#archive .terminal-content input,#archive .terminal-content select{font-size:clamp(7px,1.12vw,11px)!important}
 }
+
+/* Full-size opening newspapers retain their 1960s mastheads and column layout. */
+.paper-zoom-sheet.paper-zoom-newspaper{
+ background:#f0eadc!important;color:#1b1916!important;
+ border:0!important;border-radius:0!important;
+ padding:clamp(30px,4vw,58px)!important;
+}
+.paper-zoom-newspaper .paper-news-masthead{
+ text-align:center;font:700 clamp(35px,5vw,66px)/.95 "Times New Roman",Times,serif!important;
+ color:#1b1916!important;letter-spacing:-.055em;
+ border-top:3px solid #28241f;border-bottom:4px double #29251f;
+ padding:5px 0 13px;margin:0 0 9px;
+}
+.paper-zoom-newspaper .paper-news-edition{
+ font:400 13px/1.25 "Times New Roman",Times,serif!important;
+ text-align:center;border-bottom:1px solid #796f61;
+ padding:0 0 10px;color:#36312b!important;
+}
+.paper-zoom-newspaper .paper-zoom-title{
+ font:700 clamp(32px,3.8vw,51px)/1.02 "Times New Roman",Times,serif!important;
+ letter-spacing:-.025em;margin:17px 0 22px!important;
+}
+.paper-zoom-newspaper .paper-news-columns{
+ column-count:2;column-gap:25px;column-rule:1px solid #b6aa98;
+}
+.paper-zoom-newspaper .paper-news-columns p{
+ font:400 17px/1.52 "Times New Roman",Times,serif!important;
+ text-align:justify;margin:0 0 18px!important;hyphens:auto;
+ break-inside:avoid;
+}
+.paper-zoom-newspaper .paper-news-footer{
+ clear:both;border-top:1px solid #988c7d;margin-top:24px;padding-top:9px;
+ font:400 11px "Times New Roman",Times,serif!important;color:#51473c;
+}
+@media(max-width:650px){
+ .paper-zoom-newspaper .paper-news-columns{column-count:1}
+ .paper-zoom-newspaper .paper-news-masthead{font-size:34px!important}
+ .paper-zoom-newspaper .paper-news-columns p{font-size:15px!important}
+}
