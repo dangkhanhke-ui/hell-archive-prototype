@@ -146,6 +146,7 @@ function make(api){
    if(ev.target.closest?.('button,select'))return;
    ev.preventDefault();ev.stopPropagation();
    scene.selected=item.uid; if(item.kind==='folder')scene.active=item.uid; if(item.kind==='paper')scene.focusedPaper=item.uid;
+   if(opts.attached){const containing=folderById(opts.attached);if(containing)raise(containing);}
    raise(item);el.style.zIndex=String(item.z);
    const origin=space(ev),attachedFolder=opts.attached&&folderById(opts.attached);
    const base=attachedFolder?{x:attachedFolder.x+26,y:attachedFolder.y+65}:getPose(item),startX=ev.clientX,startY=ev.clientY;
@@ -154,6 +155,7 @@ function make(api){
    const move=e=>{
     const coord=space(e),dx=coord.x-origin.x,dy=coord.y-origin.y;
     if(!moved&&Math.hypot(e.clientX-startX,e.clientY-startY)<5)return;
+    if(attachedFolder?.clipped)return; // a sealed folder cannot lose sheets on drag
     moved=true;el.classList.add('desk-grabbing');
     const size=bounds[item.kind]||bounds.paper;
     const x=clamp(base.x+dx,-size[0]*.55,W-size[0]*.45);
@@ -240,7 +242,7 @@ function make(api){
   let visualIndex=0;
   for(const tok of item.stack){
    if(tok.kind==='divider'){
-    const tab=elt('div','desk-file-divider','NGĂN');tab.style.left=18+(visualIndex%5)*12+'px';tab.style.top=33+(visualIndex%5)*5+'px';tab.style.zIndex=String(80+visualIndex*2);tab.addEventListener('click',ev=>{ev.stopPropagation();scene.selected=tok.uid;scene.active=item.uid;scene.virtualDivider={uid:tok.uid,kind:'divider',folderId:item.uid};showDividerInspector(item,tok);});el.append(tab);visualIndex++;continue;
+    const tab=elt('div','desk-file-divider','NGĂN');tab.style.left=18+(visualIndex%5)*12+'px';tab.style.top=33+(visualIndex%5)*5+'px';tab.style.zIndex=String(80+visualIndex*2);tab.addEventListener('pointerdown',ev=>ev.stopPropagation());tab.addEventListener('click',ev=>{ev.stopPropagation();scene.selected=tok.uid;scene.active=item.uid;scene.virtualDivider={uid:tok.uid,kind:'divider',folderId:item.uid};showDividerInspector(item,tok);});el.append(tab);visualIndex++;continue;
    }
    const p=state.papers.find(x=>x.uid===tok.uid),obj=itemById(tok.uid);if(!p||!obj)continue;
    const paperEl=elt('div','desk-object desk-page desk-contained');
@@ -267,7 +269,6 @@ function make(api){
    placeStyle(element,item,...bounds.paper);element.append(sheetText(paper));bindPointer(element,item);return element;
   }
   const element=elt('div','desk-object desk-prop desk-'+item.kind+(scene.selected===item.uid?' desk-active':''));
-  element.dataset.uid=item.uid;
   placeStyle(element,item,...(bounds[item.kind]||bounds.clip));element.innerHTML=icons[item.kind]||'';
   if(item.kind==='nameplate'&&item.nameId){element.append(elt('span','desk-prop-label','#'+item.nameId));}
   bindPointer(element,item);return element;
