@@ -103,10 +103,10 @@ function make(api){
   persist();
  }
  ensure();
- function resize(){const r=rootEl.getBoundingClientRect();if(!r.width)return;world.style.transform='scale('+(r.width/W)+')';}
+ function resize(){const r=rootEl.getBoundingClientRect();if(!r.width||!r.height)return;world.style.transform='scale('+(r.width/W)+','+(r.height/H)+')';}
  if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(rootEl);
  window.addEventListener('resize',resize);
- function space(ev,rect){const r=rect||rootEl.getBoundingClientRect();return{x:(ev.clientX-r.left)*W/(r.width||W),y:(ev.clientY-r.top)*W/(r.width||W)};}
+ function space(ev,rect){const r=rect||rootEl.getBoundingClientRect();return{x:(ev.clientX-r.left)*W/(r.width||W),y:(ev.clientY-r.top)*H/(r.height||H)};}
  // z-order changes are saved on pointerup, avoiding blocking localStorage writes on pointerdown.
  function raise(item){item.z=++scene.z;}
  function getPose(item){return {x:item.x,y:item.y};}
