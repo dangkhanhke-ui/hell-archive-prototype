@@ -70,3 +70,8 @@ Select one of 30 identities on a movable nameplate and place it on a folder. A c
 ## Intake tray and paper/clip placement fix
 
 A folder is always rendered under any loose paper, and clips/nameplates above folders even after clicking, while all props keep free X/Y placement. Dropping a loose sheet with its center inside a folder adds it to that folder's stack (without auto-placing partially overlapping free sheets). Dropping a clip overlapping a nonempty folder physically fastens it; if the folder is empty the desk explains why. The upper-right **KHAY TIẾP NHẬN** accepts a folder dragged onto it once it contains evidence, a clip and an assigned name. It opens Admission for that specific dossier. The older arrow/button remains an alternative.
+
+
+## Smooth physical dragging
+
+Paper and prop drag updates now use a single GPU-friendly `translate3d(x,y,0) rotate(...)` transform instead of mutating CSS `left/top` every pointer event. The tabletop bounds rectangle is read once at pointerdown, rather than measured on every move. Visual shadows are lightweight while dragging, and the localStorage write for raising an object is deferred from pointerdown to release. The free-placement coordinates, z-order, folder hierarchy, case evidence and undoable paper bin are unchanged. This addresses avoidable browser layout/repaint work; browser-specific responsiveness still benefits from real-device testing.
