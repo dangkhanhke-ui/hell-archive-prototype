@@ -75,3 +75,8 @@ A folder is always rendered under any loose paper, and clips/nameplates above fo
 ## Smooth physical dragging
 
 Paper and prop drag updates now use a single GPU-friendly `translate3d(x,y,0) rotate(...)` transform instead of mutating CSS `left/top` every pointer event. The tabletop bounds rectangle is read once at pointerdown, rather than measured on every move. Visual shadows are lightweight while dragging, and the localStorage write for raising an object is deferred from pointerdown to release. The free-placement coordinates, z-order, folder hierarchy, case evidence and undoable paper bin are unchanged. This addresses avoidable browser layout/repaint work; browser-specific responsiveness still benefits from real-device testing.
+
+
+## Point-and-click room hub (October 31, 2026)
+
+The game's start screen uses the **author-supplied interrogation-room artwork**, locally optimized to `room-main.webp` (1672×941, no external image host). Small, warm glowing hotspot markers use percentage positions tied to the pictured physical machines and props: **IBM Archive** at the front-left monitor, **Wirephoto 000** at its adjacent printer, **Đối chất** in the central testimony chamber, **Bàn giấy** over the right-hand desk surface, **Bản tin** over the right-hand newspaper stack, and **Grand Ledger** over the right-hand standing files. Click or keyboard-focus a dot to open an existing playable station; return to the same room with the floating **QUAY LẠI PHÒNG** control or Escape. The old web tab strip is visually suppressed, but existing station controls, paper saves, evidence rules, desk layering, Wirephoto and archive search remain intact. Hotspot positions remain anchored while the image scales, with no fake hotspot directory or separate asset generation.
