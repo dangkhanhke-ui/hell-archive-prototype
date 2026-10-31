@@ -239,3 +239,29 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert.equal(current().stack.filter(x=>x.kind==='paper').length,1,'recovering dossier preserves paper');
  console.log('PASS real clip undo, filed-paper trash and recovery, whole sealed folder trash/recovery.');
 }
+
+// Loose clips are disposable into the actual photo bin, reversible, and do
+// not reappear until recovered. 38x96 is the same footprint as attached.
+{
+ const seed={serial:2,readIds:['A01','A02'],history:[],pins:[],
+  papers:[{uid:'paper-1',id:'A01',location:null},{uid:'paper-2',id:'A02',location:null}],
+  transcripts:[],admitted:[]};
+ const game=start(seed);game.nav('desk');game.tools[1].click();
+ const clip=game.scene().items.find(x=>x.kind==='clip');assert(clip);
+ const dom=game.objects().find(x=>x.dataset.uid===clip.uid);assert(dom);
+ assert.equal(dom.style.width,'38px','clip should be realistically narrow');
+ assert.equal(dom.style.height,'96px','clip must share attached height');
+ const dx=1190-clip.x,dy=700-clip.y;
+ dom.pointer('pointerdown',{x:200,y:200});
+ dom.pointer('pointermove',{x:200+dx,y:200+dy});
+ dom.pointer('pointerup',{x:200+dx,y:200+dy});
+ assert(game.scene().items.find(x=>x.uid===clip.uid).trashed,'loose clip must be discarded');
+ assert(!game.objects().find(x=>x.dataset.uid===clip.uid),'discarded clip hidden');
+ game.nodes['desk-bin-button'].click();
+ const row=game.nodes['desk-trash-list'].children.find(x=>x.children.some(y=>y.textContent==='Kẹp'));
+ assert(row,'clip must be listed in the bin');
+ row.children.find(x=>x.textContent==='LẤY RA').click();
+ assert(!game.scene().items.find(x=>x.uid===clip.uid).trashed,'clip can be recovered');
+ assert(game.objects().find(x=>x.dataset.uid===clip.uid),'recovered clip visible');
+ console.log('PASS clip size, disposal, recovery.');
+}
