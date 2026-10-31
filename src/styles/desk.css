@@ -74,3 +74,5 @@
 #desk-tray-status{position:absolute;right:2.2%;top:30%;width:18.8%;color:#e8d6af;text-align:center;pointer-events:none;z-index:3;font:700 clamp(8px,.85vw,12px)/1.3 Georgia,serif;text-shadow:0 1px 2px #000e}
 #desk-submission-tray{transition:filter .13s ease}
 #desk-stage[data-tray-over="true"] #desk-submission-tray{filter:drop-shadow(0 0 18px #f3d18b) brightness(1.35)}
+
+.desk-custom-prop,.desk-folder>.desk-custom-prop,.desk-prop>.desk-custom-prop,.desk-folder-fastener>.desk-custom-prop{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
