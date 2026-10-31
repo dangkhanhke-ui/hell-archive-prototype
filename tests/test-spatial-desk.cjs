@@ -22,7 +22,8 @@ const nav=Object.assign(new Dom('button'),{dataset:{go:'archive'}});
 const doc={getElementById:id=>nodes[id]||(nodes[id]=new Dom('div',id)),createElement:tag=>new Dom(tag),querySelectorAll:q=>q==='.view'?views:q==='[data-tab]'?tabs:q==='[data-go]'?[nav]:q==='[data-browse]'?browse:[]};
 nodes['desk-toolbox'].querySelectorAll=q=>q==='[data-new-prop]'?tools:[];
 const context={window:{addEventListener(){}},document:doc,localStorage:store,confirm:()=>true,location:{reload(){}},console};vm.createContext(context);
-for(const file of ['data.js','rules.js','portraits.js','desk-scene.js','app.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,file),'utf8'),context,{filename:file});
+for(const file of ['src/core/manifest.js','src/core/assets.js','src/core/save.js','src/core/audio.js','src/core/data.js','src/core/rules.js','src/game/room.js','src/game/desk.js','src/game/app.js'])
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),context,{filename:file});
 const scene=()=>JSON.parse(store.values['atwg-case01-v43']).scene;
 const papers=()=>JSON.parse(store.values['atwg-case01-v43']).papers;
 return{nodes,tabs,tools,context,scene,papers,nav(tab){tabs.find(x=>x.dataset.tab===tab).click()},button(label){return nodes['desk-inspector'].children.find(x=>x.textContent===label)},objects:()=>nodes['desk-world'].children};
