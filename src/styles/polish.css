@@ -144,3 +144,11 @@ button:focus,select:focus,input:focus{border-color:#dce5efb3!important}
 #desk .desk-prop.desk-clip{filter:none!important}
 #desk .desk-folder-name{font-family:"Courier New",monospace!important;font-size:11px!important;border-radius:2px!important}
 @media(max-width:650px){.paper-zoom-sheet{width:min(94vw,640px);height:86svh;padding:30px 22px!important}.paper-zoom-x{right:-8px;top:-20px}#archive .ibm-photo-full{object-fit:cover!important}}
+
+/* Attached props keep the actual supplied image and the same pixel footprint. */
+#desk .desk-folder-name{position:absolute!important;left:45px!important;bottom:36px!important;top:auto!important;width:192px!important;height:71px!important;padding:0!important;display:flex!important;align-items:center;justify-content:center;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:none}
+#desk .desk-folder-name>.desk-custom-prop{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;filter:none!important;box-shadow:none!important}
+#desk .desk-folder-name-text{position:relative;z-index:1;width:76%;margin:0 auto;color:#22201b!important;font:400 10px/1.2 "Courier New",monospace!important;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#desk .desk-folder-fastener .desk-custom-prop{filter:none!important;box-shadow:none!important}
+#desk .desk-prop.desk-clip .desk-custom-prop{filter:none!important;box-shadow:none!important}
+#desk .desk-page *,#desk .desk-paper *,#paper-viewer-layer .paper-zoom-sheet *:not(.paper-zoom-x){font-family:"Times New Roman",Times,serif!important}
