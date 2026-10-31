@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
 class Dom {
- constructor(tag='div',id='') {this.tag=tag;this.id=id;this.children=[];this.events={};this.dataset={};this.style={};this.hidden=false;this.textContent='';this.className='';this.innerHTML='';this._value='';this.classList={add(){},remove(){},toggle(){}};}
+ constructor(tag='div',id='') {this.tag=tag;this.id=id;this.children=[];this.events={};this.dataset={};this.style={setProperty(k,v){this[k]=v}};this.hidden=false;this.textContent='';this.className='';this.innerHTML='';this._value='';this.classList={add(){},remove(){},toggle(){}};}
  append(...xs){this.children.push(...xs)}replaceChildren(...xs){this.children=xs}addEventListener(n,f){(this.events[n]||=[]).push(f)}removeEventListener(n,f){this.events[n]=(this.events[n]||[]).filter(x=>x!==f)}setAttribute(){}focus(){}showModal(){}setPointerCapture(){}remove(){this.removed=true;}
  get value(){return this._value||this.children.find(x=>x.tag==='option')?.value||''}set value(v){this._value=v}
  getBoundingClientRect(){return{left:0,top:0,width:1280,height:800}}
