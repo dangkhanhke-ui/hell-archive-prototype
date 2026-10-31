@@ -1,0 +1,10 @@
+{
+  "name": "all-thirty-were-guilty-case01",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Static point-and-click investigation prototype, no build or runtime dependencies",
+  "scripts": {
+    "test": "node tests/test-rules.cjs && node tests/test-spatial-desk.cjs && node tests/test-room.cjs && node scripts/check-assets.cjs",
+    "assets:check": "node scripts/check-assets.cjs"
+  }
+}
