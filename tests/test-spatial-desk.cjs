@@ -306,7 +306,7 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  const topPapers=scene.items.filter(x=>["paper-3","paper-4"].includes(x.uid));
  assert(Math.abs(topPapers[0].x-topPapers[1].x)>300,"opening papers must be side by side, not piled atop each other");
  const count=saved.length;
- a.nav('room');a.nav('desk');
+ a.nav('brief');a.nav('desk');
  assert.equal(a.papers().length,count,"visiting Desk again must not duplicate newspapers");
  const second=start();second.nav('desk');
  assert.equal(second.papers().length,count,"reloading saved game must not duplicate newspapers");
