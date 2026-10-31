@@ -111,12 +111,26 @@ function metadata(item,box){
  box.append(m);
 }
 function paragraphs(item,box){(item.body||[]).forEach(x=>box.append(el("p",null,x)));}
-function navigate(tab){state.tab=tab;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==tab));document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
+function navigate(tab){
+ state.tab=tab;
+ document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==tab));
+ document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false"));
+ if(document.body?.classList)document.body.classList.toggle("room-hub-active",tab==="room");
+ const back=$("room-return");if(back)back.hidden=tab==="room";
  if(tab==="archive")renderArchive();if(tab==="desk")renderDesk();if(tab==="souls")renderSouls();if(tab==="wire")renderWire();if(tab==="admit")renderAdmit();
  updatePaperCount();
 }
 document.querySelectorAll("[data-tab]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.tab)));
 document.querySelectorAll("[data-go]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.go)));
+// Hotspots are pinned to the exact positions of physical objects in the supplied photo.
+document.querySelectorAll("[data-room-target]").forEach(marker=>marker.addEventListener("click",()=>{
+ ibmSound("open");navigate(marker.dataset.roomTarget);
+}));
+$("room-return")?.addEventListener("click",()=>{ibmSound("click");navigate("room");});
+document.addEventListener?.("keydown",ev=>{
+ if(ev.key!=="Escape"||state.tab==="room"||$("paper-dialog")?.open)return;
+ navigate("room");
+});
 function printPaper(id){if(!getItem(id))return;ibmSound("print");state.papers.push(newPaper(id));save();updatePaperCount();$("status").textContent="Đã in một bản: "+getItem(id).title;}
 function renderOpening(){const box=$("opening-papers");box.replaceChildren();
  D.opening.forEach(id=>{const x=getItem(id),article=el("article","paper opening-sheet");article.append(el("small","eyebrow","BẢN BÁO / "+x.date),el("h2",null,x.title));paragraphs(x,article);
@@ -281,5 +295,5 @@ $("submit-dossier").addEventListener("click",()=>{
  feedback.append(el("strong",null,lines[0]),el("p",null,lines[1]));
  if(result==="admitted"&&!state.admitted.includes(pack.subject)){state.admitted.push(pack.subject);save();}
 });
-renderOpening();renderLedger();save();navigate("brief");
+renderOpening();renderLedger();save();navigate("room");
 })();
