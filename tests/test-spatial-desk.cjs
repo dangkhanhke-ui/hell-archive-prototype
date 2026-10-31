@@ -113,7 +113,7 @@ console.log('PASS old-save migration preserves paper ownership, identity and evi
  assert(p.scene().items.find(x=>x.uid===folder.uid).clipped,'tapping clip already on paper should fasten');
  drag(folder.uid,918,103);
  assert.equal(p.scene().pending,null,'tray rejects unnamed folder');
- assert(p.nodes['desk-stage-status'].textContent.includes('bảng tên'),'tray explains what is missing');
+ assert(p.nodes['desk-stage-status'].textContent.includes('Thiếu tên'),'tray explains what is missing');
  drag(folder.uid,420,110);
  p.tools[2].click();
  const plate=p.scene().items.find(x=>x.kind==='nameplate');
