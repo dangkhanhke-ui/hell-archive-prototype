@@ -221,7 +221,24 @@ $("soul-ask").addEventListener("click",()=>{
  if(!t){t={id:transcriptId,title:"Đối chất: "+name+" / "+x.topic,date:"SAU NĂM 1965",origin:"Phòng đối chất địa ngục · #"+who,scope:"D",publicId:"POSTHUMOUS / "+who,body:["LỜI KHAI SAU KHI CHẾT",x.quote,"Chủ đề được đưa xem: "+getItem(id).title,"Bản ghi này chỉ chứng minh lời nói tại phòng đối chất, không phải lời khai lịch sử."]};state.transcripts.push(t);save();}
  out.append(button("IN LỜI KHAI SAU KHI CHẾT",()=>{printPaper(t.id);out.append(el("small",null,"Đã in transcript."));}));
 });
-function openPaper(id){const item=getItem(id);if(!item)return;const body=$("dialog-body");body.replaceChildren();$("dialog-title").textContent=item.title;metadata(item,body);if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);$("paper-dialog").showModal();}
+// Each document opens as its own paper sheet. Keep other sheets open for comparison.
+let paperWindowZ=0;
+function openPaper(id){
+ const item=getItem(id);if(!item)return;
+ const layer=$("paper-viewer-layer"),screen=el("div","paper-viewer-screen"),sheet=el("article","paper-zoom-sheet");
+ sheet.tabIndex=0;sheet.setAttribute("role","document");sheet.setAttribute("aria-label",item.title);
+ const top=el("div","paper-zoom-top"),close=el("button","paper-zoom-x","×");
+ close.type="button";close.setAttribute("aria-label","Đóng tờ giấy");close.addEventListener("click",event=>{event.stopPropagation();screen.remove();});
+ const heading=el("h2","paper-zoom-title",item.title);
+ top.append(close);sheet.append(top,heading);
+ const body=el("div","paper-zoom-content");metadata(item,body);
+ if(item.kind)body.append(vectorPhoto(item));else paragraphs(item,body);
+ sheet.append(body);screen.append(sheet);layer.append(screen);
+ screen.style.zIndex=String(++paperWindowZ+10000);
+ screen.addEventListener("pointerdown",event=>{if(event.target===screen)screen.remove();});
+ sheet.addEventListener("pointerdown",()=>{screen.style.zIndex=String(++paperWindowZ+10000);});
+ sheet.focus({preventScroll:true});
+}
 $("close-dialog").addEventListener("click",()=>$("paper-dialog").close());
 // The physical tabletop is an independent 2D world with its own saved spatial state.
 const desk=window.ATWG_DESK.create({state,save,getItem,openPaper,navigate,data:D});
